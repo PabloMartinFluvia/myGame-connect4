@@ -1,0 +1,36 @@
+@startuml
+
+state " " as e0
+state " " as e1
+state " " as e2
+state " " as e3
+state c1 <<choice>>
+state " " as e4
+
+
+[*] --> e0
+e0 --> e1 : playerA place token in valid square
+e1 --> e2 : [playerA.tokensInBoard = 4]
+e1 --> e0 : playerB place token in valid square
+e2 --> [*] : [playerA.isWinner]
+e2 --> e3
+e3 --> c1 : playerB place token in valid square
+c1 --> [*] : [playerB.isWinner | board.isFull]
+c1 --> e4
+e4--> e2 : playerA place token in valid square
+
+note as ruleNote
+valid square ::=
+square.isEmpty
+AND
+(
+    square.row = 1
+    OR
+    square.justBelow.isFull
+)
+end note
+
+
+
+
+@enduml

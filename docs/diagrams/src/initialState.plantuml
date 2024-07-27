@@ -1,0 +1,88 @@
+@startuml
+
+object ":Connect4" as connect4
+object ":Board" as board
+object ":Turn" as turn
+
+'players'
+object ":Player" as playerRed{
+Color = red
+}
+object ": Player" as playerYellow{
+Color = yellow
+}
+
+'squares'
+object ":Square" as square11{
+row = 1
+column = 1
+}
+object ":Square" as square17{
+row = 1
+column = 7
+}
+object ":Square" as square61{
+row = 6
+column = 1
+}
+object ":Square" as square67{
+row = 6
+column = 7
+}
+
+'tokens'
+object ":Token" as tokenRed1{
+Color = red
+}
+object ":Token" as tokenRed2{
+Color = red
+}
+object ":Token" as tokenYellow1{
+Color = yellow
+}
+object ":Token" as tokenYellow2{
+Color = yellow
+}
+
+'connect4 dependencies'
+connect4 *-down-> board
+connect4 *-down-> turn
+connect4 *-down-> playerRed
+connect4 *-down-> playerYellow
+
+'turn dependencies'
+turn -right-> playerRed
+
+'board dependencies'
+board *-down-> square11
+board *-down-> square17
+board *-down-> square61
+board *-down-> square67
+
+'player dependencies'
+playerRed -down-> tokenRed1
+playerRed -down-> tokenRed2
+playerYellow -down-> tokenYellow1
+playerYellow -down-> tokenYellow2
+
+note as NEmpty
+All 6x7 board's squares are empty
+end note
+square11..NEmpty
+square17..NEmpty
+square61..NEmpty
+square67..NEmpty
+
+note as NYellow
+Idem all 21 Player's tokens
+end note
+tokenYellow1..NYellow
+tokenYellow2..NYellow
+
+note as NRed
+Idem all 21 Player's tokens
+end note
+tokenRed1..NRed
+tokenRed2..NRed
+
+@enduml

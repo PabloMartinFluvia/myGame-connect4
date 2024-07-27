@@ -1,0 +1,157 @@
+@startuml
+note as Description
+Example: PlayerRed wins in
+horizontal with only 4 placed tokens
+end note
+
+object ":Connect4" as connect4
+object ":Board" as board
+note top
+    squares not drawed
+    are empty
+end note
+
+object ":Turn" as turn{
+Player = null
+}
+
+'players'
+object ":Player" as playerRed{
+Color = red
+}
+object ": Player" as playerYellow{
+Color = yellow
+}
+
+'squares'
+object ":Square" as squareRed13 #red{
+row = 1
+column = 3
+}
+object ":Square" as squareRed14#red{
+row = 1
+column = 4
+}
+object ":Square" as squareRed15 #red{
+row = 1
+column = 5
+}
+object ":Square" as squareRed16 #red{
+row = 1
+column = 6
+}
+
+
+object ":Square" as squareYellow17 #yellow{
+row = 1
+column = 7
+}
+object ":Square" as squareYellow27 #yellow{
+row = 2
+column = 7
+}
+object ":Square" as squareYellow37 #yellow{
+row = 3
+column = 7
+}
+
+'tokens not placed'
+object "notPlaced :Token" as tokenRed1{
+Color = red
+}
+object "notPlaced :Token" as tokenRed2{
+Color = red
+}
+object "notPlaced :Token" as tokenYellow1{
+Color = yellow
+}
+object "notPlaced :Token" as tokenYellow2{
+Color = yellow
+}
+
+'tokens placed'
+object ":Token" as tokenRed13{
+Color = red
+}
+object ":Token" as tokenRed14{
+Color = red
+}
+object ":Token" as tokenRed15{
+Color = red
+}
+object ":Token" as tokenRed16{
+Color = red
+}
+object ":Token" as tokenYellow17{
+Color = yellow
+}
+object ":Token" as tokenYellow27{
+Color = yellow
+}
+object ":Token" as tokenYellow37{
+Color = yellow
+}
+
+'connect4 dependencies'
+connect4 *-down-> board
+connect4 *-down-> turn
+connect4 *-down-> playerRed
+connect4 *-down-> playerYellow
+
+'board dependencies'
+board *-down-> squareYellow37
+board *-down-> squareYellow27
+board *-down-> squareYellow17
+board *-down-> squareRed16
+board *-down-> squareRed15
+board *-down-> squareRed14
+board *---down---> squareRed13
+
+'player dependencies'
+playerRed -down-> tokenRed1
+playerRed -down-> tokenRed2
+playerYellow -down-> tokenYellow1
+playerYellow -down-> tokenYellow2
+
+'square dependencies'
+squareRed13 o-down-> tokenRed13
+squareRed14 o-down-> tokenRed14
+squareRed15 o-down-> tokenRed15
+squareRed16 o-down-> tokenRed16
+
+squareYellow17 o-down-> tokenYellow17
+squareYellow27 o-down-> tokenYellow27
+squareYellow37 o-down-> tokenYellow37
+
+note as NYellow
+Idem all 18 remaining Player's tokens
+end note
+tokenYellow1..NYellow
+tokenYellow2..NYellow
+
+note as NRed
+Idem all 17 remaining Player's tokens
+end note
+tokenRed1..NRed
+tokenRed2..NRed
+
+note as NoteTokenPlaced
+are still associated to
+their respective placed tokens
+end note
+playerRed..NoteTokenPlaced
+playerYellow..NoteTokenPlaced
+
+
+'display squares position'
+squareYellow37 -[hidden]down-> squareYellow27
+squareYellow27 --[hidden]down--> squareYellow17
+squareYellow37 -[hidden]down-> squareRed16
+squareYellow27 -[hidden]down-> squareRed16
+squareYellow17 -[hidden]left-> squareRed16
+squareRed16 -[hidden]left-> squareRed15
+squareRed15 -[hidden]left-> squareRed14
+squareRed14 -[hidden]left->squareRed13
+
+
+@enduml
