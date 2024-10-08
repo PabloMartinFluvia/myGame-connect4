@@ -3,6 +3,7 @@
 ## Index
 * [Intro](#intro)
 * [Tasks - Branches](#tasks---branches)
+    * [Task 0](#task-0-js_v00)
 
 ## Intro
 This project has been used for practice:
@@ -16,5 +17,12 @@ This project has been used for practice:
 
 ## Tasks - Branches
 Task's description contains what's <i>new</i> vs previous task.
+
+### Task 0: js_v0.0
+- Task:
+    - Implement vasic version.
+- Basic version.
+- Process Oriented Programing.
+- Imperative programing.
 
 ![Analysys](../../out/docs/dev-resume/src/analysis/analysis.svg)
