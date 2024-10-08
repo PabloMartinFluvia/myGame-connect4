@@ -1,4 +1,4 @@
-@startuml
+@startuml initialState
 
 object ":Connect4" as connect4
 object ":Board" as board

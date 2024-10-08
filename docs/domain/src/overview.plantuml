@@ -1,4 +1,4 @@
-@startuml
+@startuml overview
 
 class Connect4
 'connect4 main classes:'

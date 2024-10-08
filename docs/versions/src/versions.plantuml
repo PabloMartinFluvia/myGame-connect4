@@ -1,0 +1,13 @@
+@startuml versions
+
+state Basic
+
+[*] --> Basic
+Basic --> [*]
+
+note right of Basic #15D2F3
+  Console interface and use cases:
+  Start, PlaceToken and Resume.
+end note
+
+@enduml

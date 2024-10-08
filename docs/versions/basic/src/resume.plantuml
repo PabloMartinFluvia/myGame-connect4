@@ -1,0 +1,19 @@
+@startuml resume
+state OUT_GAME
+state INITIAL
+state EXIT
+state requested as " "
+state asked as " "
+state isValidAnswer <<choice>>
+state resume as " "
+
+[*] --> OUT_GAME
+OUT_GAME --> requested: Player requests to resume a new game
+requested --> asked: System request resume choice
+asked --> isValidAnswer: Player introduces answer
+isValidAnswer --> resume: [yes]
+resume --> INITIAL: System allows Start
+isValidAnswer --> EXIT: [no]
+INITIAL --> [*]
+EXIT --> [*]
+@enduml

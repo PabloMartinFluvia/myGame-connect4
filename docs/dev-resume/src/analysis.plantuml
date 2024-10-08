@@ -1,0 +1,5 @@
+@startuml analysis
+
+class Connect4 #LightGoldenRodYellow
+
+@enduml

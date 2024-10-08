@@ -1,0 +1,14 @@
+@startuml start_usecase
+state INITIAL
+state IN_GAME
+state start as " "
+state welcomed as " "
+state displayed as " "
+
+[*] --> INITIAL
+INITIAL --> start: Player requests to start a new game
+start --> welcomed: System shows title message
+welcomed --> displayed: System shows empty board
+displayed --> IN_GAME: System allows Place Token
+IN_GAME --> [*]
+@enduml

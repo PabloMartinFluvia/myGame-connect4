@@ -1,4 +1,4 @@
-@startuml
+@startuml rulesState
 
 state " " as e0
 state " " as e1

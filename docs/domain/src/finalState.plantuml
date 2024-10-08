@@ -1,4 +1,4 @@
-@startuml
+@startuml finalState
 note as Description
 Example: PlayerRed wins in
 horizontal with only 4 placed tokens

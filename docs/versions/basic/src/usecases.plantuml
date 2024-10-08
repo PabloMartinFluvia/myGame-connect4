@@ -1,0 +1,10 @@
+@startuml usecases
+left to right direction
+actor Player
+usecase Start
+Player --> Start
+usecase Place as "Place token"
+Player --> Place
+usecase Resume
+Player --> Resume
+@enduml

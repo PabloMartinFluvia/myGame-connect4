@@ -1,35 +1,50 @@
 # Connect4
 Project developed during [master of programming and software design](https://escuela.it/masters/master-programacion-diseno-software).
 
-## index
+## Índex
+* [Versions](#versions)
+   * [Basic](#basic)
+* [Develop resume](#develop-resume)
+* [Domain Model](#domain-model)  
+   * [Vocabulary](#vocabulary) 
+   * [Instructions](#instructions)
+   * [Initial State](#initial-state)
+   * [Final State](#final-state)  
+   
 
-* [domainModel](#domainModel)
-    * [vocabulary](#vocabulary)
-    * [initialState](#initialState)
-    * [finalState](#finalState)
-    * [instructions](#instructions)  
+## Versions
 
-## domainModel
+![Versiones](./out/docs/versions/src/versions/versions.svg)
 
-![connect4](./docs/images/conecta4.jpg)
+### Basic 
+
+[Basic Requisites](./docs/versions/basic/basic%20requisites.md)
+
+## Develop resume
+
+[Develop Resume](./docs/dev-resume/dev%20resume.md)
+
+## Domain Model
+  
+![Mastermind](docs/domain/images/conecta4.jpg)  
 
 [WIKI](https://es.wikipedia.org/wiki/Conecta_4)
 
 [Youtube](https://www.youtube.com/watch?v=JBSbiilzg9U)
-### vocabulary
 
-![Vocabulario](./docs/diagrams/out/overview.svg)
+### Vocabulary
 
-### initialState
+![Vocabulario](./out/docs/domain/src/overview/overview.svg)  
 
-![Estado_inicial](./docs/diagrams/out/initialState.svg)
+### Instructions 
+![Instrucciones](./out/docs/domain/src/rulesState/rulesState.svg)
 
-### finalState
+![Instrucciones](./out/docs/domain/src/rulesActivity/rulesActivity.svg)
 
-![Estado_final](./docs/diagrams/out/finalState.svg)
+### Initial State
 
-### instructions
+![Estado_final](./out/docs/domain/src/initialState/initialState.svg)
 
-![Instrucciones](docs/diagrams/out/rulesState.svg)
-
-![Instrucciones](docs/diagrams/out/rulesActivity.svg)  
+### Final State  
+  
+![Estado_final](./out/docs/domain/src/finalState/finalState.svg)
