@@ -1,5 +1,58 @@
 @startuml analysis
 
-class Connect4 #LightGoldenRodYellow
+class Connect4 {
+
+    + initConnect4()
+    + play()
+}
+Connect4 ..> Game
+
+class Game {
+    + NUM_PLAYERS = 2    
+
+    + initGame()
+    + play()
+}
+Game *--> Turn
+Game *--> Board
+Game *--> "2" Player
+Game ..> Color
+
+class Turn {
+
+    + initTurn(players)
+    + toNext()
+    + getActive() : Player
+}
+Turn --> "2" Player
+
+class Player {
+
+    + initPlayer(board, color)
+    + placeToken()
+}
+Player --> Board
+Player --> Color
+
+class Board {
+    + ROWS = 6
+    + COLUMNS = 7
+    
+    + initBoard()
+    + isColumnFull(column)
+    + isColumnBetweenLimit(column)
+    + placeToken(column, color)
+    + isConnect4(color)
+}
+Board --> "6 x 7" Color
+
+enum Color {
+    + X
+    + O
+    + NONE
+
+    + {static} get(ordinal) : Color
+    + isNone()
+}
 
 @enduml
