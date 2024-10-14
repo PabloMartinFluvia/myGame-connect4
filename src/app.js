@@ -33,8 +33,8 @@ function initGame() {
             consoleMPDS.writeln("--------- CONNECT4 ----------\n");
         },
 
-        isConnect4() {
-            return this.board.isConnect4(this.turn.getColorActual());
+        isWinnerActual() {
+            return this.turn.isWinnerActual();
         },
 
         isBoardFull() {
@@ -42,7 +42,7 @@ function initGame() {
         },
 
         showEnd() {
-            if (this.isConnect4()) {
+            if (this.isWinnerActual()) {
                 this.turn.showWinActual();
             } else {
                 consoleMPDS.writeln("You have tied!!!");
@@ -59,7 +59,7 @@ function initGame() {
             do {
                 that.turn.placeTokenActual();
                 that.board.show();
-                end = that.isConnect4() || that.isBoardFull();
+                end = that.isWinnerActual() || that.isBoardFull();
                 if (!end) {
                     that.turn.change();
                 }
@@ -96,8 +96,8 @@ function initTurn(numPlayers, board) {
             that.getActive().placeToken();
         },
 
-        getColorActual() {
-            return that.getActive().getColor();
+        isWinnerActual() {
+            return that.getActive().isWinner();
         },
 
         showWinActual() {
@@ -135,13 +135,13 @@ function initPlayer(board, color) {
             that.board.placeToken(column, that.color);
         },
 
-        showWin() {
-            consoleMPDS.writeln(`Player ${that.color.toString()} won!!! ;-)`);
+        isWinner() {
+            return that.board.isWinner(that.color);
         },
 
-        getColor() {
-            return that.color;
-        },
+        showWin() {
+            consoleMPDS.writeln(`Player ${that.color.toString()} won!!! ;-)`);
+        }
     }
 }
 
@@ -167,7 +167,7 @@ function initBoard(numPlayers) {
             return tokensInColumn;
         },
 
-        isConnect4InDirection(color, direction) {
+        isWinnerInDirection(color, direction) {
             const lastPlaced = this.getLastCoordinate(color);
             let count = 1;
             for (let forward of [true, false]) {
@@ -240,14 +240,14 @@ function initBoard(numPlayers) {
             coordinates[coordinates.length] = initCoordinate(row, column);
         },
 
-        isConnect4(color) {
+        isWinner(color) {
             assert(color ?? false);
             assert(!color.isNone());
             assert(initClosedInterval(that.playersCoordinates.length - 1, 0).includes(color.ordinal()));
 
             const directions = Direction.values();
             for (const direction of directions) {
-                if (that.isConnect4InDirection(color, direction)) {
+                if (that.isWinnerInDirection(color, direction)) {
                     return true;
                 }
             }

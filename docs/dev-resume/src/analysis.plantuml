@@ -15,14 +15,13 @@ class Game {
 }
 Game *--> Turn
 Game *--> Board
-Game ..> Color
 
 class Turn {
 
     + initTurn(numPlayers, board)    
     + change()      
-    + placeTokenActual()    
-    + getColorActual()
+    + placeTokenActual()        
+    + isWinnerActual()
     + showWinActual()
 }
 Turn *--> "2" Player
@@ -33,8 +32,8 @@ class Player {
 
     + initPlayer(board, color)
     + placeToken()
-    + showWin();
-    + getColor() : Color
+    + isWinner()
+    + showWin()
 }
 Player --> Board
 Player --> Color
@@ -48,7 +47,7 @@ class Board {
     + isColumnFull(column)
     + getColumnsLenght()
     + placeToken(column, color)
-    + isConnect4(color)
+    + isWinner(color)
     + isFull()
     + show()
 }

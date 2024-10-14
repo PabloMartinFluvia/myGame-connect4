@@ -1,10 +1,16 @@
 # Problem solved in this commit
 
 ## Problem
-Game collaborates with Player, wich always is provided by Turn -> unnecesary coupling (demeter law coupling, SC Chain of Message, Do not talk to strangers).
+Game is coupled to Color (board needs actual color for process if last placement has been winner), but don't collaborates with it -> unnecessary coupling -> increases complexity -> look for a simplier solution
+
+## Discarted Solution
+- Modify board's method: 
+    - without color as parameter.
+    - option A: checks all player's colors, and return true if any has won. Discarted because it's not coherent with the logic, only should be checked the color that has been placed in the actual turn.
+    - option B: add an attribute in board, wich stores the last color/coordinate placed (updated at the end of placeToken process). Discarted because this value is redundant (can be obtained throw the app's state) and *looks like* the SC Temporay Field.
 
 ## Solution
-Redefine Turn responsibilities: it's responsible to be a mediator between any client and the actual player, so it will be the only class coupled to the players.
+Modify the collaboration chain to obtain the process. Due the desired process is check if the placed token in the actual turn was a winner placement: Game -> Turn -> Player -> Board
 
 # TODOs in code review
 1. Simplicity:
@@ -44,7 +50,3 @@ Redefine Turn responsibilities: it's responsible to be a mediator between any cl
     - Defensive programing is avoided?
     - In any process: the pre-conditions to execute well the process are checked?
     - In any critical / not trivial process, where the object's state is modified: the process has checked the object's invariant?
-    
-    
-
-
