@@ -16,13 +16,14 @@ class Game {
 Game *--> Turn
 Game *--> Board
 Game ..> Color
-Game ..> Player
 
 class Turn {
 
-    + initTurn(numPlayers, board)
-    + change()
-    + getActive() : Player        
+    + initTurn(numPlayers, board)    
+    + change()      
+    + placeTokenActual()    
+    + getColorActual()
+    + showWinActual()
 }
 Turn *--> "2" Player
 Turn ..> Board

@@ -34,7 +34,7 @@ function initGame() {
         },
 
         isConnect4() {
-            return this.board.isConnect4(this.turn.getActive().getColor());
+            return this.board.isConnect4(this.turn.getColorActual());
         },
 
         isBoardFull() {
@@ -43,7 +43,7 @@ function initGame() {
 
         showEnd() {
             if (this.isConnect4()) {
-                this.turn.getActive().showWin();
+                this.turn.showWinActual();
             } else {
                 consoleMPDS.writeln("You have tied!!!");
             }
@@ -57,7 +57,7 @@ function initGame() {
             that.board.show();
             let end;
             do {
-                that.turn.getActive().placeToken();
+                that.turn.placeTokenActual();
                 that.board.show();
                 end = that.isConnect4() || that.isBoardFull();
                 if (!end) {
@@ -76,7 +76,11 @@ function initTurn(numPlayers, board) {
 
     const that = {
         players: undefined,
-        turnValue: 0
+        turnValue: 0,
+
+        getActive() {
+            return that.players[that.turnValue];
+        }
     }
     that.players = [];
     for (let i = 0; i < numPlayers; i++) {
@@ -84,12 +88,20 @@ function initTurn(numPlayers, board) {
     }
 
     return {
-        getActive() {
-            return that.players[that.turnValue];
-        },
-
         change() {
             that.turnValue = (that.turnValue + 1) % that.players.length;
+        },
+
+        placeTokenActual() {
+            that.getActive().placeToken();
+        },
+
+        getColorActual() {
+            return that.getActive().getColor();
+        },
+
+        showWinActual() {
+            that.getActive().showWin();
         }
     }
 }

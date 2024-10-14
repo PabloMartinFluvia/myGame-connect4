@@ -1,12 +1,10 @@
 # Problem solved in this commit
 
 ## Problem
-In Game the value of numPlayers is obtained throw Color (because this value and Color's values ara highly coupled). This could make understanding difficult to newcomers, because what would be expected is a literal constant in game.
+Game collaborates with Player, wich always is provided by Turn -> unnecesary coupling (demeter law coupling, SC Chain of Message, Do not talk to strangers).
 
 ## Solution
-Update numPlayers in Game to a literal constant, and when it's used assert the precondition (it's value must be coherent with the Color's values).
-
-A change in requisites related to the number of players would be easy (add/remove values in Color and change the literal). Or reasign the responsibility to provide the number of players in Color. Not implemented due YAGNI.
+Redefine Turn responsibilities: it's responsible to be a mediator between any client and the actual player, so it will be the only class coupled to the players.
 
 # TODOs in code review
 1. Simplicity:
