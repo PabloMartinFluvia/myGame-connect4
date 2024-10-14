@@ -17,6 +17,7 @@ Game *--> Turn
 Game *--> Board
 
 class Turn {
+    - turnValue
 
     + initTurn(numPlayers, board)    
     + change()      
@@ -24,20 +25,10 @@ class Turn {
     + isPlayerWinner()
     + showPlayerWin()
 }
-Turn *--> "2" Player
-Turn ..> Board
-Turn ..> Color
+Turn *--> "numPlayers" Color : playersColors
+Turn --> Board
+Turn *--> LimitedIntDialog : columnDialog
 
-class Player {
-
-    + initPlayer(board, color)
-    + placeToken()
-    + isWinner()
-    + showWin()
-}
-Player --> Board
-Player --> Color
-Player *--> LimitedIntDialog
 
 class Board {
     - ROWS = 6
@@ -45,7 +36,7 @@ class Board {
     
     + initBoard(numPlayers)
     + isColumnFull(column)
-    + getColumnsLenght()
+    + getColumnDimension()
     + placeToken(column, color)
     + isWinner(color)
     + isFull()
@@ -104,8 +95,9 @@ class LimitedIntDialog #LightGreen {
     - prefix
     
 
-    + initLimitedIntDialog(requested, prefix, max, min = 1) 
+    + initLimitedIntDialog(requested, max, min = 1, prefix = "") 
     + ask()
+    + setPrefix(prefix)
 }
 LimitedIntDialog *--> ClosedInterval : limits
 

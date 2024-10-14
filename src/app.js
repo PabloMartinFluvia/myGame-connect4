@@ -49,7 +49,6 @@ function initGame() {
             }
         }
     }
-    
 
     return {
         play() {
@@ -71,76 +70,53 @@ function initGame() {
 
 function initTurn(numPlayers, board) {
     assert(typeof numPlayers === "number");
-    assert(numPlayers > 1);
     assert(numPlayers === Color.values().length - 1);
-
-    const that = {
-        players: undefined,
-        turnValue: 0,
-
-        getActive() {
-            return that.players[that.turnValue];
-        }
-    }
-    that.players = [];
     for (let i = 0; i < numPlayers; i++) {
-        that.players[i] = initPlayer(board, Color.get(i));
+        assert(!Color.get(i).isNone());
+    }
+    assert(board ?? false);
+
+    const colors = [];
+    for (let i = 0; i < numPlayers; i++) {
+        colors[i] = Color.get(i);
+    }
+    const that = {
+        playersColors: colors,
+        turnValue: 0,
+        board: board,
+        columnDialog: initLimitedIntDialog("column", board.getColumnDimension()),
+
+        getPlayerColor() {
+            return that.playersColors[that.turnValue];
+        }
     }
 
     return {
         change() {
-            that.turnValue = (that.turnValue + 1) % that.players.length;
+            that.turnValue = (that.turnValue + 1) % that.playersColors.length;
         },
 
         playerPlaceToken() {
-            that.getActive().placeToken();
-        },
-
-        isPlayerWinner() {
-            return that.getActive().isWinner();
-        },
-
-        showPlayerWin() {
-            that.getActive().showWin();
-        }
-    }
-}
-
-function initPlayer(board, color) {
-    assert(board ?? false);
-    assert(color ?? false);
-    assert(!color.isNone());
-
-    const that = {
-        board: board,
-        color: color,
-        limitedIntDialog: undefined
-    }
-    const prefix = `Player ${that.color.toString()} choose`;
-    const requested = `column`;
-    const max = that.board.getColumnsLenght();
-    that.limitedIntDialog = initLimitedIntDialog(requested, prefix, max);
-
-    return {
-        placeToken() {
             let column;
             let error;
             do {
-                column = that.limitedIntDialog.ask() - 1;
+                const prefix = `Player ${that.getPlayerColor().toString()} choose`;
+                that.columnDialog.setPrefix(prefix);                
+                column = that.columnDialog.ask() - 1;
                 error = that.board.isColumnFull(column);
                 if (error) {
                     consoleMPDS.writeln("Wrong column: it's full.")
                 }
             } while (error);
-            that.board.placeToken(column, that.color);
+            that.board.placeToken(column, that.getPlayerColor());
         },
 
-        isWinner() {
-            return that.board.isWinner(that.color);
+        isPlayerWinner() {
+            return that.board.isWinner(that.getPlayerColor());
         },
 
-        showWin() {
-            consoleMPDS.writeln(`Player ${that.color.toString()} won!!! ;-)`);
+        showPlayerWin() {
+            consoleMPDS.writeln(`Player ${that.getPlayerColor().toString()} won!!! ;-)`);
         }
     }
 }
@@ -229,7 +205,7 @@ function initBoard(numPlayers) {
             return that.getTokens(column).length === that.ROWS;
         },
 
-        getColumnsLenght() {
+        getColumnDimension() {
             return that.COLUMNS;
         },
 
@@ -436,7 +412,7 @@ function initYesNoDialog(question) {
     };
 }
 
-function initLimitedIntDialog(requested, prefix, max, min = 1) {
+function initLimitedIntDialog(requested, max, min = 1, prefix = "Introduce") {
     assert(requested ?? false);
     assert(prefix ?? false);
 
@@ -458,6 +434,11 @@ function initLimitedIntDialog(requested, prefix, max, min = 1) {
                 }
             } while (error);
             return answer;
+        },
+
+        setPrefix(prefix) {
+            assert(prefix ?? false);
+            that.prefix = prefix;
         }
     }
 }

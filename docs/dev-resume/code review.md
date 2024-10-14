@@ -1,8 +1,13 @@
 # Problem solved in this commit
 
 ## Problem
+1. Turn is a little bit lazy, only one significant method (alternate between the players), and the other 3 just delegates the request to the active player. -> remove Turn or add responsibility?
+2. Turn is coupled to Board, but it's not a colaborator. Used only to associate each player to it. -> remove coupling or collaborate with it?
+3. Player instances are immutable (always same state) and only Turn is coupled to Player. -> this class is needed?
 
 ## Solution
+- Remove Player. Turn assumes Player responsibilities.
+- Turn alternates between Color (instead of Player).
 
 # TODOs in code review
 1. Simplicity:
