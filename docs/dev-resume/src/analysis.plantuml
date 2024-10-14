@@ -7,7 +7,6 @@ class Connect4 {
 }
 Connect4 ..> Game
 Connect4 *--> YesNoDialog
-Connect4 ..> EnumSetup
 
 class Game {     
 
@@ -16,16 +15,18 @@ class Game {
 }
 Game *--> Turn
 Game *--> Board
-Game *--> "2" Player
 Game ..> Color
+Game ..> Player
 
 class Turn {
 
-    + initTurn(players)
+    + initTurn(numPlayers, board)
     + change()
     + getActive() : Player        
 }
-Turn --> "2" Player
+Turn *--> "2" Player
+Turn ..> Board
+Turn ..> Color
 
 class Player {
 
@@ -117,10 +118,5 @@ class ClosedInterval {
     + toString()
 }
 
-class EnumSetup {
-    setUp()
-}
-EnumSetup ..> Color
-EnumSetup ..> Direction
 
 @enduml

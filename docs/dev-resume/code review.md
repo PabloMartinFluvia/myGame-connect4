@@ -1,3 +1,11 @@
+# Problem solved in this commit
+
+## Problem
+Game has players as attribute, but there's none method wich access to this data (only used to associate turn to players). -> Reduces cohesion and increases complexity.
+
+## Solution
+Responsibility of init players reassigned to Turn.
+
 # TODOs in code review
 1. Simplicity:
     - Anybody will understand the code? Can be less complex?
@@ -12,9 +20,9 @@
     - Indentifiers respect client's vocabulary?    
 5. Modular Design:
     - The types of relations established are coherent with the characteristics of the collaboration?
+    - Any *module* has his existence justified? Always would be a dessign problem if any *module* were removed and its responsibilities reassigned to any existing *module*?
     - For each *module* its responsabilites of know/do are related to the *concept* that it represents? 
     - The assigment of responsabilities between *modules* is balanced?
-    - Any *module* has his existence justified? Always would be a dessign problem if any *module* were removed and its responsibilities reassigned to any existing *module*?
     - Each process it's in the *module* which has the *essential* data for the process?
     - The interface of any *module* is primitive?
     - High Cohesion:
@@ -24,7 +32,7 @@
         - Any change would affect only one *module*?    
     - Low Coupling:
         - The number of dependencies of any *module* is not big? They're easy to understand and remember?
-        - Any *module* has the minimum strong dependencies (changes in the other *module* would affect this *module*)? 
+        - Any *module* is uncoupled to the implementation of its *servers modules*? 
         - In any *module*: the number of dependencies is inversely proportional to the number of potentially unstable dependencies? (the more number of potential unstable dependencies, the less total number of dependencies).
         - There's no relations cycles between *modules*?
         - Any *module* only collaborates with its direct dependencies?

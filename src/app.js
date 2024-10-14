@@ -5,7 +5,7 @@ const consoleMPDS = new Console();
 initConnect4().play();
 
 function initConnect4() {
-    initEnumSetUp().setUp();
+    initEnumConfiguartor().setUp();
 
     const that = {
         continueDialog: initYesNoDialog("Do you want to continue?"),
@@ -23,21 +23,11 @@ function initConnect4() {
 }
 
 function initGame() {
+    const numPlayers = Color.values().length - 1;
+    const board = initBoard(numPlayers);
     const that = {
-        board: undefined,
-        players: undefined,
-        turn: undefined,
-
-        init() {
-            const colors = Color.values();
-            const numPlayers = colors.length - 1;            
-            this.board = initBoard(numPlayers);
-            this.players = [];
-            for (let i = 0; i < numPlayers; i++) {
-                this.players[i] = initPlayer(this.board, colors[i]);
-            }
-            this.turn = initTurn(this.players);
-        },
+        board: board,
+        turn: initTurn(numPlayers, board),
 
         showTitle() {
             consoleMPDS.writeln("--------- CONNECT4 ----------\n");
@@ -59,7 +49,7 @@ function initGame() {
             }
         }
     }
-    that.init();
+    
 
     return {
         play() {
@@ -79,16 +69,17 @@ function initGame() {
     }
 }
 
-function initTurn(players) {
-    assert(players ?? false);
-    assert(players.length > 1);
-    for (const player of players) {
-        assert(player ?? false);
-    }
+function initTurn(numPlayers, board) {
+    assert(typeof numPlayers === "number");
+    assert(numPlayers > 1);
 
     const that = {
-        players: players,
+        players: undefined,
         turnValue: 0
+    }
+    that.players = [];
+    for (let i = 0; i < numPlayers; i++) {
+        that.players[i] = initPlayer(board, Color.get(i));
     }
 
     return {
@@ -163,15 +154,15 @@ function initBoard(numPlayers) {
         },
 
         isConnect4InDirection(color, direction) {
-            const lastPlaced = this.getLastCoordinate(color);       
-            let count = 1;            
-            for (let forward of [true, false]) {                
+            const lastPlaced = this.getLastCoordinate(color);
+            let count = 1;
+            for (let forward of [true, false]) {
                 let ok;
                 let last = lastPlaced;
                 do {
-                    let shifted = last.shift(direction, forward);   
-                    ok = this.isInBoard(shifted) && color === this.getColor(shifted);                 
-                    if(ok) {                        
+                    let shifted = last.shift(direction, forward);
+                    ok = this.isInBoard(shifted) && color === this.getColor(shifted);
+                    if (ok) {
                         count++;
                         last = shifted;
                     }
@@ -195,10 +186,10 @@ function initBoard(numPlayers) {
         getColor(searched) {
             assert(this.isInBoard(searched));
             for (let i = 0; i < this.playersCoordinates.length; i++) {
-                for (let coordinate of this.playersCoordinates[i]) {                    
+                for (let coordinate of this.playersCoordinates[i]) {
                     if (coordinate.getRow() === searched.getRow()
                         && coordinate.getColumn() === searched.getColumn()) {
-                        const color = Color.get(i);                        
+                        const color = Color.get(i);
                         return color;
                     }
                 }
@@ -206,10 +197,10 @@ function initBoard(numPlayers) {
             return Color.NONE;
         },
 
-        isInBoard(coordinate){
+        isInBoard(coordinate) {
             assert(coordinate ?? false);
             return initClosedInterval(that.ROWS - 1, 0).includes(coordinate.getRow())
-                   && initClosedInterval(that.COLUMNS - 1, 0).includes(coordinate.getColumn());
+                && initClosedInterval(that.COLUMNS - 1, 0).includes(coordinate.getColumn());
         }
     };
     that.playersCoordinates = [];
@@ -229,7 +220,7 @@ function initBoard(numPlayers) {
         },
 
         placeToken(column, color) {
-            assert(!this.isColumnFull(column));            
+            assert(!this.isColumnFull(column));
             const row = that.ROWS - 1 - that.getTokens(column).length;
             const coordinates = that.getCoordinates(color);
             coordinates[coordinates.length] = initCoordinate(row, column);
@@ -267,8 +258,8 @@ function initBoard(numPlayers) {
             consoleMPDS.writeln();
             for (let i = 0; i < that.ROWS; i++) {
                 consoleMPDS.write(VERTICAL_SEPARATOR);
-                for (let j = 0; j < that.COLUMNS; j++) {                    
-                    const color = that.getColor(initCoordinate(i, j));                 
+                for (let j = 0; j < that.COLUMNS; j++) {
+                    const color = that.getColor(initCoordinate(i, j));
                     consoleMPDS.write(`${HORIZONTAL_SEPARATOR}${color.toString()}${HORIZONTAL_SEPARATOR}${VERTICAL_SEPARATOR}`)
                 }
                 consoleMPDS.writeln();
@@ -280,7 +271,7 @@ function initBoard(numPlayers) {
 
 function initCoordinate(row, column) {
     assert(typeof row === "number");
-    assert(typeof column === "number");    
+    assert(typeof column === "number");
 
     const that = {
         row: row,
@@ -300,7 +291,7 @@ function initCoordinate(row, column) {
             const shiftedColumn = direction.shiftColumn(that.column, forward);
             return initCoordinate(shiftedRow, shiftedColumn);
         },
-        
+
         getRow() {
             return that.row;
         },
@@ -357,7 +348,7 @@ function Color() {
     Color.O = initColor("O");
     Color.NONE = initColor("_");
 
-    Color.get = function (ordinal) {        
+    Color.get = function (ordinal) {
         return Color.values()[ordinal];
     };
 
@@ -378,9 +369,9 @@ function Color() {
 
         return {
             ordinal() {
-                assert(that.isInValues(this));                
-                const colors = Color.values();                            
-                for (let i = 0; i < colors.length; i++) {                    
+                assert(that.isInValues(this));
+                const colors = Color.values();
+                for (let i = 0; i < colors.length; i++) {
                     if (this === colors[i]) {
                         return i;
                     }
@@ -479,7 +470,7 @@ function initClosedInterval(max, min) {
     }
 }
 
-function initEnumSetUp() {
+function initEnumConfiguartor() {
     return {
         setUp() {
             Color();
