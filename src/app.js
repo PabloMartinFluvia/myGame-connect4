@@ -23,11 +23,11 @@ function initConnect4() {
 }
 
 function initGame() {
-    const numPlayers = Color.values().length - 1;
-    const board = initBoard(numPlayers);
+    const NUM_PLAYERS = 2;
+    const board = initBoard(NUM_PLAYERS);
     const that = {
         board: board,
-        turn: initTurn(numPlayers, board),
+        turn: initTurn(NUM_PLAYERS, board),
 
         showTitle() {
             consoleMPDS.writeln("--------- CONNECT4 ----------\n");
@@ -72,6 +72,7 @@ function initGame() {
 function initTurn(numPlayers, board) {
     assert(typeof numPlayers === "number");
     assert(numPlayers > 1);
+    assert(numPlayers === Color.values().length - 1);
 
     const that = {
         players: undefined,
@@ -135,6 +136,7 @@ function initPlayer(board, color) {
 function initBoard(numPlayers) {
     assert(typeof numPlayers === "number");
     assert(numPlayers > 1);
+    assert(numPlayers === Color.values().length - 1);
 
     const that = {
         ROWS: 6,

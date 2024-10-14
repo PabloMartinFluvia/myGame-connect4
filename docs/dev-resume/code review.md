@@ -1,10 +1,12 @@
 # Problem solved in this commit
 
 ## Problem
-Game has players as attribute, but there's none method wich access to this data (only used to associate turn to players). -> Reduces cohesion and increases complexity.
+In Game the value of numPlayers is obtained throw Color (because this value and Color's values ara highly coupled). This could make understanding difficult to newcomers, because what would be expected is a literal constant in game.
 
 ## Solution
-Responsibility of init players reassigned to Turn.
+Update numPlayers in Game to a literal constant, and when it's used assert the precondition (it's value must be coherent with the Color's values).
+
+A change in requisites related to the number of players would be easy (add/remove values in Color and change the literal). Or reasign the responsibility to provide the number of players in Color. Not implemented due YAGNI.
 
 # TODOs in code review
 1. Simplicity:
