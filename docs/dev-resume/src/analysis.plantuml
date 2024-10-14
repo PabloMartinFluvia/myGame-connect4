@@ -6,9 +6,9 @@ class Connect4 {
     + play()
 }
 Connect4 ..> Game
+Connect4 *--> YesNoDialog
 
-class Game {
-    + NUM_PLAYERS = 2    
+class Game {     
 
     + initGame()
     + play()
@@ -21,8 +21,8 @@ Game ..> Color
 class Turn {
 
     + initTurn(players)
-    + toNext()
-    + getActive() : Player
+    + change()
+    + getActive() : Player        
 }
 Turn --> "2" Player
 
@@ -30,29 +30,90 @@ class Player {
 
     + initPlayer(board, color)
     + placeToken()
+    + showWin();
+    + getColor() : Color
 }
 Player --> Board
 Player --> Color
+Player *--> LimitedIntDialog
 
 class Board {
-    + ROWS = 6
-    + COLUMNS = 7
+    - ROWS = 6
+    - COLUMNS = 7
     
-    + initBoard()
+    + initBoard(numPlayers)
     + isColumnFull(column)
-    + isColumnBetweenLimit(column)
+    + getColumnsLenght()
     + placeToken(column, color)
     + isConnect4(color)
+    + isFull()
+    + show()
 }
-Board --> "6 x 7" Color
+Board ..> ClosedInterval
+Board *--> "2 x 0..6x7/2" Coordinate : playersCoordinates
+Board ..> Direction
+Board ..> Color
+
+class Coordinate {
+    + initCoordinate(row, column)
+    + isInColumn(column)
+    + getRow()
+    + getColumn()
+    + shift(direction, forward)
+}
+Coordinate ..> Direction
+
+enum Direction {
+    VERTICAL
+    HORIZONTAL
+    DIAGONAL
+    INVERSE_DIAGONAL
+
+    + {static} values()
+    + shiftRow(row, forward)
+    + shiftColumn(column, forward)
+}
 
 enum Color {
     + X
-    + O
-    + NONE
+    + O   
+    + NONE 
 
-    + {static} get(ordinal) : Color
+    + {static} get(ordinal) : Color  
+    + {static} values()  
+    + ordinal()
     + isNone()
+    + toString()
+}
+
+class YesNoDialog #LightGreen {  
+    - question
+    - answer   
+    - YES
+    - NO
+
+    + initYesNoDialog(question)
+    + ask()
+    + isAffirmative()
+}
+
+class LimitedIntDialog #LightGreen {
+    - requested
+    - prefix
+    
+
+    + initLimitedIntDialog(requested, prefix, max, min = 1) 
+    + ask()
+}
+LimitedIntDialog *--> ClosedInterval : limits
+
+class ClosedInterval {
+    - max
+    - min
+
+    + initClosedInterval(max, min)
+    + includes(value)
+    + toString()
 }
 
 @enduml

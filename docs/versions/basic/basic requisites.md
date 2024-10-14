@@ -37,15 +37,18 @@
 ```
 --------- CONNECT4 ----------
  ___ ___ ___ ___ ___ ___ ___
-|___|___|___|___|___|___|___|
-|___|___|___|___|___|___|___|
+|___|___|___|_O_|___|___|___|
+|___|___|___|_X_|___|___|___|
 |___|_X_|_O_|_O_|___|___|___|
 |___|_O_|_X_|_X_|___|___|___|
 |___|_O_|_O_|_X_|___|___|___|
 |___|_O_|_O_|_X_|_X_|___|___| 
 
-Choose column: 0
-Wrong column, it must be [1-7]
+Player O choose column: 0
+Wrong column: it must be [1, 7]
+
+Player X choose column: 4
+Wrong column: it's full
 
 Player X won!!! ;-)
 Do you want to continue? (y/n):
