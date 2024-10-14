@@ -33,8 +33,8 @@ function initGame() {
             consoleMPDS.writeln("--------- CONNECT4 ----------\n");
         },
 
-        isWinnerActual() {
-            return this.turn.isWinnerActual();
+        isPlayerWinner() {
+            return this.turn.isPlayerWinner();
         },
 
         isBoardFull() {
@@ -42,8 +42,8 @@ function initGame() {
         },
 
         showEnd() {
-            if (this.isWinnerActual()) {
-                this.turn.showWinActual();
+            if (this.isPlayerWinner()) {
+                this.turn.showPlayerWin();
             } else {
                 consoleMPDS.writeln("You have tied!!!");
             }
@@ -57,9 +57,9 @@ function initGame() {
             that.board.show();
             let end;
             do {
-                that.turn.placeTokenActual();
+                that.turn.playerPlaceToken();
                 that.board.show();
-                end = that.isWinnerActual() || that.isBoardFull();
+                end = that.isPlayerWinner() || that.isBoardFull();
                 if (!end) {
                     that.turn.change();
                 }
@@ -92,15 +92,15 @@ function initTurn(numPlayers, board) {
             that.turnValue = (that.turnValue + 1) % that.players.length;
         },
 
-        placeTokenActual() {
+        playerPlaceToken() {
             that.getActive().placeToken();
         },
 
-        isWinnerActual() {
+        isPlayerWinner() {
             return that.getActive().isWinner();
         },
 
-        showWinActual() {
+        showPlayerWin() {
             that.getActive().showWin();
         }
     }

@@ -1,16 +1,8 @@
 # Problem solved in this commit
 
 ## Problem
-Game is coupled to Color (board needs actual color for process if last placement has been winner), but don't collaborates with it -> unnecessary coupling -> increases complexity -> look for a simplier solution
-
-## Discarted Solution
-- Modify board's method: 
-    - without color as parameter.
-    - option A: checks all player's colors, and return true if any has won. Discarted because it's not coherent with the logic, only should be checked the color that has been placed in the actual turn.
-    - option B: add an attribute in board, wich stores the last color/coordinate placed (updated at the end of placeToken process). Discarted because this value is redundant (can be obtained throw the app's state) and *looks like* the SC Temporay Field.
 
 ## Solution
-Modify the collaboration chain to obtain the process. Due the desired process is check if the placed token in the actual turn was a winner placement: Game -> Turn -> Player -> Board
 
 # TODOs in code review
 1. Simplicity:

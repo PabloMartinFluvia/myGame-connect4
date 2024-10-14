@@ -20,9 +20,9 @@ class Turn {
 
     + initTurn(numPlayers, board)    
     + change()      
-    + placeTokenActual()        
-    + isWinnerActual()
-    + showWinActual()
+    + playerPlaceToken()        
+    + isPlayerWinner()
+    + showPlayerWin()
 }
 Turn *--> "2" Player
 Turn ..> Board
