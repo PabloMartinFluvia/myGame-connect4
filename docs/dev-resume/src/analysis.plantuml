@@ -7,6 +7,7 @@ class Connect4 {
 }
 Connect4 ..> Game
 Connect4 *--> YesNoDialog
+Connect4 ..> EnumSetup
 
 class Game {     
 
@@ -115,5 +116,11 @@ class ClosedInterval {
     + includes(value)
     + toString()
 }
+
+class EnumSetup {
+    setUp()
+}
+EnumSetup ..> Color
+EnumSetup ..> Direction
 
 @enduml
