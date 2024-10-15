@@ -309,6 +309,28 @@ function initCoordinate(row, column) {
     }
 }
 
+function initClosedInterval(max, min = 0) {
+    assert(typeof max === "number");
+    assert(typeof min === "number");
+    assert(max >= min);
+
+    const that = {
+        max,
+        min
+    }
+
+    return {
+        includes(value) {
+            assert(typeof value === "number");
+            return that.min <= value && value <= that.max;
+        },
+
+        toString() {
+            return `[${that.min}, ${that.max}]`;
+        }
+    }
+}
+
 function Direction() {
 
     Direction.VERTICAL = initDirection(1, 0);
@@ -348,7 +370,6 @@ function Direction() {
     }
 }
 
-
 function Color() {
 
     Color.X = initColor("X");
@@ -362,7 +383,6 @@ function Color() {
     Color.get = function (ordinal) {
         return Color.values()[ordinal];
     };
-
 
     function initColor(value) {
         const that = {
@@ -387,7 +407,6 @@ function Color() {
                         return i;
                     }
                 }
-                assert(false);
             },
 
             isNone() {
@@ -405,10 +424,10 @@ function initYesNoDialog(question) {
     assert(typeof question === "string");
 
     const that = {
-        YES: "y",
-        NO: "n",
         question: question,
         answer: undefined,
+        YES: "y",
+        NO: "n",
 
         isNegative() {
             return that.answer === that.NO;
@@ -434,8 +453,8 @@ function initYesNoDialog(question) {
 }
 
 function initLimitedIntDialog(requested, max, min = 1, prefix = "Introduce") {
-    assert(requested ?? false);
-    assert(prefix ?? false);
+    assert(typeof requested === "string");
+    assert(typeof prefix === "string");
 
     const that = {
         requested: requested,
@@ -458,33 +477,13 @@ function initLimitedIntDialog(requested, max, min = 1, prefix = "Introduce") {
         },
 
         setPrefix(prefix) {
-            assert(prefix ?? false);
+            assert(typeof prefix === "string");
             that.prefix = prefix;
         }
     }
 }
 
-function initClosedInterval(max, min = 0) {
-    assert(typeof max === "number");
-    assert(typeof min === "number");
-    assert(max >= min);
 
-    const that = {
-        max,
-        min
-    }
-
-    return {
-        includes(value) {
-            assert(typeof value === "number");
-            return that.min <= value && value <= that.max;
-        },
-
-        toString() {
-            return `[${that.min}, ${that.max}]`;
-        }
-    }
-}
 
 function initEnumConfiguartor() {
     return {

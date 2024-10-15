@@ -50,12 +50,21 @@ class Coordinate {
     - column 
 
     + initCoordinate(row, column)
-    + shift(direction, forward)
+    + shift(rowShift, columnShift)
     + equals(other)   
     + hasRowInInterval(interval)
     + hasColumnInInterval(interval)
 }
 Coordinate ..> ClosedInterval
+
+class ClosedInterval {
+    - max
+    - min
+
+    + initClosedInterval(max, min = 0)
+    + includes(value)
+    + toString()
+}
 
 enum Direction {
     VERTICAL
@@ -75,7 +84,7 @@ enum Color {
     + NONE 
 
     - initColor(value)
-    + {static} get(ordinal) : Color  
+    + {static} get(ordinal) 
     + {static} values()  
     + ordinal()
     + isNone()
@@ -97,21 +106,10 @@ class LimitedIntDialog #LightGreen {
     - requested
     - prefix
     
-
     + initLimitedIntDialog(requested, max, min = 1, prefix = "") 
     + ask()
     + setPrefix(prefix)
 }
 LimitedIntDialog *--> ClosedInterval : limits
-
-class ClosedInterval {
-    - max
-    - min
-
-    + initClosedInterval(max, min = 0)
-    + includes(value)
-    + toString()
-}
-
 
 @enduml
