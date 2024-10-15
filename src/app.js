@@ -131,8 +131,7 @@ function initTurn(numPlayers, board) {
 }
 
 function initBoard(numPlayers) {
-    assert(typeof numPlayers === "number");
-    assert(numPlayers > 1);
+    assert(typeof numPlayers === "number");    
     assert(numPlayers === Color.values().length - 1);
     for (let i = 0; i < numPlayers; i++) {
         assert(!Color.get(i).isNone());
@@ -164,10 +163,8 @@ function initBoard(numPlayers) {
 
         isInBoard(coordinate) {
             assert(coordinate ?? false);
-            const row = coordinate.getRow();
-            const column = coordinate.getColumn();
-            return initClosedInterval(that.ROWS - 1).includes(row)
-                && initClosedInterval(that.COLUMNS - 1).includes(column);
+            return coordinate.hasRowInInterval(initClosedInterval(that.ROWS - 1))
+                && coordinate.hasColumnInInterval(initClosedInterval(that.COLUMNS - 1));
         },
 
         isPlacedByPlayer(coordinate, color) {
@@ -293,15 +290,21 @@ function initCoordinate(row, column) {
         },
 
         equals(other) {
-            return that.row === other.getRow() && that.column === other.getColumn();
+            assert(other ?? false);    
+            const rowInterval = initClosedInterval(that.row, that.row);
+            const columnInterval = initClosedInterval(that.column, that.column);        
+            return other.hasRowInInterval(rowInterval) 
+                && other.hasColumnInInterval(columnInterval);
         },
 
-        getRow() {
-            return that.row;
+        hasRowInInterval(interval) {
+            assert(interval ?? false);
+            return interval.includes(that.row);
         },
 
-        getColumn() {
-            return that.column;
+        hasColumnInInterval(interval) {
+            assert(interval ?? false);
+            return interval.includes(that.column);
         }
     }
 }

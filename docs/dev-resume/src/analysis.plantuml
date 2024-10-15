@@ -49,10 +49,11 @@ class Coordinate {
     + initCoordinate(row, column)
     + shift(direction, forward)
     + equals(other)   
-    + getRow()
-    + getColumn()     
+    + hasRowInInterval(interval)
+    + hasColumnInInterval(interval)
 }
 Coordinate ..> Direction
+Coordinate ..> ClosedInterval
 
 enum Direction {
     VERTICAL
@@ -103,7 +104,7 @@ class ClosedInterval {
     - max
     - min
 
-    + initClosedInterval(max, min)
+    + initClosedInterval(max, min = 0)
     + includes(value)
     + toString()
 }

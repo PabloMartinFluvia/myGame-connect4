@@ -1,10 +1,10 @@
 # Problem solved in this commit
 
 ## Problem
-Method isPlacedByPlayer has Features Envy.
+New method equals in coordinate it's not primitive.
 
 ## Solution
-Add equals method in coordinate
+Remove getRow and getColumn from it's interface. add hasXInInterval(interval) for give service to old clients.
 
 # TODOs in code review
 1. Simplicity:

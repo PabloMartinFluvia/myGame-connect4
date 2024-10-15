@@ -11,3 +11,6 @@ Global: manage the behaviour of player in the actual turn.
 
 ## Board
 Golbal: manage the tokens placed by players.
+
+## Coordinate:
+Global: manage board's holes.
