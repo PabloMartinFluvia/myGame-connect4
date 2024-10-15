@@ -1,10 +1,18 @@
 # Problem solved in this commit
 
 ## Problem
-New method equals in coordinate it's not primitive.
+Direction is low cohesive: there's no method wich access all atributtes.
+
+## Thoughts
+It's needed a method wich shifts both row and column.
+- Problem: SC Data Clumps.
+- Solution: this method should have a coordinate as param, instead of row/column.
+
+- Problem: bidirectional dependency between Direction and Coordinate.
 
 ## Solution
-Remove getRow and getColumn from it's interface. add hasXInInterval(interval) for give service to old clients.
+Instead of asking a coordinate to shift (providing a direction), ask a direction to shift a coordinate.
+
 
 # TODOs in code review
 1. Simplicity:

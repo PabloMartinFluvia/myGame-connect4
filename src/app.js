@@ -110,7 +110,7 @@ function initTurn(numPlayers, board) {
         playerPlaceToken() {
             let column;
             let error;
-            do {                                
+            do {
                 column = that.askColumnInValidRange();
                 error = that.board.isColumnFull(column);
                 if (error) {
@@ -131,7 +131,7 @@ function initTurn(numPlayers, board) {
 }
 
 function initBoard(numPlayers) {
-    assert(typeof numPlayers === "number");    
+    assert(typeof numPlayers === "number");
     assert(numPlayers === Color.values().length - 1);
     for (let i = 0; i < numPlayers; i++) {
         assert(!Color.get(i).isNone());
@@ -197,7 +197,7 @@ function initBoard(numPlayers) {
                 let ok;
                 let current = lastPlaced;
                 do {
-                    current = current.shift(direction, forward);
+                    current = direction.shift(current, forward);                    
                     ok = this.isInBoard(current) && this.getColor(current) === color;
                     if (ok) {
                         count++;
@@ -208,11 +208,11 @@ function initBoard(numPlayers) {
             return count >= GOAL;
         },
 
-        lineMsg(CORNER, getBottom) {                
+        lineMsg(CORNER, getBottom) {
             let msg = CORNER;
             for (let i = 0; i < this.COLUMNS; i++) {
                 const CELL_CHARS = 4;
-                for (let j = 1; j < CELL_CHARS; j++) {                    
+                for (let j = 1; j < CELL_CHARS; j++) {
                     msg += getBottom(j === CELL_CHARS / 2, i);
                 }
                 msg += CORNER;
@@ -234,7 +234,7 @@ function initBoard(numPlayers) {
             const BOTTON_ROW = that.ROWS - 1;
             let target = initCoordinate(BOTTON_ROW, column);
             while (!that.isEmpty(target)) {
-                target = target.shift(Direction.VERTICAL, false);
+                target = Direction.VERTICAL.shift(target, false);
             }
             const placeds = that.getPlacedsByPlayer(color);
             placeds[placeds.length] = target;
@@ -252,7 +252,7 @@ function initBoard(numPlayers) {
         show() {
             const getCharInTop = separator => () => separator;
             const getCharInCell = (separator, row) => (inMiddle, column) => {
-                if (inMiddle) {                    
+                if (inMiddle) {
                     return that.getColor(initCoordinate(row, column)).toString();
                 } else {
                     return separator;
@@ -263,7 +263,7 @@ function initBoard(numPlayers) {
             for (let i = 0; i < that.ROWS; i++) {
                 msg += that.lineMsg("|", getCharInCell(ROW_SEPARATOR, i));
             }
-            consoleMPDS.writeln(msg);            
+            consoleMPDS.writeln(msg);
         },
 
         getColumnsCount() {
@@ -274,26 +274,26 @@ function initBoard(numPlayers) {
 
 function initCoordinate(row, column) {
     assert(typeof row === "number");
+    assert(row % 1 === 0);
     assert(typeof column === "number");
+    assert(column % 1 === 0);
 
     const that = {
         row: row,
         column: column
     }
     return {
-        shift(direction, forward) {
-            assert(direction ?? false);
-            assert(typeof forward === "boolean");
-            const shiftedRow = direction.shiftRow(that.row, forward);
-            const shiftedColumn = direction.shiftColumn(that.column, forward);
-            return initCoordinate(shiftedRow, shiftedColumn);
+        shift(rowShift, columnShift) {                  
+            assert(typeof rowShift === "number");
+            assert(typeof columnShift === "number");
+            return initCoordinate(that.row + rowShift, that.column + columnShift);
         },
 
         equals(other) {
-            assert(other ?? false);    
+            assert(other ?? false);
             const rowInterval = initClosedInterval(that.row, that.row);
-            const columnInterval = initClosedInterval(that.column, that.column);        
-            return other.hasRowInInterval(rowInterval) 
+            const columnInterval = initClosedInterval(that.column, that.column);
+            return other.hasRowInInterval(rowInterval)
                 && other.hasColumnInInterval(columnInterval);
         },
 
@@ -311,49 +311,53 @@ function initCoordinate(row, column) {
 
 function Direction() {
 
-    Direction.values = function () {
-        return [Direction.VERTICAL, Direction.HORIZONTAL,
-        Direction.DIAGONAL, Direction.INVERSE_DIAGONAL];
-    }
-
     Direction.VERTICAL = initDirection(1, 0);
     Direction.HORIZONTAL = initDirection(0, 1);
     Direction.DIAGONAL = initDirection(1, 1);
     Direction.INVERSE_DIAGONAL = initDirection(1, -1);
 
-    function initDirection(rowDiff, columnDiff) {
-        const that = {
-            rowDiff: rowDiff,
-            columnDiff: columnDiff,
-        }
-        return {
-            shiftRow(row, forward) {
-                let shift = that.rowDiff;
-                if (!forward) {
-                    shift = -that.rowDiff;
-                }
-                return row + shift;
-            },
+    Direction.values = function () {
+        return [Direction.VERTICAL, Direction.HORIZONTAL,
+        Direction.DIAGONAL, Direction.INVERSE_DIAGONAL];
+    }
 
-            shiftColumn(column, forward) {
-                let shift = that.columnDiff;
-                if (!forward) {
-                    shift = -that.columnDiff;
+    function initDirection(rowShift, columnShift) {
+        assert(typeof rowShift === "number");
+        assert(rowShift % 1 === 0);
+        assert(typeof columnShift === "number");
+        assert(columnShift % 1 === 0);
+
+        const that = {
+            rowShift: rowShift,
+            columnShift: columnShift,
+        }
+        
+        return {
+            shift(coordinate, forward) {
+                assert(coordinate ?? false);
+                assert(typeof forward === "boolean");
+                let rowShift = that.rowShift;
+                let columnShift = that.columnShift;
+                if  (!forward) {
+                    rowShift = -rowShift;
+                    columnShift = -columnShift;
                 }
-                return column + shift;
+                return coordinate.shift(rowShift, columnShift);
             }
         }
     }
 }
 
+
 function Color() {
-    Color.values = function () {
-        return [Color.X, Color.O, Color.NONE];
-    }
 
     Color.X = initColor("X");
     Color.O = initColor("O");
     Color.NONE = initColor("_");
+
+    Color.values = function () {
+        return [Color.X, Color.O, Color.NONE];
+    }
 
     Color.get = function (ordinal) {
         return Color.values()[ordinal];

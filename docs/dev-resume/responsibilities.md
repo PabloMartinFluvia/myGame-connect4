@@ -14,3 +14,6 @@ Golbal: manage the tokens placed by players.
 
 ## Coordinate:
 Global: manage board's holes.
+
+## Direction:
+Global: tell a coordinate how to shift.

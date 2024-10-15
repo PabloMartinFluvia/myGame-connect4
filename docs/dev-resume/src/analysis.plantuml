@@ -46,13 +46,15 @@ Board ..> Direction
 Board ..> Color
 
 class Coordinate {
+    - row
+    - column 
+
     + initCoordinate(row, column)
     + shift(direction, forward)
     + equals(other)   
     + hasRowInInterval(interval)
     + hasColumnInInterval(interval)
 }
-Coordinate ..> Direction
 Coordinate ..> ClosedInterval
 
 enum Direction {
@@ -61,16 +63,18 @@ enum Direction {
     DIAGONAL
     INVERSE_DIAGONAL
 
+    - initDirection(rowShift, columnShift)
     + {static} values()
-    + shiftRow(row, forward)
-    + shiftColumn(column, forward)
+    + shift(coordinate, forward)
 }
+Direction ..> Coordinate
 
 enum Color {
     + X
     + O   
     + NONE 
 
+    - initColor(value)
     + {static} get(ordinal) : Color  
     + {static} values()  
     + ordinal()
