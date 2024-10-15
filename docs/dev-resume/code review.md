@@ -1,12 +1,10 @@
 # Problem solved in this commit
 
 ## Problem
-Methods in Board could be hard to undersand. Even some sentences looks like obfuscated code.
+Method isFull() in Board its not primitive: process can be obtaining throw 2 methods already pusblished in its interface.
 
 ## Solution
-Redesign implantation. Look for simplicity. Choose fewer patterns and increase consistence.
-- placeToken & isColumnFull uses similar pattern: look for an empty coordinate in that column.
-- show reestructured for homogenize the process and avoid repeated subrutines.
+Remove method
 
 
 # TODOs in code review

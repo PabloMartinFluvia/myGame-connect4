@@ -38,7 +38,6 @@ class Board {
     + placeToken(column, color)
     + isWinner(color)
     + show()
-    + isFull()
     + getColumnsCount()
 }
 Board *--> "0..ROWS x COLUMNS" Coordinate : playersPlaceds

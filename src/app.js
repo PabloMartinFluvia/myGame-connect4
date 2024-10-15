@@ -38,7 +38,12 @@ function initGame() {
         },
 
         isBoardFull() {
-            return this.board.isFull();
+            for (let i = 0; i < this.board.getColumnsCount(); i++) {
+                if (!this.board.isColumnFull(i)) {
+                    return false;
+                }
+            }
+            return true;
         },
 
         showEnd() {
@@ -215,26 +220,6 @@ function initBoard(numPlayers) {
             msg += "\n";
             return msg;
         },
-
-
-
-
-
-        countTokens(column) {
-            let tokensInColumn = 0;
-            for (const sameColorCoordinates of this.playersPlaceds) {
-                for (const coordinate of sameColorCoordinates) {
-                    if (coordinate.getColumn() === column) {
-                        tokensInColumn++;
-                    }
-                }
-            }
-            return tokensInColumn;
-        },
-
-
-
-
     };
 
     return {
@@ -279,15 +264,6 @@ function initBoard(numPlayers) {
                 msg += that.lineMsg("|", getCharInCell(ROW_SEPARATOR, i));
             }
             consoleMPDS.writeln(msg);            
-        },
-
-        isFull() {
-            for (let i = 0; i < that.COLUMNS; i++) {
-                if (!this.isColumnFull(i)) {
-                    return false;
-                }
-            }
-            return true;
         },
 
         getColumnsCount() {
