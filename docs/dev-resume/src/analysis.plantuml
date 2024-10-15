@@ -5,8 +5,8 @@ class Connect4 {
     + initConnect4()
     + play()
 }
-Connect4 ..> Game
 Connect4 *--> YesNoDialog
+Connect4 ..> Game
 
 class Game {     
 
@@ -26,9 +26,8 @@ class Turn {
     + showPlayerWin()
 }
 Turn *--> "numPlayers" Color : playersColors
-Turn --> Board
 Turn *--> LimitedIntDialog : columnDialog
-
+Turn --> Board
 
 class Board {
     - ROWS = 6
@@ -36,20 +35,19 @@ class Board {
     
     + initBoard(numPlayers)
     + isColumnFull(column)
-    + getColumnDimension()
     + placeToken(column, color)
     + isWinner(color)
-    + isFull()
     + show()
+    + isFull()
+    + getColumnsCount()
 }
+Board *--> "0..ROWS x COLUMNS" Coordinate : playersPlaceds
 Board ..> ClosedInterval
-Board *--> "2 x 0..6x7/2" Coordinate : playersCoordinates
 Board ..> Direction
 Board ..> Color
 
 class Coordinate {
     + initCoordinate(row, column)
-    + isInColumn(column)
     + getRow()
     + getColumn()
     + shift(direction, forward)

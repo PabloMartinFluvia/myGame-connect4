@@ -1,13 +1,13 @@
 # Problem solved in this commit
 
 ## Problem
-1. Turn is a little bit lazy, only one significant method (alternate between the players), and the other 3 just delegates the request to the active player. -> remove Turn or add responsibility?
-2. Turn is coupled to Board, but it's not a colaborator. Used only to associate each player to it. -> remove coupling or collaborate with it?
-3. Player instances are immutable (always same state) and only Turn is coupled to Player. -> this class is needed?
+Methods in Board could be hard to undersand. Even some sentences looks like obfuscated code.
 
 ## Solution
-- Remove Player. Turn assumes Player responsibilities.
-- Turn alternates between Color (instead of Player).
+Redesign implantation. Look for simplicity. Choose fewer patterns and increase consistence.
+- placeToken & isColumnFull uses similar pattern: look for an empty coordinate in that column.
+- show reestructured for homogenize the process and avoid repeated subrutines.
+
 
 # TODOs in code review
 1. Simplicity:

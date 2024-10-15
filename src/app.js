@@ -101,7 +101,7 @@ function initTurn(numPlayers, board) {
             let error;
             do {
                 const prefix = `Player ${that.getPlayerColor().toString()} choose`;
-                that.columnDialog.setPrefix(prefix);                
+                that.columnDialog.setPrefix(prefix);
                 column = that.columnDialog.ask() - 1;
                 error = that.board.isColumnFull(column);
                 if (error) {
@@ -125,63 +125,29 @@ function initBoard(numPlayers) {
     assert(typeof numPlayers === "number");
     assert(numPlayers > 1);
     assert(numPlayers === Color.values().length - 1);
+    for (let i = 0; i < numPlayers; i++) {
+        assert(!Color.get(i).isNone());
+    }
 
+    const playersPlaceds = [];
+    for (let i = 0; i < numPlayers; i++) {
+        playersPlaceds[i] = [];
+    }
     const that = {
         ROWS: 6,
         COLUMNS: 7,
-        playersCoordinates: undefined,
+        playersPlaceds: playersPlaceds,
 
-        getTokens(column) {
-            const tokensInColumn = [];
-            for (const playerCoordinates of this.playersCoordinates) {
-                for (const coordinate of playerCoordinates) {
-                    if (coordinate.isInColumn(column)) {
-                        tokensInColumn[tokensInColumn.length] = coordinate;
-                    }
-                }
-            }
-            return tokensInColumn;
+        isEmpty(coordinate) {
+            return this.getColor(coordinate).isNone();
         },
 
-        isWinnerInDirection(color, direction) {
-            const lastPlaced = this.getLastCoordinate(color);
-            let count = 1;
-            for (let forward of [true, false]) {
-                let ok;
-                let last = lastPlaced;
-                do {
-                    let shifted = last.shift(direction, forward);
-                    ok = this.isInBoard(shifted) && color === this.getColor(shifted);
-                    if (ok) {
-                        count++;
-                        last = shifted;
-                    }
-                } while (ok);
-            }
-            const GOAL = 4;
-            return count >= GOAL;
-        },
-
-        getLastCoordinate(color) {
-            const coordinates = this.getCoordinates(color);
-            return coordinates[coordinates.length - 1];
-        },
-
-        getCoordinates(color) {
-            assert(color ?? false);
-            assert(initClosedInterval(this.playersCoordinates.length - 1, 0).includes(color.ordinal()));
-            return this.playersCoordinates[color.ordinal()];
-        },
-
-        getColor(searched) {
-            assert(this.isInBoard(searched));
-            for (let i = 0; i < this.playersCoordinates.length; i++) {
-                for (let coordinate of this.playersCoordinates[i]) {
-                    if (coordinate.getRow() === searched.getRow()
-                        && coordinate.getColumn() === searched.getColumn()) {
-                        const color = Color.get(i);
-                        return color;
-                    }
+        getColor(coordinate) {
+            assert(this.isInBoard(coordinate));
+            for (let i = 0; i < this.playersPlaceds.length; i++) {
+                const color = Color.get(i);
+                if (this.isPlacedByPlayer(coordinate, color)) {
+                    return color;
                 }
             }
             return Color.NONE;
@@ -189,45 +155,130 @@ function initBoard(numPlayers) {
 
         isInBoard(coordinate) {
             assert(coordinate ?? false);
-            return initClosedInterval(that.ROWS - 1, 0).includes(coordinate.getRow())
-                && initClosedInterval(that.COLUMNS - 1, 0).includes(coordinate.getColumn());
-        }
-    };
-    that.playersCoordinates = [];
-    for (let i = 0; i < numPlayers; i++) {
-        that.playersCoordinates[i] = [];
-    }
+            const row = coordinate.getRow();
+            const column = coordinate.getColumn();
+            return initClosedInterval(that.ROWS - 1).includes(row)
+                && initClosedInterval(that.COLUMNS - 1).includes(column);
+        },
 
+        isPlacedByPlayer(coordinate, color) {
+            assert(coordinate ?? false);
+            for (const placed of this.getPlacedsByPlayer(color)) {
+                if (placed.getRow() === coordinate.getRow()
+                    && placed.getColumn() === coordinate.getColumn()) {
+                    return true;
+                }
+            }
+            return false;
+        },
+
+        getPlacedsByPlayer(color) {
+            assert(color ?? false);
+            assert(!color.isNone());
+            assert(initClosedInterval(this.playersPlaceds.length - 1)
+                .includes(color.ordinal()));
+            return this.playersPlaceds[color.ordinal()];
+        },
+
+        getLastPlaced(color) {
+            const placeds = this.getPlacedsByPlayer(color);
+            return placeds[placeds.length - 1];
+        },
+
+        isWinnerInDirection(color, direction) {
+            let count = 1;
+            const lastPlaced = this.getLastPlaced(color);
+            for (let forward of [true, false]) {
+                let ok;
+                let current = lastPlaced;
+                do {
+                    current = current.shift(direction, forward);
+                    ok = this.isInBoard(current) && this.getColor(current) === color;
+                    if (ok) {
+                        count++;
+                    }
+                } while (ok);
+            }
+            const GOAL = 4;
+            return count >= GOAL;
+        },
+
+        lineMsg(CORNER, getBottom) {                
+            let msg = CORNER;
+            for (let i = 0; i < this.COLUMNS; i++) {
+                const CELL_CHARS = 4;
+                for (let j = 1; j < CELL_CHARS; j++) {                    
+                    msg += getBottom(j === CELL_CHARS / 2, i);
+                }
+                msg += CORNER;
+            }
+            msg += "\n";
+            return msg;
+        },
+
+
+
+
+
+        countTokens(column) {
+            let tokensInColumn = 0;
+            for (const sameColorCoordinates of this.playersPlaceds) {
+                for (const coordinate of sameColorCoordinates) {
+                    if (coordinate.getColumn() === column) {
+                        tokensInColumn++;
+                    }
+                }
+            }
+            return tokensInColumn;
+        },
+
+
+
+
+    };
 
     return {
         isColumnFull(column) {
-            assert(initClosedInterval(that.COLUMNS - 1, 0).includes(column));
-            return that.getTokens(column).length === that.ROWS;
-        },
-
-        getColumnDimension() {
-            return that.COLUMNS;
+            const TOP_ROW = 0;
+            const topCoordinate = initCoordinate(TOP_ROW, column);
+            return !that.isEmpty(topCoordinate);
         },
 
         placeToken(column, color) {
             assert(!this.isColumnFull(column));
-            const row = that.ROWS - 1 - that.getTokens(column).length;
-            const coordinates = that.getCoordinates(color);
-            coordinates[coordinates.length] = initCoordinate(row, column);
+            const BOTTON_ROW = that.ROWS - 1;
+            let target = initCoordinate(BOTTON_ROW, column);
+            while (!that.isEmpty(target)) {
+                target = target.shift(Direction.VERTICAL, false);
+            }
+            const placeds = that.getPlacedsByPlayer(color);
+            placeds[placeds.length] = target;
         },
 
         isWinner(color) {
-            assert(color ?? false);
-            assert(!color.isNone());
-            assert(initClosedInterval(that.playersCoordinates.length - 1, 0).includes(color.ordinal()));
-
-            const directions = Direction.values();
-            for (const direction of directions) {
+            for (const direction of Direction.values()) {
                 if (that.isWinnerInDirection(color, direction)) {
                     return true;
                 }
             }
             return false;
+        },
+
+        show() {
+            const getCharInTop = separator => () => separator;
+            const getCharInCell = (separator, row) => (inMiddle, column) => {
+                if (inMiddle) {                    
+                    return that.getColor(initCoordinate(row, column)).toString();
+                } else {
+                    return separator;
+                }
+            }
+            const ROW_SEPARATOR = "_";
+            let msg = that.lineMsg(" ", getCharInTop(ROW_SEPARATOR));
+            for (let i = 0; i < that.ROWS; i++) {
+                msg += that.lineMsg("|", getCharInCell(ROW_SEPARATOR, i));
+            }
+            consoleMPDS.writeln(msg);            
         },
 
         isFull() {
@@ -239,23 +290,9 @@ function initBoard(numPlayers) {
             return true;
         },
 
-        show() {
-            const VERTICAL_SEPARATOR = "|";
-            const HORIZONTAL_SEPARATOR = "_";
-            for (let j = 0; j < that.COLUMNS; j++) {
-                consoleMPDS.write(` ${HORIZONTAL_SEPARATOR}${HORIZONTAL_SEPARATOR}${HORIZONTAL_SEPARATOR}`)
-            }
-            consoleMPDS.writeln();
-            for (let i = 0; i < that.ROWS; i++) {
-                consoleMPDS.write(VERTICAL_SEPARATOR);
-                for (let j = 0; j < that.COLUMNS; j++) {
-                    const color = that.getColor(initCoordinate(i, j));
-                    consoleMPDS.write(`${HORIZONTAL_SEPARATOR}${color.toString()}${HORIZONTAL_SEPARATOR}${VERTICAL_SEPARATOR}`)
-                }
-                consoleMPDS.writeln();
-            }
-            consoleMPDS.writeln();
-        }
+        getColumnsCount() {
+            return that.COLUMNS;
+        },
     }
 }
 
@@ -268,12 +305,6 @@ function initCoordinate(row, column) {
         column: column
     }
     return {
-        isInColumn(column) {
-            assert(typeof column === "number");
-            assert(column >= 0);
-            return column === that.column;
-        },
-
         shift(direction, forward) {
             assert(direction ?? false);
             assert(typeof forward === "boolean");
@@ -299,8 +330,8 @@ function Direction() {
         Direction.DIAGONAL, Direction.INVERSE_DIAGONAL];
     }
 
-    Direction.VERTICAL = initDirection(0, 1);
-    Direction.HORIZONTAL = initDirection(1, 0);
+    Direction.VERTICAL = initDirection(1, 0);
+    Direction.HORIZONTAL = initDirection(0, 1);
     Direction.DIAGONAL = initDirection(1, 1);
     Direction.INVERSE_DIAGONAL = initDirection(1, -1);
 
@@ -443,7 +474,7 @@ function initLimitedIntDialog(requested, max, min = 1, prefix = "Introduce") {
     }
 }
 
-function initClosedInterval(max, min) {
+function initClosedInterval(max, min = 0) {
     assert(typeof max === "number");
     assert(typeof min === "number");
     assert(max >= min);
