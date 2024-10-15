@@ -47,9 +47,10 @@ Board ..> Color
 
 class Coordinate {
     + initCoordinate(row, column)
-    + getRow()
-    + getColumn()
     + shift(direction, forward)
+    + equals(other)   
+    + getRow()
+    + getColumn()     
 }
 Coordinate ..> Direction
 

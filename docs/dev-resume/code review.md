@@ -1,11 +1,10 @@
 # Problem solved in this commit
 
 ## Problem
-Method isFull() in Board its not primitive: process can be obtaining throw 2 methods already pusblished in its interface.
+Method isPlacedByPlayer has Features Envy.
 
 ## Solution
-Remove method
-
+Add equals method in coordinate
 
 # TODOs in code review
 1. Simplicity:

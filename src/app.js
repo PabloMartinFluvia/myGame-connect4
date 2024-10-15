@@ -89,10 +89,16 @@ function initTurn(numPlayers, board) {
         playersColors: colors,
         turnValue: 0,
         board: board,
-        columnDialog: initLimitedIntDialog("column", board.getColumnDimension()),
+        columnDialog: initLimitedIntDialog("column", board.getColumnsCount()),
 
         getPlayerColor() {
             return that.playersColors[that.turnValue];
+        },
+
+        askColumnInValidRange() {
+            const prefix = `Player ${that.getPlayerColor().toString()} choose`;
+            this.columnDialog.setPrefix(prefix);
+            return that.columnDialog.ask() - 1;
         }
     }
 
@@ -104,10 +110,8 @@ function initTurn(numPlayers, board) {
         playerPlaceToken() {
             let column;
             let error;
-            do {
-                const prefix = `Player ${that.getPlayerColor().toString()} choose`;
-                that.columnDialog.setPrefix(prefix);
-                column = that.columnDialog.ask() - 1;
+            do {                                
+                column = that.askColumnInValidRange();
                 error = that.board.isColumnFull(column);
                 if (error) {
                     consoleMPDS.writeln("Wrong column: it's full.")
@@ -169,8 +173,7 @@ function initBoard(numPlayers) {
         isPlacedByPlayer(coordinate, color) {
             assert(coordinate ?? false);
             for (const placed of this.getPlacedsByPlayer(color)) {
-                if (placed.getRow() === coordinate.getRow()
-                    && placed.getColumn() === coordinate.getColumn()) {
+                if (coordinate.equals(placed)) {
                     return true;
                 }
             }
@@ -287,6 +290,10 @@ function initCoordinate(row, column) {
             const shiftedRow = direction.shiftRow(that.row, forward);
             const shiftedColumn = direction.shiftColumn(that.column, forward);
             return initCoordinate(shiftedRow, shiftedColumn);
+        },
+
+        equals(other) {
+            return that.row === other.getRow() && that.column === other.getColumn();
         },
 
         getRow() {
