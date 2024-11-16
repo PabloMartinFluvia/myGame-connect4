@@ -22,8 +22,7 @@ Task's description contains what's <i>new</i> vs previous task.
 - Task:
     - Implement vasic version.
         - v0.0.0 only with models
-        - v0.0.1 models (data + logic) -> views (presentation)
-        - v0.0.2 Document-View architecture: views (presentation + logic) -> models (data)
+        - v0.0.1 Document-View architecture: views (presentation + logic) -> models (data)
 - Basic version.
 - Process Oriented Programing.
 - Imperative programing.
