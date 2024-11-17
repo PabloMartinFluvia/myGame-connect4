@@ -6,28 +6,73 @@ class Connect4 {
     + play()
 }
 Connect4 *--> YesNoDialog
-Connect4 ..> Game
+Connect4 ..> GameView
+
+class YesNoDialog #LightGreen {  
+    - question
+    - answer   
+    - YES
+    - NO
+
+    + initYesNoDialog(question)
+    + ask()
+    + isAffirmative()
+}
+
+class GameView #LightGreen {
+    + initGameView()
+    + play()
+}
+GameView *--> Game
+GameView *--> PlayerView
+GameView *--> BoardView
 
 class Game {     
 
     + initGame()
-    + play()
+    + addPlayerToken(column)
+    + getColumnsCount()
+    + isColumnFull(columnIndex)
+    + isPlayerWinner()    
+    + changeTurn()
+    + getTurn()
+    + getBoard()
 }
 Game *--> Turn
 Game *--> Board
 
+class PlayerView #LightGreen {
+    + initTurnView(game)
+    + askColumn()
+    + showErrorFullColumn()
+    + win()
+}
+PlayerView --> Turn
+PlayerView ..> Game
+PlayerView *--> LimitedIntDialog : columnDialog
+
 class Turn {
     - turnValue
 
-    + initTurn(numPlayers, board)    
-    + change()      
-    + playerPlaceToken()        
+    + initTurn(numPlayers, board)  
+    + getPlayerId()      
+    + addPlayerToken(column)        
     + isPlayerWinner()
-    + showPlayerWin()
+    + change()    
 }
 Turn *--> "numPlayers" Color : playersColors
-Turn *--> LimitedIntDialog : columnDialog
 Turn --> Board
+
+class BoardView #LightGreen {
+    - CELL_CHARS_COUNT
+    - ROW_SEPARATOR
+
+    + initBoardView(game)
+    + show()
+}
+BoardView --> Board
+BoardView ..> Color
+BoardView ..> Game
 
 class Board {
     - ROWS = 6
@@ -36,8 +81,9 @@ class Board {
     + initBoard(numPlayers)
     + isColumnFull(column)
     + placeToken(column, color)
-    + isWinner(color)
-    + show()
+    + getColor(row, column)
+    + isWinner(color)    
+    + getRowsCount()
     + getColumnsCount()
 }
 Board *--> "0..ROWS x COLUMNS" Coordinate : playersPlaceds
@@ -91,16 +137,7 @@ enum Color {
     + toString()
 }
 
-class YesNoDialog #LightGreen {  
-    - question
-    - answer   
-    - YES
-    - NO
 
-    + initYesNoDialog(question)
-    + ask()
-    + isAffirmative()
-}
 
 class LimitedIntDialog #LightGreen {
     - requested

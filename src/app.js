@@ -14,7 +14,7 @@ function initConnect4() {
     return {
         play() {
             do {
-                initGame().play();
+                initGameView().play();
                 that.continueDialog.ask();
             } while (that.continueDialog.isAffirmative());
         }
@@ -22,24 +22,29 @@ function initConnect4() {
 
 }
 
-function initGame() {
-    const NUM_PLAYERS = 2;
-    const board = initBoard(NUM_PLAYERS);
-    const that = {
-        board: board,
-        turn: initTurn(NUM_PLAYERS, board),
+function initGameView() {
+    const game = initGame();
+    const that = {            
+        boardView: initBoardView(game), 
+        playerView: initPlayerView(game), 
+        game: game, 
 
-        showTitle() {
-            consoleMPDS.writeln("--------- CONNECT4 ----------\n");
-        },
-
-        isPlayerWinner() {
-            return this.turn.isPlayerWinner();
+        askColumn() {
+            let column;
+            let error;
+            do {
+                column = that.playerView.askColumn();
+                error = that.game.isColumnFull(column); 
+                if (error) {
+                    that.playerView.showErrorFullColumn();                    
+                }
+            } while (error);
+            return column;
         },
 
         isBoardFull() {
-            for (let i = 0; i < this.board.getColumnsCount(); i++) {
-                if (!this.board.isColumnFull(i)) {
+            for (let i = 0; i < this.game.getColumnsCount(); i++) {
+                if (!this.game.isColumnFull(i)) {
                     return false;
                 }
             }
@@ -47,28 +52,91 @@ function initGame() {
         },
 
         showEnd() {
-            if (this.isPlayerWinner()) {
-                this.turn.showPlayerWin();
+            if (this.game.isPlayerWinner()) {
+                this.playerView.win();
             } else {
                 consoleMPDS.writeln("You have tied!!!");
             }
         }
     }
-
+    
     return {
         play() {
-            that.showTitle();
-            that.board.show();
+            consoleMPDS.writeln("--------- CONNECT4 ----------\n");           
+            that.boardView.show();
             let end;
             do {
-                that.turn.playerPlaceToken();
-                that.board.show();
-                end = that.isPlayerWinner() || that.isBoardFull();
+                const column = that.askColumn(); 
+                that.game.addPlayerToken(column);
+                that.boardView.show();
+                end = that.game.isPlayerWinner() || that.isBoardFull();
                 if (!end) {
-                    that.turn.change();
+                    that.game.changeTurn();
                 }
             } while (!end);
-            that.showEnd();
+            that.showEnd();            
+        }
+    }
+}
+
+function initGame() {
+    const NUM_PLAYERS = 2;
+    const board = initBoard(NUM_PLAYERS);
+    const that = {
+        board: board,
+        turn: initTurn(NUM_PLAYERS, board),        
+    }
+
+    return {
+        addPlayerToken(column) {
+            that.turn.addPlayerToken(column); 
+        },
+
+        getColumnsCount() {
+            return that.board.getColumnsCount();
+        },
+
+        isColumnFull(columnIndex) {
+            return that.board.isColumnFull(columnIndex);
+        },
+
+        isPlayerWinner() {
+            return that.turn.isPlayerWinner();
+        },     
+
+        changeTurn() {
+            that.turn.change();
+        },
+
+        getTurn() {
+            return that.turn;
+        },
+
+        getBoard() {
+            return that.board;
+        }
+    }
+}
+
+function initPlayerView(game) {
+    const that = {
+        turn: game.getTurn(), 
+        columnDialog: initLimitedIntDialog("column", game.getColumnsCount()), 
+    }
+
+    return {        
+        askColumn() {
+            const prefix = `Player ${that.turn.getPlayerId()} choose`; 
+            that.columnDialog.setPrefix(prefix);
+            return that.columnDialog.ask() - 1;
+        },
+
+        showErrorFullColumn() {
+            consoleMPDS.writeln("Wrong column: it's full.");
+        },
+
+        win() {
+            consoleMPDS.writeln(`Player ${that.turn.getPlayerId()} won!!! ;-)`);
         }
     }
 }
@@ -89,34 +157,18 @@ function initTurn(numPlayers, board) {
         playersColors: colors,
         turnValue: 0,
         board: board,
-        columnDialog: initLimitedIntDialog("column", board.getColumnsCount()),
 
         getPlayerColor() {
             return that.playersColors[that.turnValue];
-        },
-
-        askColumnInValidRange() {
-            const prefix = `Player ${that.getPlayerColor().toString()} choose`;
-            this.columnDialog.setPrefix(prefix);
-            return that.columnDialog.ask() - 1;
         }
     }
 
     return {
-        change() {
-            that.turnValue = (that.turnValue + 1) % that.playersColors.length;
+        getPlayerId() { 
+            return that.getPlayerColor().toString();
         },
 
-        playerPlaceToken() {
-            let column;
-            let error;
-            do {
-                column = that.askColumnInValidRange();
-                error = that.board.isColumnFull(column);
-                if (error) {
-                    consoleMPDS.writeln("Wrong column: it's full.")
-                }
-            } while (error);
+        addPlayerToken(column) {
             that.board.placeToken(column, that.getPlayerColor());
         },
 
@@ -124,8 +176,57 @@ function initTurn(numPlayers, board) {
             return that.board.isWinner(that.getPlayerColor());
         },
 
-        showPlayerWin() {
-            consoleMPDS.writeln(`Player ${that.getPlayerColor().toString()} won!!! ;-)`);
+        change() {
+            that.turnValue = (that.turnValue + 1) % that.playersColors.length;
+        }
+    }
+}
+
+function initBoardView(game) {
+    const that = {
+        board: game.getBoard(), 
+        CELL_CHARS_COUNT: 4,
+        ROW_SEPARATOR: "_",
+        
+
+        printTop() {
+            const CORNER_CELL = " ";
+            let msg = CORNER_CELL;
+            for (let i = 0; i < this.board.getColumnsCount(); i++) { 
+                for (let j = 1; j < this.CELL_CHARS_COUNT; j++) {
+                    msg += that.ROW_SEPARATOR;
+                }
+                msg += CORNER_CELL;
+            }
+            consoleMPDS.writeln(msg);
+        },
+
+        printRow(row) {
+            const CORNER_CELL = "|";
+            let msg = CORNER_CELL;
+            for (let column = 0; column < this.board.getColumnsCount(); column++) {
+                for (let j = 1; j < this.CELL_CHARS_COUNT; j++) {
+                    if (this.isMiddleCharInCell(j)) {
+                        msg += this.board.getColor(row, column).toString();
+                    } else {
+                        msg += that.ROW_SEPARATOR;
+                    }                    
+                }
+                msg += CORNER_CELL;
+            }
+            consoleMPDS.writeln(msg);
+        },
+
+        isMiddleCharInCell(index) {
+            return index === this.CELL_CHARS_COUNT / 2;
+        }
+    }
+    return {
+        show() {
+            that.printTop();
+            for (let row = 0; row < that.board.getRowsCount(); row ++) { 
+                that.printRow(row);
+            }
         }
     }
 }
@@ -206,20 +307,7 @@ function initBoard(numPlayers) {
             }
             const GOAL = 4;
             return count >= GOAL;
-        },
-
-        lineMsg(CORNER, getBottom) {
-            let msg = CORNER;
-            for (let i = 0; i < this.COLUMNS; i++) {
-                const CELL_CHARS = 4;
-                for (let j = 1; j < CELL_CHARS; j++) {
-                    msg += getBottom(j === CELL_CHARS / 2, i);
-                }
-                msg += CORNER;
-            }
-            msg += "\n";
-            return msg;
-        },
+        }
     };
 
     return {
@@ -240,6 +328,10 @@ function initBoard(numPlayers) {
             placeds[placeds.length] = target;
         },
 
+        getColor(row, column) {
+            return that.getColor(initCoordinate(row, column));
+        },
+
         isWinner(color) {
             for (const direction of Direction.values()) {
                 if (that.isWinnerInDirection(color, direction)) {
@@ -247,23 +339,10 @@ function initBoard(numPlayers) {
                 }
             }
             return false;
-        },
+        },        
 
-        show() {
-            const getCharInTop = separator => () => separator;
-            const getCharInCell = (separator, row) => (inMiddle, column) => {
-                if (inMiddle) {
-                    return that.getColor(initCoordinate(row, column)).toString();
-                } else {
-                    return separator;
-                }
-            }
-            const ROW_SEPARATOR = "_";
-            let msg = that.lineMsg(" ", getCharInTop(ROW_SEPARATOR));
-            for (let i = 0; i < that.ROWS; i++) {
-                msg += that.lineMsg("|", getCharInCell(ROW_SEPARATOR, i));
-            }
-            consoleMPDS.writeln(msg);
+        getRowsCount() {
+            return that.ROWS;
         },
 
         getColumnsCount() {
