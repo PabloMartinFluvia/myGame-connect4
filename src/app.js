@@ -6,7 +6,7 @@ initConnect4().play();
 
 function initConnect4() {
     initEnumConfiguartor().setUp();
-    
+
     const game = initGame()
     const that = {
         game: game,
@@ -14,10 +14,10 @@ function initConnect4() {
     }
 
     return {
-        play() {            
+        play() {
             const resumeDialog = initYesNoDialog("Do you want to continue?");
             let resume;
-            do {                
+            do {
                 that.gameView.play();
                 resumeDialog.ask();
                 resume = resumeDialog.isAffirmative();
@@ -30,20 +30,20 @@ function initConnect4() {
 
 }
 
-function initGameView(game) {    
-    const that = {            
-        game: game, 
-        boardView: initBoardView(game), 
-        playerView: initPlayerView(game),         
+function initGameView(game) {
+    const that = {
+        game: game,
+        boardView: initBoardView(game),
+        playerView: initPlayerView(game),
 
         askColumn() {
             let column;
             let error;
             do {
                 column = that.playerView.askColumn();
-                error = that.game.isColumnFull(column); 
+                error = that.game.isColumnFull(column);
                 if (error) {
-                    that.playerView.showErrorFullColumn();                    
+                    that.playerView.showErrorFullColumn();
                 }
             } while (error);
             return column;
@@ -66,14 +66,14 @@ function initGameView(game) {
             }
         }
     }
-    
+
     return {
         play() {
-            consoleMPDS.writeln("--------- CONNECT4 ----------\n");           
+            consoleMPDS.writeln("--------- CONNECT4 ----------\n");
             that.boardView.show();
             let end;
             do {
-                const column = that.askColumn(); 
+                const column = that.askColumn();
                 that.game.placePlayerToken(column);
                 that.boardView.show();
                 end = that.game.isPlayerWinner() || that.isBoardFull();
@@ -81,7 +81,7 @@ function initGameView(game) {
                     that.game.changeTurn();
                 }
             } while (!end);
-            that.showEnd();            
+            that.showEnd();
         }
     }
 }
@@ -91,12 +91,12 @@ function initGame() {
     const board = initBoard(NUM_PLAYERS);
     const that = {
         board: board,
-        turn: initTurn(NUM_PLAYERS, board),        
+        turn: initTurn(NUM_PLAYERS, board),
     }
 
     return {
         placePlayerToken(column) {
-            that.turn.placePlayerToken(column); 
+            that.turn.placePlayerToken(column);
         },
 
         getColumnsCount() {
@@ -109,7 +109,7 @@ function initGame() {
 
         isPlayerWinner() {
             return that.turn.isPlayerWinner();
-        },     
+        },
 
         changeTurn() {
             that.turn.change();
@@ -132,13 +132,13 @@ function initGame() {
 
 function initPlayerView(game) {
     const that = {
-        turn: game.getTurn(), 
-        columnDialog: initLimitedIntDialog("column", game.getColumnsCount()), 
+        turn: game.getTurn(),
+        columnDialog: initLimitedIntDialog("column", game.getColumnsCount()),
     }
 
-    return {        
+    return {
         askColumn() {
-            const prefix = `Player ${that.turn.getPlayerString()} choose`; 
+            const prefix = `Player ${that.turn.getPlayerString()} choose`;
             that.columnDialog.setPrefix(prefix);
             return that.columnDialog.ask() - 1;
         },
@@ -176,7 +176,7 @@ function initTurn(numPlayers, board) {
     }
 
     return {
-        getPlayerString() { 
+        getPlayerString() {
             return that.getPlayerColor().toString();
         },
 
@@ -200,15 +200,15 @@ function initTurn(numPlayers, board) {
 
 function initBoardView(game) {
     const that = {
-        board: game.getBoard(), 
+        board: game.getBoard(),
         CELL_CHARS_COUNT: 4,
         ROW_SEPARATOR: "_",
-        
+
 
         printTop() {
             const CORNER_CELL = " ";
             let msg = CORNER_CELL;
-            for (let i = 0; i < this.board.getColumnsCount(); i++) { 
+            for (let i = 0; i < this.board.getColumnsCount(); i++) {
                 for (let j = 1; j < this.CELL_CHARS_COUNT; j++) {
                     msg += that.ROW_SEPARATOR;
                 }
@@ -234,7 +234,7 @@ function initBoardView(game) {
                     msg += this.board.getColor(row, column).toString();
                 } else {
                     msg += this.ROW_SEPARATOR;
-                }                    
+                }
             }
             return msg;
         },
@@ -246,7 +246,7 @@ function initBoardView(game) {
     return {
         show() {
             that.printTop();
-            for (let row = 0; row < that.board.getRowsCount(); row ++) { 
+            for (let row = 0; row < that.board.getRowsCount(); row++) {
                 that.printRow(row);
             }
         }
@@ -267,6 +267,7 @@ function initBoard(numPlayers) {
     const that = {
         ROWS: 6,
         COLUMNS: 7,
+        WIN_COUNT: 4,
         playersCoordinates: playersCoordinates,
 
         isEmpty(coordinate) {
@@ -314,21 +315,39 @@ function initBoard(numPlayers) {
         },
 
         isWinnerInDirection(color, direction) {
-            let count = 1;
-            const lastPlaced = this.getLastPlaced(color);
-            for (let forward of [true, false]) {
-                let coordinateInDirection;
-                let coordinate = lastPlaced;
-                do {
-                    coordinate = direction.shift(coordinate, forward);                    
-                    coordinateInDirection = this.isInBoard(coordinate) && this.getColor(coordinate) === color;
-                    if (coordinateInDirection) {
-                        count++;
-                    }
-                } while (coordinateInDirection);
+            assert(direction ?? false);
+            let win = false;
+            let firstCoordinate = this.getLastPlaced(color);
+            const numCoordinatesGroupsToCheck = that.WIN_COUNT;
+            for (let i = 0; !win && i < numCoordinatesGroupsToCheck; i++) {
+                let coordinates = this.getGroupToCheck(firstCoordinate, direction);
+                win = this.isWinnerGroup(coordinates, color);
+                if (!win) {
+                    firstCoordinate = firstCoordinate.shift(direction.inverse());
+                }
             }
-            const GOAL = 4;
-            return count >= GOAL;
+            return win;
+        },
+
+        getGroupToCheck(firstCoordinate, direction) {
+            assert(firstCoordinate ?? false);
+            let coordinates = [firstCoordinate];
+            for (let i = 1; i < that.WIN_COUNT; i++) {
+                coordinates[i] = coordinates[i - 1].shift(direction);
+            }
+            return coordinates;
+        },
+
+        isWinnerGroup(coordinates, color) {
+            assert(color ?? false);
+            assert(!color.isNone());
+            assert(coordinates ?? false);
+            assert(coordinates.length >= that.WIN_COUNT);
+            let win = true;
+            for (let j = 0; win && j < coordinates.length; j++) {
+                win = this.isInBoard(coordinates[j]) && color === this.getColor(coordinates[j]);
+            }
+            return win;
         }
     };
 
@@ -342,12 +361,12 @@ function initBoard(numPlayers) {
         placeToken(column, color) {
             assert(!this.isColumnFull(column));
             const BOTTON_ROW = that.ROWS - 1;
-            let target = initCoordinate(BOTTON_ROW, column);
-            while (!that.isEmpty(target)) {
-                target = Direction.VERTICAL.shift(target, false);
+            let placedCoordinate = initCoordinate(BOTTON_ROW, column);
+            while (!that.isEmpty(placedCoordinate)) {
+                placedCoordinate = placedCoordinate.shift(Direction.VERTICAL.inverse());
             }
             const coordinates = that.getPlayerCoordinates(color);
-            coordinates[coordinates.length] = target;
+            coordinates[coordinates.length] = placedCoordinate;
         },
 
         getColor(row, column) {
@@ -355,13 +374,13 @@ function initBoard(numPlayers) {
         },
 
         isWinner(color) {
-            for (const direction of Direction.values()) {
+            for (let direction of Direction.values()) {
                 if (that.isWinnerInDirection(color, direction)) {
                     return true;
                 }
             }
             return false;
-        },        
+        },
 
         getRowsCount() {
             return that.ROWS;
@@ -371,10 +390,10 @@ function initBoard(numPlayers) {
             return that.COLUMNS;
         },
 
-        reset() {            
+        reset() {
             for (let i = 0; i < that.playersCoordinates.length; i++) {
                 that.playersCoordinates[i] = [];
-            }                            
+            }
         }
     }
 }
@@ -390,10 +409,11 @@ function initCoordinate(row, column) {
         column: column
     }
     return {
-        shift(rowShift, columnShift) {                  
-            assert(typeof rowShift === "number");
-            assert(typeof columnShift === "number");
-            return initCoordinate(that.row + rowShift, that.column + columnShift);
+        shift(direction) {
+            assert(direction ?? false);
+            const row = that.row + direction.getRowShift();
+            const column = that.column + direction.getColumnShift();
+            return initCoordinate(row, column);
         },
 
         equals(other) {
@@ -460,18 +480,18 @@ function Direction() {
             rowShift: rowShift,
             columnShift: columnShift,
         }
-        
+
         return {
-            shift(coordinate, forward) {
-                assert(coordinate ?? false);
-                assert(typeof forward === "boolean");
-                let rowShift = that.rowShift;
-                let columnShift = that.columnShift;
-                if  (!forward) {
-                    rowShift = -rowShift;
-                    columnShift = -columnShift;
-                }
-                return coordinate.shift(rowShift, columnShift);
+            inverse() {
+                return initDirection(-that.rowShift, -that.columnShift);
+            },
+
+            getRowShift() {
+                return that.rowShift;
+            },
+
+            getColumnShift() {
+                return that.columnShift;
             }
         }
     }

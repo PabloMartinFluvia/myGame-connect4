@@ -1,8 +1,12 @@
 # Problem solved in this commit
 
 ## Problem
+To obtain shfted coordinates Direction uses Coordinate. This can be confusing. 
+
+Also method isWinnerInDirection(color, direction) in Board can be confusing.
 
 ## Solution
+Refactor method, and change dependency order (Coordinate uses Direction)
 
 
 # TODOs in code review

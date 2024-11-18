@@ -80,6 +80,7 @@ BoardView ..> Game
 class Board {
     - ROWS = 6
     - COLUMNS = 7
+    - WIN_COUNT = 4
     
     + initBoard(numPlayers)
     + isColumnFull(column)
@@ -100,11 +101,12 @@ class Coordinate {
     - column 
 
     + initCoordinate(row, column)
-    + shift(rowShift, columnShift)
+    + shift(direction)
     + equals(other)   
     + hasRowInInterval(interval)
     + hasColumnInInterval(interval)
 }
+Coordinate ..> Direction
 Coordinate ..> ClosedInterval
 
 class ClosedInterval {
@@ -124,9 +126,11 @@ enum Direction {
 
     - initDirection(rowShift, columnShift)
     + {static} values()
-    + shift(coordinate, forward)
+    + inverse()
+    + getRowShift()
+    + getColumnShift()
 }
-Direction ..> Coordinate
+
 
 enum Color {
     + X
