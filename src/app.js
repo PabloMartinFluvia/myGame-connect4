@@ -6,28 +6,35 @@ initConnect4().play();
 
 function initConnect4() {
     initEnumConfiguartor().setUp();
-
+    
+    const game = initGame()
     const that = {
-        continueDialog: initYesNoDialog("Do you want to continue?"),
-    };
+        game: game,
+        gameView: initGameView(game)
+    }
 
     return {
-        play() {
-            do {
-                initGameView().play();
-                that.continueDialog.ask();
-            } while (that.continueDialog.isAffirmative());
+        play() {            
+            const resumeDialog = initYesNoDialog("Do you want to continue?");
+            let resume;
+            do {                
+                that.gameView.play();
+                resumeDialog.ask();
+                resume = resumeDialog.isAffirmative();
+                if (resume) {
+                    that.game.reset();
+                }
+            } while (resume);
         }
     }
 
 }
 
-function initGameView() {
-    const game = initGame();
+function initGameView(game) {    
     const that = {            
-        boardView: initBoardView(game), 
-        playerView: initPlayerView(game), 
         game: game, 
+        boardView: initBoardView(game), 
+        playerView: initPlayerView(game),         
 
         askColumn() {
             let column;
@@ -43,8 +50,8 @@ function initGameView() {
         },
 
         isBoardFull() {
-            for (let i = 0; i < this.game.getColumnsCount(); i++) {
-                if (!this.game.isColumnFull(i)) {
+            for (let column = 0; column < this.game.getColumnsCount(); column++) {
+                if (!this.game.isColumnFull(column)) {
                     return false;
                 }
             }
@@ -53,7 +60,7 @@ function initGameView() {
 
         showEnd() {
             if (this.game.isPlayerWinner()) {
-                this.playerView.win();
+                this.playerView.showWinner();
             } else {
                 consoleMPDS.writeln("You have tied!!!");
             }
@@ -67,7 +74,7 @@ function initGameView() {
             let end;
             do {
                 const column = that.askColumn(); 
-                that.game.addPlayerToken(column);
+                that.game.placePlayerToken(column);
                 that.boardView.show();
                 end = that.game.isPlayerWinner() || that.isBoardFull();
                 if (!end) {
@@ -88,16 +95,16 @@ function initGame() {
     }
 
     return {
-        addPlayerToken(column) {
-            that.turn.addPlayerToken(column); 
+        placePlayerToken(column) {
+            that.turn.placePlayerToken(column); 
         },
 
         getColumnsCount() {
             return that.board.getColumnsCount();
         },
 
-        isColumnFull(columnIndex) {
-            return that.board.isColumnFull(columnIndex);
+        isColumnFull(column) {
+            return that.board.isColumnFull(column);
         },
 
         isPlayerWinner() {
@@ -114,6 +121,11 @@ function initGame() {
 
         getBoard() {
             return that.board;
+        },
+
+        reset() {
+            that.board.reset();
+            that.turn.reset();
         }
     }
 }
@@ -126,7 +138,7 @@ function initPlayerView(game) {
 
     return {        
         askColumn() {
-            const prefix = `Player ${that.turn.getPlayerId()} choose`; 
+            const prefix = `Player ${that.turn.getPlayerString()} choose`; 
             that.columnDialog.setPrefix(prefix);
             return that.columnDialog.ask() - 1;
         },
@@ -135,8 +147,8 @@ function initPlayerView(game) {
             consoleMPDS.writeln("Wrong column: it's full.");
         },
 
-        win() {
-            consoleMPDS.writeln(`Player ${that.turn.getPlayerId()} won!!! ;-)`);
+        showWinner() {
+            consoleMPDS.writeln(`Player ${that.turn.getPlayerString()} won!!! ;-)`);
         }
     }
 }
@@ -164,11 +176,11 @@ function initTurn(numPlayers, board) {
     }
 
     return {
-        getPlayerId() { 
+        getPlayerString() { 
             return that.getPlayerColor().toString();
         },
 
-        addPlayerToken(column) {
+        placePlayerToken(column) {
             that.board.placeToken(column, that.getPlayerColor());
         },
 
@@ -178,6 +190,10 @@ function initTurn(numPlayers, board) {
 
         change() {
             that.turnValue = (that.turnValue + 1) % that.playersColors.length;
+        },
+
+        reset() {
+            that.turnValue = 0;
         }
     }
 }
@@ -205,16 +221,22 @@ function initBoardView(game) {
             const CORNER_CELL = "|";
             let msg = CORNER_CELL;
             for (let column = 0; column < this.board.getColumnsCount(); column++) {
-                for (let j = 1; j < this.CELL_CHARS_COUNT; j++) {
-                    if (this.isMiddleCharInCell(j)) {
-                        msg += this.board.getColor(row, column).toString();
-                    } else {
-                        msg += that.ROW_SEPARATOR;
-                    }                    
-                }
+                msg += this.getCellMsg(row, column);
                 msg += CORNER_CELL;
             }
             consoleMPDS.writeln(msg);
+        },
+
+        getCellMsg(row, column) {
+            let msg = "";
+            for (let j = 1; j < this.CELL_CHARS_COUNT; j++) {
+                if (this.isMiddleCharInCell(j)) {
+                    msg += this.board.getColor(row, column).toString();
+                } else {
+                    msg += this.ROW_SEPARATOR;
+                }                    
+            }
+            return msg;
         },
 
         isMiddleCharInCell(index) {
@@ -238,14 +260,14 @@ function initBoard(numPlayers) {
         assert(!Color.get(i).isNone());
     }
 
-    const playersPlaceds = [];
+    const playersCoordinates = [];
     for (let i = 0; i < numPlayers; i++) {
-        playersPlaceds[i] = [];
+        playersCoordinates[i] = [];
     }
     const that = {
         ROWS: 6,
         COLUMNS: 7,
-        playersPlaceds: playersPlaceds,
+        playersCoordinates: playersCoordinates,
 
         isEmpty(coordinate) {
             return this.getColor(coordinate).isNone();
@@ -253,7 +275,7 @@ function initBoard(numPlayers) {
 
         getColor(coordinate) {
             assert(this.isInBoard(coordinate));
-            for (let i = 0; i < this.playersPlaceds.length; i++) {
+            for (let i = 0; i < this.playersCoordinates.length; i++) {
                 const color = Color.get(i);
                 if (this.isPlacedByPlayer(coordinate, color)) {
                     return color;
@@ -270,40 +292,40 @@ function initBoard(numPlayers) {
 
         isPlacedByPlayer(coordinate, color) {
             assert(coordinate ?? false);
-            for (const placed of this.getPlacedsByPlayer(color)) {
-                if (coordinate.equals(placed)) {
+            for (let playerCoordinate of this.getPlayerCoordinates(color)) {
+                if (coordinate.equals(playerCoordinate)) {
                     return true;
                 }
             }
             return false;
         },
 
-        getPlacedsByPlayer(color) {
+        getPlayerCoordinates(color) {
             assert(color ?? false);
             assert(!color.isNone());
-            assert(initClosedInterval(this.playersPlaceds.length - 1)
+            assert(initClosedInterval(this.playersCoordinates.length - 1)
                 .includes(color.ordinal()));
-            return this.playersPlaceds[color.ordinal()];
+            return this.playersCoordinates[color.ordinal()];
         },
 
         getLastPlaced(color) {
-            const placeds = this.getPlacedsByPlayer(color);
-            return placeds[placeds.length - 1];
+            const coordinates = this.getPlayerCoordinates(color);
+            return coordinates[coordinates.length - 1];
         },
 
         isWinnerInDirection(color, direction) {
             let count = 1;
             const lastPlaced = this.getLastPlaced(color);
             for (let forward of [true, false]) {
-                let ok;
-                let current = lastPlaced;
+                let coordinateInDirection;
+                let coordinate = lastPlaced;
                 do {
-                    current = direction.shift(current, forward);                    
-                    ok = this.isInBoard(current) && this.getColor(current) === color;
-                    if (ok) {
+                    coordinate = direction.shift(coordinate, forward);                    
+                    coordinateInDirection = this.isInBoard(coordinate) && this.getColor(coordinate) === color;
+                    if (coordinateInDirection) {
                         count++;
                     }
-                } while (ok);
+                } while (coordinateInDirection);
             }
             const GOAL = 4;
             return count >= GOAL;
@@ -324,8 +346,8 @@ function initBoard(numPlayers) {
             while (!that.isEmpty(target)) {
                 target = Direction.VERTICAL.shift(target, false);
             }
-            const placeds = that.getPlacedsByPlayer(color);
-            placeds[placeds.length] = target;
+            const coordinates = that.getPlayerCoordinates(color);
+            coordinates[coordinates.length] = target;
         },
 
         getColor(row, column) {
@@ -348,6 +370,12 @@ function initBoard(numPlayers) {
         getColumnsCount() {
             return that.COLUMNS;
         },
+
+        reset() {            
+            for (let i = 0; i < that.playersCoordinates.length; i++) {
+                that.playersCoordinates[i] = [];
+            }                            
+        }
     }
 }
 

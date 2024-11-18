@@ -5,8 +5,9 @@ class Connect4 {
     + initConnect4()
     + play()
 }
-Connect4 *--> YesNoDialog
-Connect4 ..> GameView
+Connect4 *--> Game
+Connect4 *--> GameView
+Connect4 ..> YesNoDialog
 
 class YesNoDialog #LightGreen {  
     - question
@@ -20,23 +21,24 @@ class YesNoDialog #LightGreen {
 }
 
 class GameView #LightGreen {
-    + initGameView()
+    + initGameView(game)
     + play()
 }
-GameView *--> Game
+GameView --> Game
 GameView *--> PlayerView
 GameView *--> BoardView
 
 class Game {     
 
     + initGame()
-    + addPlayerToken(column)
+    + placePlayerToken(column)
     + getColumnsCount()
-    + isColumnFull(columnIndex)
+    + isColumnFull(column)
     + isPlayerWinner()    
     + changeTurn()
     + getTurn()
     + getBoard()
+    + reset()
 }
 Game *--> Turn
 Game *--> Board
@@ -45,7 +47,7 @@ class PlayerView #LightGreen {
     + initTurnView(game)
     + askColumn()
     + showErrorFullColumn()
-    + win()
+    + showWinner()
 }
 PlayerView --> Turn
 PlayerView ..> Game
@@ -55,10 +57,11 @@ class Turn {
     - turnValue
 
     + initTurn(numPlayers, board)  
-    + getPlayerId()      
-    + addPlayerToken(column)        
+    + getPlayerString()      
+    + placePlayerToken(column)        
     + isPlayerWinner()
-    + change()    
+    + change()   
+    + reset() 
 }
 Turn *--> "numPlayers" Color : playersColors
 Turn --> Board
@@ -85,8 +88,9 @@ class Board {
     + isWinner(color)    
     + getRowsCount()
     + getColumnsCount()
+    + reset()
 }
-Board *--> "0..ROWS x COLUMNS" Coordinate : playersPlaceds
+Board *--> "numPlayers x (0..ROWS x COLUMNS) / numPlayers" Coordinate : playersCoordinates
 Board ..> ClosedInterval
 Board ..> Direction
 Board ..> Color
