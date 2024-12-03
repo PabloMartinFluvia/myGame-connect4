@@ -103,11 +103,10 @@ class Coordinate {
     + initCoordinate(row, column)
     + shift(direction)
     + equals(other)   
-    + hasRowInInterval(interval)
-    + hasColumnInInterval(interval)
+    + getRow()
+    + getColumn()
 }
 Coordinate ..> Direction
-Coordinate ..> ClosedInterval
 
 class ClosedInterval {
     - max
