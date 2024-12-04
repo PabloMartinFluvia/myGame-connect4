@@ -24,7 +24,7 @@ Task's description contains what's <i>new</i> vs previous task.
         - v0.0.0 only with models
         - v0.0.1 Document-View architecture: views (presentation + logic) -> models (data)
 - Basic version.
-- Process Oriented Programing.
+- Object Based Programing.
 - Imperative programing.
 
 ![Analysys](../../out/docs/dev-resume/src/analysis/analysis.svg)
