@@ -4,6 +4,7 @@
 * [Intro](#intro)
 * [Tasks - Branches](#tasks---branches)
     * [Task 0](#task-0-js_v00)
+    * [Task 1](#task-1-js_v001)
 
 ## Intro
 This project has been used for practice:
@@ -18,13 +19,17 @@ This project has been used for practice:
 ## Tasks - Branches
 Task's description contains what's <i>new</i> vs previous task.
 
-### Task 0: js_v0.0.0, js_v0.0.1
+### Task 0: js_v0.0.0
 - Task:
     - Implement vasic version.
-        - v0.0.0 only with models
-        - v0.0.1 Document-View architecture: views (presentation + logic) -> models (data)
+        - Only with models        
 - Basic version.
-- Process Oriented Programing.
+- Object Based Programing.
 - Imperative programing.
+
+### Task 1: js_v0.0.1
+- Task: 
+    - Uncouple models to in/out technologies.
+    - Document-View architecture: views (presentation + logic) -> models (data)
 
 ![Analysys](../../out/docs/dev-resume/src/analysis/analysis.svg)
