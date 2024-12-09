@@ -1,8 +1,10 @@
 # Problem solved in this commit
 
 ## Problem
+- Direction and Color implementation is a bungle, to simulate an Enum.
 
 ## Solution
+- Replace these classes, use theory learned till now, and wait for Symbols theory.
 
 ## Ideas to consider in the future
 - Remove Enums?
@@ -11,12 +13,13 @@
 - data group (row/column) in BoardView?
 - getPlayerString method in turn?
 - Modify PlayerView: associate to game and request player? (uncoupled of turn)
-- toStringMethods?
+- toString methods in models?
 - WTF turn.placePlayerToken(column) in Game?
 - turn collaborates with board?
 - simplify how is initialized some objectes?
 - getColot public method in Board?
 - simplify Board?
+- static methods in color
 
 
 # TODOs in code review
