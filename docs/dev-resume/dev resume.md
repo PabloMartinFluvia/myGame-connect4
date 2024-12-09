@@ -5,6 +5,7 @@
 * [Tasks - Branches](#tasks---branches)
     * [Task 0](#task-0-js_v00)
     * [Task 1](#task-1-js_v001)
+    * [Task 2](#task-2-js_v02)
 
 ## Intro
 This project has been used for practice:
@@ -31,5 +32,10 @@ Task's description contains what's <i>new</i> vs previous task.
 - Task: 
     - Uncouple models to in/out technologies.
     - Document-View architecture: views (presentation + logic) -> models (data)
+
+### Task 2: js_v0.2
+- Task:
+    - Apply native js's methods from prorotypes (Array, Function, Object, wrappers ...)
+    - Use constructor functions
 
 ![Analysys](../../out/docs/dev-resume/src/analysis/analysis.svg)

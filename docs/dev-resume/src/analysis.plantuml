@@ -7,7 +7,7 @@ class Connect4 {
 }
 Connect4 *--> Game
 Connect4 *--> GameView
-Connect4 ..> YesNoDialog
+Connect4 *--> YesNoDialog
 
 class YesNoDialog #LightGreen {  
     - question
@@ -19,6 +19,12 @@ class YesNoDialog #LightGreen {
     + ask()
     + isAffirmative()
 }
+
+
+
+
+
+
 
 class GameView #LightGreen {
     + initGameView(game)
@@ -56,7 +62,7 @@ PlayerView *--> LimitedIntDialog : columnDialog
 class Turn {
     - turnValue
 
-    + initTurn(numPlayers, board)  
+    + initTurn(board, numPlayers)  
     + getPlayerString()      
     + placePlayerToken(column)        
     + isPlayerWinner()

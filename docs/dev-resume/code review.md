@@ -4,6 +4,19 @@
 
 ## Solution
 
+## Ideas to consider in the future
+- Remove Enums?
+- Simplify methods with native methods?
+- askColumn logic in GameView -> readColum in PlayerView?
+- data group (row/column) in BoardView?
+- getPlayerString method in turn?
+- Modify PlayerView: associate to game and request player? (uncoupled of turn)
+- toStringMethods?
+- WTF turn.placePlayerToken(column) in Game?
+- turn collaborates with board?
+- simplify how is initialized some objectes?
+- getColot public method in Board?
+- simplify Board?
 
 
 # TODOs in code review
