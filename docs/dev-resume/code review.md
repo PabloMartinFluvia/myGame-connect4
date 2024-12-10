@@ -1,26 +1,19 @@
 # Problem solved in this commit
 
 ## Problem
-- Direction and Color implementation is a bungle, to simulate an Enum.
+- Actual logic dessign looks strange: due Color is equivalent to Player, the turn collaborates with board (to place token, to ask if the actual player is winner)
 
 ## Solution
-- Replace these classes, use theory learned till now, and wait for Symbols theory.
+- Redesign
+    Player collaborates with Board
+    Player is identified by a token (modeled as char)
+    Turn has Players, decoupled of Board
+- During the redesign some upgrades has been done:
+    * Replaced logic with wrappers and array methods: for simplicity
+    * Board has been simplified
 
 ## Ideas to consider in the future
-- Remove Enums?
-- Simplify methods with native methods?
 - askColumn logic in GameView -> readColum in PlayerView?
-- data group (row/column) in BoardView?
-- getPlayerString method in turn?
-- Modify PlayerView: associate to game and request player? (uncoupled of turn)
-- toString methods in models?
-- WTF turn.placePlayerToken(column) in Game?
-- turn collaborates with board?
-- simplify how is initialized some objectes?
-- getColot public method in Board?
-- simplify Board?
-- static methods in color
-
 
 # TODOs in code review
 1. Simplicity:

@@ -2,128 +2,119 @@
 
 class Connect4 {
 
-    + initConnect4()
+    + Connect4()
     + play()
 }
-Connect4 *--> Game
-Connect4 *--> GameView
-Connect4 *--> YesNoDialog
+Connect4 *-down-> Game
+Connect4 *-down-> GameView
+Connect4 *-down-> YesNoDialog
 
-class YesNoDialog #LightGreen {  
-    - question
-    - answer   
-    - YES
-    - NO
+class YesNoDialog #LightGreen {      
+    + question
+    + answer  
+    + YES
+    + NO     
 
-    + initYesNoDialog(question)
+    + YesNoDialog(question)
     + ask()
     + isAffirmative()
 }
 
-
-
-
-
-
-
 class GameView #LightGreen {
-    + initGameView(game)
+    + GameView(game)
     + play()
 }
-GameView --> Game
-GameView *--> PlayerView
-GameView *--> BoardView
+GameView -right-> Game
+GameView *-down-> PlayerView
+GameView *-down-> BoardView
 
-class Game #Wheat{     
+class Game #Wheat{  
 
-    + initGame()
-    + placePlayerToken(column)
-    + getColumnsCount()
+    + Game()
+    + countColumns()
     + isColumnFull(column)
-    + isPlayerWinner()    
+    + placeToken(column)
+    + isWinner() 
     + changeTurn()
     + getTurn()
     + getBoard()
     + reset()
 }
-Game *--> Turn
-Game *--> Board
-
-class PlayerView #LightGreen {
-    + initTurnView(game)
-    + askColumn()
-    + showErrorFullColumn()
-    + showWinner()
-}
-PlayerView --> Turn
-PlayerView ..> Game
-PlayerView *--> LimitedIntDialog : columnDialog
+Game *-down-> Turn
+Game *-down-> Board
+Game ..> Player
 
 class Turn #Wheat{
-    - turnValue
+    + index
 
-    + initTurn(board, numPlayers)  
-    + getPlayerString()      
-    + placePlayerToken(column)        
-    + isPlayerWinner()
+    + Turn(players)  
+    + getPlayer()  
     + change()   
     + reset() 
 }
-Turn *--> "numPlayers" Color : playersColors
-Turn --> Board
+Turn -right-> "tokens.length" Player
 
-class BoardView #LightGreen {
-    - CELL_CHARS_COUNT
-    - ROW_SEPARATOR
 
-    + initBoardView(game)
-    + show()
+class PlayerView #LightGreen {
+    + PlayerView(game)
+    + askColumn()
+    + win()
 }
-BoardView --> Board
-BoardView ..> Color
-BoardView ..> Game
+PlayerView ..> Game
+PlayerView -right-> Turn
+PlayerView ..> Player
+PlayerView *-down-> LimitedIntDialog : columnDialog
 
-class Board #Wheat{
-    - ROWS = 6
-    - COLUMNS = 7
-    - WIN_COUNT = 4
+class LimitedIntDialog #LightGreen {
+    + subject
+    + actionTitle
     
-    + initBoard(numPlayers)
-    + isColumnFull(column)
-    + placeToken(column, color)
-    + getColor(row, column)
-    + isWinner(color)    
-    + getRowsCount()
-    + getColumnsCount()
-    + reset()
+    + initLimitedIntDialog(subject = "value", max, min = 1, actionTitle = "Introduce") 
+    + ask()
+    + setActionTitle(actionTitle)
 }
-Board *--> "numPlayers x (0..ROWS x COLUMNS) / numPlayers" Coordinate : playersCoordinates
-Board ..> ClosedInterval
-Board ..> Direction
-Board ..> Color
+LimitedIntDialog *-down-> IntervalClosed : limits
 
-class Coordinate #Wheat{
-    - row
-    - column 
+class IntervalClosed #LightGray{
+    + max
+    + min
 
-    + initCoordinate(row, column)
-    + shift(direction)
-    + equals(other)   
-    + getRow()
-    + getColumn()
-}
-Coordinate ..> Direction
-
-class ClosedInterval #Wheat{
-    - max
-    - min
-
-    + initClosedInterval(max, min = 0)
+    + IntervalClosed(max, min = 0)
     + includes(value)
     + toString()
 }
 
-class Direction #Wheat{
+class Player #Wheat{
+    + token
+
+    + Player(token, board)
+    + placeToken(column)
+    + isWinner()
+    + toString()
+}
+Player -right-> Board
+
+class Board #Wheat{
+    + ROWS = 6
+    + COLUMNS = 7
+    + WIN_COUNT = 4
+    + tokens
+    + tokensCoordinates
+    
+    + Board(tokens)
+    + isColumnFull(column)
+    + placeToken(token, column)
+    + isWinner(token)  
+    + getToken(coordinate) 
+    + countRows()
+    + countColumns()
+    + reset()    
+}
+Board ..> IntervalClosed
+Board ..> Coordinate
+Board ..> Direction
+
+class Direction #LightGray{
     + rowShift
     + columnShift
 
@@ -132,6 +123,50 @@ class Direction #Wheat{
     + getRowShift()
     + getColumnShift()
 }
+
+class Coordinate #LightGray{
+    + row
+    + column 
+
+    + Coordinate(row, column)
+    + shift(direction)
+    + equals(other)   
+    + getRow()
+    + getColumn()
+}
+Coordinate ..> Direction
+
+class BoardView #LightGreen {
+    + VERTICAL
+    + HORIZONTAL
+    + CHARS_IN_CELL_PATTERN
+
+    + BoardView(game)
+    + show()
+}
+BoardView -right-> Board
+BoardView ..> Game
+BoardView ..> Coordinate
+
+/'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 enum Color #Wheat{
@@ -150,14 +185,7 @@ Color ..> ClosedInterval
 
 
 
-class LimitedIntDialog #LightGreen {
-    - requested
-    - prefix
-    
-    + initLimitedIntDialog(requested, max, min = 1, prefix = "") 
-    + ask()
-    + setPrefix(prefix)
-}
-LimitedIntDialog *--> ClosedInterval : limits
+
+'/
 
 @enduml
