@@ -33,10 +33,9 @@ class Game #Wheat{
     + Game()
     + countColumns()
     + isColumnFull(column)
-    + placeToken(column)
     + isWinner() 
     + changeTurn()
-    + getTurn()
+    + getPlayer()
     + getBoard()
     + reset()
 }
@@ -57,11 +56,10 @@ Turn -right-> "tokens.length" Player
 
 class PlayerView #LightGreen {
     + PlayerView(game)
-    + askColumn()
+    + readToken()
     + win()
 }
-PlayerView ..> Game
-PlayerView -right-> Turn
+PlayerView -right-> Game
 PlayerView ..> Player
 PlayerView *-down-> LimitedIntDialog : columnDialog
 
@@ -130,6 +128,7 @@ class Coordinate #LightGray{
 
     + Coordinate(row, column)
     + shift(direction)
+    + getRange(direction, count)
     + equals(other)   
     + getRow()
     + getColumn()

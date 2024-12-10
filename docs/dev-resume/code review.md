@@ -1,19 +1,22 @@
 # Problem solved in this commit
 
 ## Problem
-- Actual logic dessign looks strange: due Color is equivalent to Player, the turn collaborates with board (to place token, to ask if the actual player is winner)
+- In GameView, the process of read the target column is done collaborating with PlayerView (ask) and Game (place). These sub process are highly coupled.
+- Direction names can be confusing.
+- Method in Game for create candidates to check if connect4 don't need any game member -> low cohesion
 
 ## Solution
-- Redesign
-    Player collaborates with Board
-    Player is identified by a token (modeled as char)
-    Turn has Players, decoupled of Board
-- During the redesign some upgrades has been done:
-    * Replaced logic with wrappers and array methods: for simplicity
-    * Board has been simplified
+- PlayerView was already coupled to game: moved code to PlayerView and rename ask method to read(), wich internally places .
+- Directions objects renamed.
+- Responsibility of create candidates to check assumed by (last placed) Coordinate.
+
 
 ## Ideas to consider in the future
-- askColumn logic in GameView -> readColum in PlayerView?
+- Num of rows and columns in Board? Or in Coordinate (as dimension)? Who needs the data?
+- There's methods wich doesn't need any class member?
+    - GetDirections in Board?
+- Delete Player + turn hasTokens + in PlayerView game.placeToken(colum) + in Game board.placeToken(turn.getToken()) ? Game creates TOKENS and provides it to Board and Turn when init. Turn and Board decoupled. -> Maybe PlayerView not needed anymore?
+- tokens and tokensCoordinates are highly coupled: I don't like the idea of the same data structure is shared in differents classes -> Player, instead of store the token, sotres the index/position? ->  Board and Turn recives NUM_PLAYERS + turn returns value (== playerId) + board in/out is value instead of token (idem game) + TokenView to parse value to token's char
 
 # TODOs in code review
 1. Simplicity:
