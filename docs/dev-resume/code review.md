@@ -1,14 +1,10 @@
 # Problem solved in this commit
 
 ## Problem
-- In GameView, the process of read the target column is done collaborating with PlayerView (ask) and Game (place). These sub process are highly coupled.
-- Direction names can be confusing.
-- Method in Game for create candidates to check if connect4 don't need any game member -> low cohesion
+- There's messages to show to user writted above all code
 
 ## Solution
-- PlayerView was already coupled to game: moved code to PlayerView and rename ask method to read(), wich internally places .
-- Directions objects renamed.
-- Responsibility of create candidates to check assumed by (last placed) Coordinate.
+- Messages centralized.
 
 
 ## Ideas to consider in the future
@@ -17,6 +13,10 @@
     - GetDirections in Board?
 - Delete Player + turn hasTokens + in PlayerView game.placeToken(colum) + in Game board.placeToken(turn.getToken()) ? Game creates TOKENS and provides it to Board and Turn when init. Turn and Board decoupled. -> Maybe PlayerView not needed anymore?
 - tokens and tokensCoordinates are highly coupled: I don't like the idea of the same data structure is shared in differents classes -> Player, instead of store the token, sotres the index/position? ->  Board and Turn recives NUM_PLAYERS + turn returns value (== playerId) + board in/out is value instead of token (idem game) + TokenView to parse value to token's char
+
+- Utility classes are coupled to Message.
+
+- countColumns in Game and Board?
 
 # TODOs in code review
 1. Simplicity:

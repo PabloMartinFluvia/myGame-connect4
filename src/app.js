@@ -5,13 +5,14 @@ const consoleMPDS = new Console();
 new Connect4().play();
 
 function Connect4() {
-    initPrototypes();
+    setup();
 
     this.game = new Game();
     this.gameView = new GameView(this.game);
-    this.resumeDialog = new YesNoDialog("Do you want to continue?");
+    this.resumeDialog = new YesNoDialog();
 
-    function initPrototypes() {
+    function setup() {
+        Messages();
         initConnect4Prototype();
         initYesNoDialogProtoype();
         initGameViewPrototype();
@@ -41,36 +42,6 @@ function initConnect4Prototype() {
     }
 }
 
-function YesNoDialog(question) {
-    assert(typeof question === "string");
-    assert(question.endsWith('?'));
-
-    this.question = question;
-    this.answer = undefined;
-    this.YES = "y";
-    this.NO = "n";
-}
-function initYesNoDialogProtoype() {
-    YesNoDialog.prototype.ask = function () {
-        let error = false;
-        do {
-            this.answer = consoleMPDS.readString(`${this.question} (${this.YES}/${this.NO}):`);
-            error = !this.isAffirmative() && !isNegative(this);
-            if (error) {
-                consoleMPDS.writeln(`Please, answer "${this.YES}" or "${this.NO}"`);
-            }
-        } while (error);
-
-        function isNegative({ answer, NO }) {
-            return answer === NO;
-        }
-    };
-
-    YesNoDialog.prototype.isAffirmative = function () {
-        return this.answer === this.YES;
-    };
-}
-
 function GameView(game) {
     assert(game ?? false);
 
@@ -80,56 +51,116 @@ function GameView(game) {
 }
 function initGameViewPrototype() {
     GameView.prototype.play = function () {
-        consoleMPDS.writeln("--------- CONNECT4 ----------\n");
+        consoleMPDS.writeln(Messages.TITLE);
         this.boardView.show();
         let end;
         do {
             this.playerView.readToken();
             this.boardView.show();
-            end = this.game.isWinner() || isBoardFull(this);
+            end = this.playerView.isWinner() || isBoardFull(this);
             if (!end) {
                 this.game.changeTurn();
             }
         } while (!end);
-        showEnd(this);
+        this.playerView.end();
 
         function isBoardFull({ game }) {
-            for (let column = 0; column < game.countColumns(); column++) {
+            for (let column = 0; column < game.getColumnDimension(); column++) {
                 if (!game.isColumnFull(column)) {
                     return false;
                 }
             }
             return true;
         };
-
-        function showEnd({ game, playerView }) {
-            if (game.isWinner()) {
-                playerView.win();
-            } else {
-                consoleMPDS.writeln("You have tied!!!");
-            }
-        }
     };
 }
+
+function PlayerView(game) {
+    assert(game ?? false);
+    this.game = game;
+    this.columnDialog = new LimitedIntDialog(game.getColumnDimension());
+}
+function initPlayerViewPrototype() {
+    PlayerView.prototype.readToken = function () {
+        const player = getPlayer(this);
+        let column;
+        let error;
+        do {             
+            column = this.columnDialog.ask(
+                `${Messages.READ_TOKEN_PREFIX}${player}${Messages.READ_TOKEN_SUFIX}`) - 1;
+            error = this.game.isColumnFull(column);
+            if (error) {
+                consoleMPDS.writeln(Messages.ERROR_READ_TOKEN);
+            }
+        } while (error);
+        player.placeToken(column);
+    };
+
+    function getPlayer({game}) {
+        return game.getPlayer();
+    }
+
+    PlayerView.prototype.isWinner = function () {
+        return getPlayer(this).isWinner();
+    }
+
+    PlayerView.prototype.end = function () {
+        if (this.isWinner()) {            
+            consoleMPDS.writeln(
+                `${Messages.WIN_PREFIX}${getPlayer(this)}${Messages.WIN_SUFIX}`);
+        } else {
+            consoleMPDS.writeln(Messages.TIE);
+        }        
+    }
+}
+
+function BoardView(game) {
+    assert(game ?? false);
+
+    this.board = game.getBoard();
+    this.VERTICAL = "|";
+    this.HORIZONTAL = "_";
+    this.CELL_CHARS = 4;
+}
+function initBoardViewProtoype() {
+    BoardView.prototype.show = function () {
+        const columns = this.board.getColumnDimension();
+        showTopLine(columns, this);        
+        for (let row = 0; row < this.board.getRowDimension(); row++) {
+            const ROW_CORNER = this.VERTICAL;
+            let rowLine = "";
+            for (let column = 0; column < columns; column++) {
+                const token = this.board.getToken(new Coordinate(row, column));
+                const CELL = ROW_CORNER.concat(this.HORIZONTAL)
+                    .concat(`${token ?? this.HORIZONTAL}`)
+                    .concat(this.HORIZONTAL);
+                rowLine = rowLine.concat(CELL);                
+            }
+            consoleMPDS.writeln(`${rowLine.concat(ROW_CORNER)}`);
+        }
+
+        function showTopLine(columns, { HORIZONTAL, CELL_CHARS }) {
+            const TOP_CORNER = " ";
+            const CELL = TOP_CORNER.concat(HORIZONTAL.repeat(CELL_CHARS - 1));
+            const topLine = CELL.repeat(columns)
+                .concat(TOP_CORNER);
+            consoleMPDS.writeln(topLine);
+        }
+    }
+}
+
+
 
 function Game() {
     const TOKENS = ['X', 'O'];
     this.board = new Board(TOKENS);
-    const players = TOKENS.map(token => new Player(token, this.board));
-    this.turn = new Turn(players);
+    this.turn = new Turn(TOKENS.map(token => new Player(token, this.board)));
 
 }
 function initGamePrototype() {
-    Game.prototype.countColumns = function () {
-        return this.board.countColumns();
-    };
-
-    Game.prototype.isColumnFull = function (column) {
-        return this.board.isColumnFull(column);
-    };
-
-    Game.prototype.isWinner = function () {
-        return this.turn.getPlayer().isWinner();
+    Game.prototype.reset = function () {
+        this.turn.reset();
+        this.board.reset();
     };
 
     Game.prototype.changeTurn = function () {
@@ -140,14 +171,17 @@ function initGamePrototype() {
         return this.turn.getPlayer();
     };
 
-    Game.prototype.getBoard = function () {
-        return this.board;
+    Game.prototype.isColumnFull = function (column) {
+        return this.board.isColumnFull(column);
     };
 
-    Game.prototype.reset = function () {
-        this.turn.reset();
-        this.board.reset();
+    Game.prototype.getColumnDimension = function () {
+        return this.board.getColumnDimension();
     };
+
+    Game.prototype.getBoard = function () {
+        return this.board;
+    };    
 }
 
 function Turn(players) {
@@ -157,101 +191,22 @@ function Turn(players) {
     this.players = players;
     this.index = 0;
 }
-function initTurnPrototype() {
+function initTurnPrototype() {    
+    consoleMPDS.writeln(1 % 0);  
     Turn.prototype.getPlayer = function () {
         return this.players[this.index];
     };
 
     Turn.prototype.change = function () {
         this.index = (this.index + 1) % this.players.length;
-    };
+    }; 
 
     Turn.prototype.reset = function () {
         this.index = 0;
     };
 }
 
-function PlayerView(game) {
-    assert(game ?? false);
-    this.game = game;
-    this.columnDialog = new LimitedIntDialog('column', game.countColumns());
-}
-function initPlayerViewPrototype() {
-    PlayerView.prototype.readToken = function () {
-        const player = this.game.getPlayer();
-        let column;
-        let error;
-        do {
-            this.columnDialog.setActionTitle(`Player ${player.getToken()} choose`);
-            column = this.columnDialog.ask() - 1;
-            error = this.game.isColumnFull(column);
-            if (error) {
-                consoleMPDS.writeln("Wrong column: it's full.");
-            }
-        } while (error);
-        player.placeToken(column);
-    };
-
-    PlayerView.prototype.win = function () {
-        const player = this.game.getPlayer();
-        consoleMPDS.writeln(`Player ${player.getToken()} won!!! ;-)`);
-    }
-}
-
-function LimitedIntDialog(subject = "value", max, min = 1, actionTitle = "Introduce") {
-    assert(typeof subject === "string");
-    assert(typeof actionTitle === "string");
-    assert(Number.isInteger(max));
-    assert(Number.isInteger(min));
-
-    this.subject = subject;
-    this.actionTitle = actionTitle;
-    this.limits = new IntervalClosed(max, min);
-}
-function initLimitedIntDialogPrototype() {
-    LimitedIntDialog.prototype.ask = function () {
-        let answer;
-        let error;
-        do {
-            answer = consoleMPDS.readNumber(`${this.actionTitle} ${this.subject}:`);
-            error = !this.limits.includes(answer);
-            if (error) {
-                consoleMPDS.writeln(`Wrong ${this.subject}: it must be ${this.limits}`)
-            }
-        } while (error);
-        return answer;
-    };
-
-    LimitedIntDialog.prototype.setActionTitle = function (actionTitle) {
-        assert(typeof actionTitle === "string");
-        this.actionTitle = actionTitle;
-    };
-}
-
-/**
- * Interval: [ max, min ] 
- */
-function IntervalClosed(max, min = 0) {
-    assert(typeof max === "number");
-    assert(typeof min === "number");
-    assert(max >= min);
-    this.max = max;
-    this.min = min;
-}
-function initIntervalClosedPrototype() {
-    IntervalClosed.prototype.includes = function (value) {
-        assert(typeof value === "number");
-        return this.min <= value && value <= this.max;
-    };
-
-    IntervalClosed.prototype.toString = function () {
-        return `[${this.min}, ${this.max}]`;
-    };
-}
-
 function Player(token, board) {
-    assert(typeof token === "string");
-    assert(token.length === 1);
     assert(board ?? false);
     this.token = token;
     this.board = board;
@@ -265,22 +220,20 @@ function initPlayerPrototype() {
         return this.board.isWinner(this.token);
     };
 
-    Player.prototype.getToken = function () {
-        return this.token;
+    Player.prototype.toString = function () {
+        return this.token;;
     };
 }
 
 function Board(tokens) {
     assert(Array.isArray(tokens));
     this.tokens = tokens;
-    this.tokensCoordinates = this.tokens.map(anyValue => []);
-    this.ROWS = 6;
-    this.COLUMNS = 7;
+    this.tokensCoordinates = this.tokens.map(anyValue => []);    
     this.WIN_COUNT = 4;
 }
 function initBoardPrototype() {
     Board.prototype.isColumnFull = function (column) {
-        assert(new IntervalClosed(this.COLUMNS - 1).includes(column));
+        assert(new IntervalClosed(Coordinate.COLUMN_DIMENSION - 1).includes(column));
         const TOP_ROW = 0;
         const topCoordinate = new Coordinate(TOP_ROW, column);
         return !isEmpty(topCoordinate, this);
@@ -293,7 +246,7 @@ function initBoardPrototype() {
     Board.prototype.placeToken = function (token, column) {
         assert(this.tokens.includes(token));
         assert(!this.isColumnFull(column));
-        const BOTTON_ROW = this.ROWS - 1;
+        const BOTTON_ROW = Coordinate.ROW_DIMENSION - 1;
         let placedCoordinate = new Coordinate(BOTTON_ROW, column);
         while (!isEmpty(placedCoordinate, this)) {
             const toTop = new Direction(-1, 0);
@@ -339,8 +292,8 @@ function initBoardPrototype() {
 
     function isInBoard(coordinate, board) {
         assert(coordinate ?? false);
-        return new IntervalClosed(board.ROWS - 1).includes(coordinate.getRow())
-            && new IntervalClosed(board.COLUMNS - 1).includes(coordinate.getColumn());
+        return new IntervalClosed(Coordinate.ROW_DIMENSION - 1).includes(coordinate.getRow())
+            && new IntervalClosed(Coordinate.COLUMN_DIMENSION - 1).includes(coordinate.getColumn());
     }
 
     Board.prototype.getToken = function (coordinate) {
@@ -352,13 +305,13 @@ function initBoardPrototype() {
         }
         return undefined;
     };
-
-    Board.prototype.countRows = function () {
-        return this.ROWS;
+    
+    Board.prototype.getRowDimension = function () {
+        return Coordinate.ROW_DIMENSION;
     };
 
-    Board.prototype.countColumns = function () {
-        return this.COLUMNS;
+    Board.prototype.getColumnDimension = function () {
+        return Coordinate.COLUMN_DIMENSION;
     };
 
     Board.prototype.reset = function () {
@@ -393,6 +346,9 @@ function Coordinate(row, column) {
     this.column = column;
 }
 function initCoordinatePrototype() {
+    Coordinate.ROW_DIMENSION = 6;
+    Coordinate.COLUMN_DIMENSION = 7;
+
     Coordinate.prototype.shift = function (direction) {
         assert(direction ?? false);
         const row = this.row + direction.getRowShift();
@@ -423,47 +379,87 @@ function initCoordinatePrototype() {
     };
 }
 
-function BoardView(game) {
-    assert(game ?? false);
 
-    this.board = game.getBoard();
-    this.VERTICAL = "|";
-    this.HORIZONTAL = "_";
-    this.CHARS_IN_CELL_PATTERN = 4;
+
+
+
+
+function Messages() {
+    Messages.TITLE = "--------- CONNECT4 ----------";
+    Messages.READ_TOKEN_PREFIX = `Player `;
+    Messages.READ_TOKEN_SUFIX = ` choose column:`;
+    Messages.ERROR_READ_TOKEN = `Wrong column: it's full.`;
+    Messages.WIN_PREFIX = `Player `;
+    Messages.WIN_SUFIX = ` won!!! ;-)`
+    Messages.TIE = `You have tied!!!`;
+    Messages.ERROR_VALUE_PREFIX = `Wrong value: it must be `;
+    Messages.YES = 'y';
+    Messages.NO = 'n';
+    Messages.RESUME_QUESTION = `Do you want to continue? (${Messages.YES}/${Messages.NO}):`;
+    Messages.ERROR_RESUME_ANSWER = `Please, answer "${Messages.YES}" or "${Messages.NO}"`;    
 }
-function initBoardViewProtoype() {
-    BoardView.prototype.show = function () {
-        const columns = this.board.countColumns();
-        showTopLine(columns, this);
-        for (let row = 0; row < this.board.countRows(); row++) {
-            for (let column = 0; column < columns; column++) {
-                consoleMPDS.write(`${this.VERTICAL}${this.HORIZONTAL}`)
-                let charsPrinted = 2;
-                const token = this.board.getToken(new Coordinate(row, column));
-                if (token !== undefined) {
-                    writeTokenChar(token);
-                    charsPrinted++;
-                }
-                consoleMPDS.write(this.HORIZONTAL
-                    .repeat(this.CHARS_IN_CELL_PATTERN - charsPrinted));
+
+function YesNoDialog() {    
+    this.answer = undefined;
+}
+function initYesNoDialogProtoype() {
+    YesNoDialog.prototype.ask = function () {
+        let error = false;
+        do {
+            this.answer = consoleMPDS.readString(Messages.RESUME_QUESTION);
+            error = !this.isAffirmative() && !isNegative(this);
+            if (error) {
+                consoleMPDS.writeln(Messages.ERROR_RESUME_ANSWER);
             }
-            consoleMPDS.writeln(this.VERTICAL);
-        }
+        } while (error);
 
-        function writeTokenChar(token) {
-            assert(typeof token === "string" && token.length === 1);
-            consoleMPDS.write(`${token}`);
+        function isNegative({answer}) {
+            return answer === Messages.NO;
         }
+    };
 
-        function showTopLine(columns, { HORIZONTAL, CHARS_IN_CELL_PATTERN }) {
-            const TOP_CORNER = " ";
-            const topLine = TOP_CORNER
-                .concat(HORIZONTAL.repeat(CHARS_IN_CELL_PATTERN - 1))
-                .repeat(columns)
-                .concat(TOP_CORNER);
-            consoleMPDS.writeln(topLine);
-        }
-    }
+    YesNoDialog.prototype.isAffirmative = function () {
+        return this.answer === Messages.YES;
+    };
+}
+
+function LimitedIntDialog(max, min = 1) {
+    assert(Number.isInteger(max));
+    assert(Number.isInteger(min));
+
+    this.limits = new IntervalClosed(max, min);
+}
+function initLimitedIntDialogPrototype() {
+    LimitedIntDialog.prototype.ask = function (msg) {
+        let answer;
+        let error;
+        do {
+            answer = consoleMPDS.readNumber(msg);
+            error = !this.limits.includes(answer);
+            if (error) {
+                consoleMPDS.writeln(`${Messages.ERROR_VALUE_PREFIX}${this.limits}`)
+            }
+        } while (error);
+        return answer;
+    };
+}
+
+function IntervalClosed(max, min = 0) {
+    assert(typeof max === "number");
+    assert(typeof min === "number");
+    assert(max >= min);
+    this.max = max;
+    this.min = min;
+}
+function initIntervalClosedPrototype() {
+    IntervalClosed.prototype.includes = function (value) {
+        assert(typeof value === "number");
+        return this.min <= value && value <= this.max;
+    };
+
+    IntervalClosed.prototype.toString = function () {
+        return `[${this.min}, ${this.max}]`;
+    };
 }
 
 function assert(condition, msg) {

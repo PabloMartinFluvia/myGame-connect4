@@ -35,7 +35,8 @@ Task's description contains what's <i>new</i> vs previous task.
 
 ### Task 2: js_v0.2
 - Task:
-    - Apply native js's methods from prorotypes (Array, Function, Object, wrappers ...)
     - Use constructor functions
+    - Apply native js's methods from prorotypes (Array, Function, Object, wrappers, Set, Map ...) 
+    - Apply statics   
 
 ![Analysys](../../out/docs/dev-resume/src/analysis/analysis.svg)
