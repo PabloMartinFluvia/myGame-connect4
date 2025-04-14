@@ -12,15 +12,15 @@ function Connect4() {
     this.resumeDialog = new YesNoDialog();
 
     function setup() {
-        Messages();
+        Messages();        
         initConnect4Prototype();
         initYesNoDialogProtoype();
         initGameViewPrototype();
-        initGamePrototype();
-        initTurnPrototype();
-        initPlayerViewPrototype();
+        initGamePrototype();          
+        initTurnPrototype();        
+        initPlayerViewPrototype();        
         initLimitedIntDialogPrototype();
-        initIntervalClosedPrototype();
+        initIntervalClosedPrototype();        
         initPlayerPrototype();
         initBoardPrototype();
         initDirectionPrototype();
@@ -30,7 +30,7 @@ function Connect4() {
 }
 function initConnect4Prototype() {
     Connect4.prototype.play = function () {
-        let resume;
+        let resume;        
         do {
             this.gameView.play();
             this.resumeDialog.ask();
@@ -50,7 +50,7 @@ function GameView(game) {
     this.boardView = new BoardView(game);
 }
 function initGameViewPrototype() {
-    GameView.prototype.play = function () {
+    GameView.prototype.play = function () {        
         consoleMPDS.writeln(Messages.TITLE);
         this.boardView.show();
         let end;
@@ -65,7 +65,7 @@ function initGameViewPrototype() {
         this.playerView.end();
 
         function isBoardFull({ game }) {
-            for (let column = 0; column < game.getColumnDimension(); column++) {
+            for (let column = 0; column < Coordinate.COLUMN_DIMENSION; column++) {
                 if (!game.isColumnFull(column)) {
                     return false;
                 }
@@ -78,7 +78,7 @@ function initGameViewPrototype() {
 function PlayerView(game) {
     assert(game ?? false);
     this.game = game;
-    this.columnDialog = new LimitedIntDialog(game.getColumnDimension());
+    this.columnDialog = new LimitedIntDialog(Coordinate.COLUMN_DIMENSION);
 }
 function initPlayerViewPrototype() {
     PlayerView.prototype.readToken = function () {
@@ -86,8 +86,8 @@ function initPlayerViewPrototype() {
         let column;
         let error;
         do {             
-            column = this.columnDialog.ask(
-                `${Messages.READ_TOKEN_PREFIX}${player}${Messages.READ_TOKEN_SUFIX}`) - 1;
+            const question = `${Messages.READ_TOKEN_PREFIX}${player}${Messages.READ_TOKEN_SUFIX}`;
+            column = this.columnDialog.ask(question) - 1;
             error = this.game.isColumnFull(column);
             if (error) {
                 consoleMPDS.writeln(Messages.ERROR_READ_TOKEN);
@@ -124,9 +124,9 @@ function BoardView(game) {
 }
 function initBoardViewProtoype() {
     BoardView.prototype.show = function () {
-        const columns = this.board.getColumnDimension();
+        const columns = Coordinate.COLUMN_DIMENSION;
         showTopLine(columns, this);        
-        for (let row = 0; row < this.board.getRowDimension(); row++) {
+        for (let row = 0; row < Coordinate.ROW_DIMENSION; row++) {
             const ROW_CORNER = this.VERTICAL;
             let rowLine = "";
             for (let column = 0; column < columns; column++) {
@@ -175,10 +175,6 @@ function initGamePrototype() {
         return this.board.isColumnFull(column);
     };
 
-    Game.prototype.getColumnDimension = function () {
-        return this.board.getColumnDimension();
-    };
-
     Game.prototype.getBoard = function () {
         return this.board;
     };    
@@ -191,8 +187,7 @@ function Turn(players) {
     this.players = players;
     this.index = 0;
 }
-function initTurnPrototype() {    
-    consoleMPDS.writeln(1 % 0);  
+function initTurnPrototype() {        
     Turn.prototype.getPlayer = function () {
         return this.players[this.index];
     };
@@ -227,105 +222,100 @@ function initPlayerPrototype() {
 
 function Board(tokens) {
     assert(Array.isArray(tokens));
-    this.tokens = tokens;
-    this.tokensCoordinates = this.tokens.map(anyValue => []);    
-    this.WIN_COUNT = 4;
+    this.tokenCoordinatesMap = new Map();
+    tokens.forEach(token => this.tokenCoordinatesMap.set(token, new Set()));
 }
-function initBoardPrototype() {
-    Board.prototype.isColumnFull = function (column) {
-        assert(new IntervalClosed(Coordinate.COLUMN_DIMENSION - 1).includes(column));
-        const TOP_ROW = 0;
-        const topCoordinate = new Coordinate(TOP_ROW, column);
-        return !isEmpty(topCoordinate, this);
+function initBoardPrototype() {  
+
+    Board.prototype.placeToken = function (token, column) {
+        assert(isValidToken(token, this));
+        assert(!this.isColumnFull(column));
+
+        let placed = Coordinate.createBotton(column);
+        while (!isEmpty(placed, this)) {            
+            placed = placed.shift(Direction.toTop);
+        };
+        this.tokenCoordinatesMap.get(token).add(placed);        
+    };
+
+    function isValidToken(token, {tokenCoordinatesMap}) {        
+        return Array.from(tokenCoordinatesMap.keys()).some(key => key === token);
+    }
+
+    Board.prototype.isColumnFull = function (column) {        
+        return !isEmpty(Coordinate.createTop(column), this);
     };
 
     function isEmpty(coordinate, board) {
-        return board.getToken(coordinate) === undefined;
-    }
-
-    Board.prototype.placeToken = function (token, column) {
-        assert(this.tokens.includes(token));
-        assert(!this.isColumnFull(column));
-        const BOTTON_ROW = Coordinate.ROW_DIMENSION - 1;
-        let placedCoordinate = new Coordinate(BOTTON_ROW, column);
-        while (!isEmpty(placedCoordinate, this)) {
-            const toTop = new Direction(-1, 0);
-            placedCoordinate = placedCoordinate.shift(toTop);
-        }
-        const index = this.tokens.indexOf(token);
-        this.tokensCoordinates[index].push(placedCoordinate);
-    };
-
-    Board.prototype.isWinner = function (token) {
-        assert(this.tokens.includes(token));
-        const coordinates = this.tokensCoordinates[this.tokens.indexOf(token)];
-        const lastPlaced = coordinates[coordinates.length - 1];
-        for (let direction of getDirections()) {
-            let candidates = lastPlaced.getRange(direction, this.WIN_COUNT);            
-            const LAST_PLACED_POSITIONS_TO_CHECK = this.WIN_COUNT;
-            for (let count = 1; count <= LAST_PLACED_POSITIONS_TO_CHECK; count++) {
-                if (isConnect4(candidates, token, this)) {
-                    return true;
-                } else {
-                    candidates.forEach((coordinate, index, array) =>
-                        array[index] = coordinate.shift(direction.inverse()))
-                }
-            }
-        }
-        return false;
-
-        function isConnect4(candidates, token, board) {
-            assert(candidates.length === board.WIN_COUNT);
-            return candidates.every(coordinate =>
-                isInBoard(coordinate, board)
-                && token === board.getToken(coordinate));
-        }
-
-        function getDirections() {
-            const toTop = new Direction(-1, 0);
-            const toRight = new Direction(0, 1);
-            const toTopRight = new Direction(-1, 1);
-            const toDownRight = new Direction(1, 1);
-            return [toTop, toRight, toTopRight, toDownRight];
-        }
-    };
-
-    function isInBoard(coordinate, board) {
-        assert(coordinate ?? false);
-        return new IntervalClosed(Coordinate.ROW_DIMENSION - 1).includes(coordinate.getRow())
-            && new IntervalClosed(Coordinate.COLUMN_DIMENSION - 1).includes(coordinate.getColumn());
+        return board.getToken(coordinate) === null;
     }
 
     Board.prototype.getToken = function (coordinate) {
-        assert(isInBoard(coordinate, this));
-        for (let i = 0; i < this.tokens.length; i++) {
-            if (this.tokensCoordinates[i].some(placed => placed.equals(coordinate))) {
-                return this.tokens[i];
-            }
+        for (let [token, coordinatesSet] of this.tokenCoordinatesMap.entries()) {   
+            for (let placed of coordinatesSet) {
+                if (placed.equals(coordinate)) {
+                    return token;
+                }
+            }  
         }
-        return undefined;
+        return null;
     };
+
+    Board.prototype.isWinner = function (token) {
+        assert(isValidToken(token, this));
+        const WIN_COUNT = 4;
+
+        const coordinates = Array.from(this.tokenCoordinatesMap.get(token));
+        const lastPlaced = coordinates[coordinates.length - 1];
+        for (let direction of Direction.getAll()) {  
+            let count = 1;
+            for (let directionArrow of [direction, direction.inverse()]) {
+                const candidates = lastPlaced.getShifteds(directionArrow, WIN_COUNT - 1);                
+                count += countCandidates(candidates, this);                
+            }  
+            if (count >= WIN_COUNT) {
+                return true;
+            }
+
+        }
+        return false;
+
+        function countCandidates (candidates, board) {
+            let count = 0;
+            let stop = false;            
+            for (let i = 0;!stop && i < candidates.length; i++) {
+                if (board.getToken(candidates[i]) === token) {
+                    count++;
+                } else {
+                    stop = true;
+                }                
+            }
+            return count;
+        }
+    };  
     
-    Board.prototype.getRowDimension = function () {
-        return Coordinate.ROW_DIMENSION;
-    };
-
-    Board.prototype.getColumnDimension = function () {
-        return Coordinate.COLUMN_DIMENSION;
-    };
-
     Board.prototype.reset = function () {
-        this.tokensCoordinates = this.tokens.map(anyValue => []);
+        for (let coordinateSet of this.tokenCoordinatesMap.values()) {
+            coordinateSet.clear();
+        };
     };
 }
 
 function Direction(rowShift, columnShift) {
-    assert(Number.isInteger(rowShift));
-    assert(Number.isInteger(columnShift));
     this.rowShift = rowShift;
     this.columnShift = columnShift;
 }
 function initDirectionPrototype() {
+    Direction.toTop = new Direction(-1, 0);
+
+    Direction.getAll = function () {
+        const toTop = Direction.toTop;
+        const toRight = new Direction(0, 1);
+        const toTopRight = new Direction(-1, 1);
+        const toDownRight = new Direction(1, 1);
+        return [toTop, toRight, toTopRight, toDownRight];
+    };
+
     Direction.prototype.inverse = function () {
         return new Direction(-this.rowShift, -this.columnShift);
     };
@@ -340,29 +330,62 @@ function initDirectionPrototype() {
 }
 
 function Coordinate(row, column) {
-    assert(Number.isInteger(row));
-    assert(Number.isInteger(column));
+    assert(Coordinate.isValidRow(row));
+    assert(Coordinate.isValidColumn(column));
+
     this.row = row;
     this.column = column;
 }
 function initCoordinatePrototype() {
     Coordinate.ROW_DIMENSION = 6;
     Coordinate.COLUMN_DIMENSION = 7;
+    Coordinate.MIN = 0;
 
-    Coordinate.prototype.shift = function (direction) {
-        assert(direction ?? false);
-        const row = this.row + direction.getRowShift();
-        const column = this.column + direction.getColumnShift();
-        return new Coordinate(row, column);
+    Coordinate.isValidRow = function (row) {
+        const interval = new IntervalClosed(Coordinate.ROW_DIMENSION - 1);        
+        return Number.isInteger(row) && interval.includes(row);
     };
 
-    Coordinate.prototype.getRange = function (direction, count) {
-        const range = [this];
-        for (let i = 1; i < count; i++) {
-            const next = range[i - 1].shift(direction);
-            range.push(next);
-        }
-        return range;
+    Coordinate.isValidColumn = function (column) {
+        const interval = new IntervalClosed(Coordinate.COLUMN_DIMENSION - 1);        
+        return Number.isInteger(column) && interval.includes(column);
+    };
+
+    Coordinate.createTop = function (column) {
+        return new Coordinate(Coordinate.MIN, column);
+    };
+
+    Coordinate.createBotton = function (column) {
+        return new Coordinate(Coordinate.ROW_DIMENSION - 1, column);        
+    };
+
+    Coordinate.prototype.getShifteds = function (direction, maxLength) {        
+        let shifteds = [];
+        let prev = this;
+        while (prev.isShiftedInDimension(direction) && shifteds.length <= maxLength) {
+            prev = prev.shift(direction);
+            shifteds.push(prev);            
+        }       
+        return shifteds;
+    }
+
+    Coordinate.prototype.isShiftedInDimension = function (direction) {
+        assert(direction ?? false);
+        return Coordinate.isValidRow(shiftRow(direction, this)) 
+            && Coordinate.isValidColumn(shiftColumn(direction, this));
+    };
+
+    function shiftRow(direction, {row}) {
+        return row + direction.getRowShift();
+    };
+
+    function shiftColumn(direction, {column}) {
+        return column + direction.getColumnShift();
+    };
+
+    Coordinate.prototype.shift = function (direction) {
+        assert(this.isShiftedInDimension(direction));
+        return new Coordinate(shiftRow(direction, this), shiftColumn(direction, this));
     };
 
     Coordinate.prototype.equals = function (other) {
@@ -430,11 +453,11 @@ function LimitedIntDialog(max, min = 1) {
     this.limits = new IntervalClosed(max, min);
 }
 function initLimitedIntDialogPrototype() {
-    LimitedIntDialog.prototype.ask = function (msg) {
+    LimitedIntDialog.prototype.ask = function (question) {
         let answer;
         let error;
         do {
-            answer = consoleMPDS.readNumber(msg);
+            answer = consoleMPDS.readNumber(question);
             error = !this.limits.includes(answer);
             if (error) {
                 consoleMPDS.writeln(`${Messages.ERROR_VALUE_PREFIX}${this.limits}`)

@@ -1,22 +1,25 @@
 # Problem solved in this commit
 
 ## Problem
-- There's messages to show to user writted above all code
 
 ## Solution
 - Messages centralized.
 
+- New data structure on Board
+
+- Coordinate assumes dimension management
+
 
 ## Ideas to consider in the future
-- Num of rows and columns in Board? Or in Coordinate (as dimension)? Who needs the data?
-- There's methods wich doesn't need any class member?
-    - GetDirections in Board?
-- Delete Player + turn hasTokens + in PlayerView game.placeToken(colum) + in Game board.placeToken(turn.getToken()) ? Game creates TOKENS and provides it to Board and Turn when init. Turn and Board decoupled. -> Maybe PlayerView not needed anymore?
-- tokens and tokensCoordinates are highly coupled: I don't like the idea of the same data structure is shared in differents classes -> Player, instead of store the token, sotres the index/position? ->  Board and Turn recives NUM_PLAYERS + turn returns value (== playerId) + board in/out is value instead of token (idem game) + TokenView to parse value to token's char
+
+- PlayerView and GameView coupled to Coordinate
 
 - Utility classes are coupled to Message.
 
-- countColumns in Game and Board?
+- InLine class, to create 4 coordinates in line in the same direction
+
+- Delete Player class (but PlayerView remains)
+
 
 # TODOs in code review
 1. Simplicity:

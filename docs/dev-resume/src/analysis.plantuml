@@ -26,6 +26,7 @@ GameView -right-> Game
 GameView *-down-> PlayerView
 GameView *-down-> BoardView
 GameView ..> Messages
+GameView ..> Coordinate
 
 class PlayerView #LightGreen {
     + PlayerView(game)
@@ -36,6 +37,7 @@ PlayerView -right-> Game
 PlayerView ..> Player
 PlayerView *-down-> LimitedIntDialog : columnDialog
 PlayerView ..> Messages
+PlayerView ..> Coordinate
 
 class BoardView #LightGreen {
     + VERTICAL
@@ -55,8 +57,7 @@ class Game #Wheat{
     + reset()   
     + changeTurn()
     + getPlayer()    
-    + isColumnFull(column)   
-    + getColumnDimension()     
+    + isColumnFull(column)     
     + getBoard()            
 }
 Game *-down-> Turn
@@ -83,28 +84,25 @@ class Player #Wheat{
 }
 Player --> Board
 
-class Board #Wheat{    
-    + WIN_COUNT = 4
-    + tokens
-    + tokensCoordinates
+class Board #Wheat{
+    + tokenCoordinatesMap
     
     + Board(tokens)
-    + isColumnFull(column)
     + placeToken(token, column)
-    + isWinner(token)  
+    + isColumnFull(column)
     + getToken(coordinate) 
-    + getRowDimension()
-    + getColumnDimension()
+    + isWinner(token)  
     + reset()    
 }
-Board ..> IntervalClosed
 Board ..> Coordinate
 Board ..> Direction
 
 class Direction #LightGray{
+    + {static} toTop
     + rowShift
     + columnShift
 
+    + {static} getAll()
     + Direction(rowShift, columnShift)
     + inverse()
     + getRowShift()
@@ -112,20 +110,26 @@ class Direction #LightGray{
 }
 
 class Coordinate #LightGray{
+    + {static} ROW_DIMENSION
+    + {static} COLUMN_DIMENSION
+    + {static} MIN
     + row
     + column 
 
+    + {static} isValidRow(row)
+    + {static} isValidColumn(column)
+    + {static} createTop(column)
+    + {static} createBotton(column)
     + Coordinate(row, column)
+    + getShifteds(direction, maxLength)
+    + isShiftedInDimension(direction)
     + shift(direction)
-    + getRange(direction, count)
     + equals(other)   
     + getRow()
     + getColumn()
 }
 Coordinate ..> Direction
-
-
-
+Coordinate ..> IntervalClosed
 
 
 enum Messages
