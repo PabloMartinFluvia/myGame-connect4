@@ -3,23 +3,8 @@
 ## Problem
 
 ## Solution
-- Messages centralized.
-
-- New data structure on Board
-
-- Coordinate assumes dimension management
-
 
 ## Ideas to consider in the future
-
-- PlayerView and GameView coupled to Coordinate
-
-- Utility classes are coupled to Message.
-
-- InLine class, to create 4 coordinates in line in the same direction
-
-- Delete Player class (but PlayerView remains)
-
 
 # TODOs in code review
 1. Simplicity:

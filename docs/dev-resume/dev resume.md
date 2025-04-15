@@ -39,4 +39,12 @@ Task's description contains what's <i>new</i> vs previous task.
     - Apply native js's methods from prorotypes (Array, Function, Object, wrappers, Set, Map ...) 
     - Apply statics   
 
+### Task 3: js_v0.3
+- Initial status:
+    - App provided from teacher.
+    - Added classes theory
+    - Only models. There's no views.
+- Task:
+    - Create views. Uncouple models to in/out technologies.
+
 ![Analysys](../../out/docs/dev-resume/src/analysis/analysis.svg)
