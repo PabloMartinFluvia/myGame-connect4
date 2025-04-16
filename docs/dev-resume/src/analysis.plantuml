@@ -1,5 +1,186 @@
 @startuml analysis
 
-class Connect4
+class Connect4 {
+    
+    + Connect4()
+    + playGames()
+    - playGame()
+    - isFinished()
+    - isResumed()
+}
+Connect4 *--> Board
+Connect4 *--> Turn
+Connect4 *--> BoardView
+Connect4 *--> TurnView
+Connect4 ..> Message
+Connect4 ..> YesNoDialog
+
+class YesNoDialog #Pink {
+    - {static} AFFIRMATIVE
+    - {static} NEGATIVE
+    - {static} SUFIX
+    - {static} ERROR
+    - answer
+
+    + YesNoDialog()
+    + read(question)
+    + isAffirmative()
+    - isNegative()
+    - getAnswer()
+}
+
+class BoardView #LightYellow {
+    - {static} COLUMN_LENGTH    
+
+    + BoardView(board)
+    + write()
+    - {static} writeHorizontal()
+}
+BoardView --> Board
+BoardView *--> ColorView
+BoardView ..> Coordinate
+BoardView ..> Message
+BoardView ..> Color
+
+class ColorView #LightYellow {
+    - COLOR_LENGTH
+
+    + ColorView(colorLength)
+    + write(color)
+    - isMiddle(index)
+}
+ColorView ..> Color
+
+class TurnView #LightYellow {
+
+    + TurnView(turn, board)
+    + play()
+    - isFinished()
+    + writeResult()
+}
+TurnView --> Turn
+TurnView --> Board
+TurnView *--> PlayerView
+TurnView ..> Message
+
+class PlayerView #LightYellow {
+
+    + PlayerView(turn, board)    
+    + dropToken()
+    + writeWin()
+    - getPlayer()
+}
+PlayerView --> Turn
+PlayerView --> Board
+PlayerView ..> Player
+PlayerView ..> Message
+PlayerView ..> Coordinate
+
+enum Message #LightYellow {
+    MANY MESSAGES
+    - string
+
+    + write()
+    + writeln()
+    + toString()
+}
+
+class Turn #LightCyan {
+    + {static} NUMBER_PLAYERS
+    - activePlayer
+
+    + Turn(board)
+    + reset()
+    + change()   
+    + getPlayer() 
+}
+Turn *--> "NUMBER_PLAYERS" Player
+Turn --> Board
+Turn ..> Color
+
+class Player #LightCyan {
+
+    + Player(color, board)
+    + dropToken(column)
+    + toString()
+}
+Player --> Color
+Player --> Board
+
+class Board #LightCyan {
+
+    + Board()
+    + reset()
+    + dropToken(column, color)
+    + isComplete(column)
+    - isEmpty(coordinate)
+    + getColor(coordinate)
+    + isWinner()
+    - isConnect4(line)
+}
+Board *--> Coordinate : lastDrop
+Board *--> "NUMBER_ROWS * NUMBER_COLUMNS" Color
+Board ..> Direction
+Board ..> Line
+
+class Line #LightCyan {
+    + {static} WIN_LENGTH
+
+    + Line(origin, direction)
+    + shifted(direction)
+    + getCoordinates()
+    + isValid()
+    + includes(coordinate)
+}
+Line --> Coordinate
+Line --> Direction
+
+enum Direction #LightCyan {
+    NORTH
+    EAST
+    NORTH_EAST
+    SOUTH_EAST
+
+    + getOpposite()
+    + getCoordinate()
+}
+Direction *--> Coordinate
+
+class Coordinate #LightCyan {
+    + {static} NUMBER_ROWS
+    + {static} NUMBER_COLUMNS
+    - row
+    - column
+
+    + Coordinate(row, column)
+    - {static} isRowValid(row)
+    + {static} isColumnValid(column)
+    + isValid()
+    + shifted(coordinate)
+    + getOpposite()
+    + getRow()
+    + getColumn()
+    + equals(other)
+}
+Coordinate ..> ClosedInterval
+
+enum Color #LightCyan {
+    RED
+    YELLOW
+    NULL
+    - string
+
+    + {static} get(ordinal)
+    - {static} values()
+    + toString()
+}
+
+class ClosedInterval #LightSteelBlue {
+    - min
+    - max
+
+    + ClosedInterval(min, max)
+    + isIncluded(value)
+}
 
 @enduml
