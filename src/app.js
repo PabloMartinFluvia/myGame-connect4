@@ -8,11 +8,17 @@ class ClosedInterval {
     #max;
 
     constructor(min, max) {
+        assert(typeof max === "number");
+        assert(typeof min === "number");
+        assert(max >= min);
+
         this.#min = min;
         this.#max = max;
     }
 
     isIncluded(value) {
+        assert(typeof value === "number");
+
         return this.#min <= value && value <= this.#max;
     }
 
@@ -30,11 +36,18 @@ class Color {
     }
 
     static get(ordinal) {
+        assert(typeof ordinal === "number");
+        assert(new ClosedInterval(0, this.#values().length - 1).isIncluded(ordinal));
+
         return Color.#values()[ordinal];
     }
 
     static #values() {
         return [Color.RED, Color.YELLOW, Color.NULL];
+    }
+
+    isNull() {
+        return this === Color.NULL;
     }
 
     toString() {
@@ -51,16 +64,20 @@ class Coordinate {
     #column;
 
     constructor(row, column) {
+        assert(Number.isInteger(row) && Number.isInteger(column));
+
         this.#row = row;
         this.#column = column;
     }
 
     static #isRowValid(row) {        
-        return new ClosedInterval(0, Coordinate.NUMBER_ROWS - 1).isIncluded(row);
+        return Number.isInteger(row) 
+                && new ClosedInterval(0, Coordinate.NUMBER_ROWS - 1).isIncluded(row);
     }
 
     static isColumnValid(column) {
-        return new ClosedInterval(0, Coordinate.NUMBER_COLUMNS - 1).isIncluded(column);
+        return Number.isInteger(column) 
+                && new ClosedInterval(0, Coordinate.NUMBER_COLUMNS - 1).isIncluded(column);
     }
 
     isValid() {
@@ -68,10 +85,12 @@ class Coordinate {
     }
 
     shifted(coordinate) {
+        assert(coordinate instanceof Coordinate);
+
         return new Coordinate(this.#row + coordinate.#row, this.#column + coordinate.#column);
     }
 
-    getOpposite() {
+    opposited() {
         return new Coordinate(-1 * this.#row, -1 * this.#column);
     }
 
@@ -82,23 +101,13 @@ class Coordinate {
     getColumn() {
         return this.#column;
     }
-
-    equals(coordinate) {
-        if (this === coordinate) {
-            return true;
-        } 
-        if (coordinate === null) {
-            return false;
-        }
-        return this.#row === coordinate.#row && this.#column === coordinate.#column;    
-    }
 }
 
-class Direction {
-    static NORTH = new Direction(1, 0); 
-    static EAST = new Direction(0, 1);
-    static NORTH_EAST = new Direction(1, 1);
-    static SOUTH_EAST = new Direction(-1, 1);
+class Vector {
+    static NORTH = new Vector(1, 0); 
+    static EAST = new Vector(0, 1);
+    static NORTH_EAST = new Vector(1, 1);
+    static SOUTH_EAST = new Vector(-1, 1);
 
     #coordinate;
 
@@ -106,12 +115,12 @@ class Direction {
         this.#coordinate = new Coordinate(row, column);
     }
 
-    getOpposite() {
-        const coordinate = this.#coordinate.getOpposite();
-        return new Direction(coordinate.getRow(), coordinate.getColumn());        
+    opposited() {
+        const oppositedCoord = this.#coordinate.opposited();
+        return new Vector(oppositedCoord.getRow(), oppositedCoord.getColumn());        
     }
 
-    getCoordinate() {
+    toCoordinate() {
         return this.#coordinate;
     }
 
@@ -120,32 +129,33 @@ class Direction {
 class Line {
     static WIN_LENGTH = 4;
     #origin
-    #direction    
+    #vector    
 
-    constructor(origin, direction) {
+    constructor(origin, vector) {
+        assert(origin instanceof Coordinate);
+        assert(vector instanceof Vector);
+
         this.#origin = origin;
-        this.#direction = direction;
+        this.#vector = vector;
     }
 
-    shifted(direction) {
-        const origin = this.#origin.shifted(direction.getCoordinate());
-        return new Line(origin, this.#direction);        
+    shifted(vector) {
+        assert(vector instanceof Vector);
+
+        const originShifted = this.#origin.shifted(vector.toCoordinate());
+        return new Line(originShifted, this.#vector);        
     }
 
     getCoordinates() {
         let coordinates = [this.#origin];        
         for (let i = 1; i < Line.WIN_LENGTH; i++) {
-            coordinates[i] = coordinates[i - 1].shifted(this.#direction.getCoordinate());
+            coordinates[i] = coordinates[i - 1].shifted(this.#vector.toCoordinate());
         }
         return coordinates;
     }
 
     isValid() {
         return this.getCoordinates().every(coordinate => coordinate.isValid());
-    }
-
-    includes(coordinate) {
-        return this.getCoordinates().some(coord => coord.equals(coordinate));
     }
     
 }
@@ -168,19 +178,24 @@ class Board {
                 this.#colors[i][j] = Color.NULL;
             }
         }
-        this.#lastDrop = null;
+        this.#lastDrop = undefined;
     }
 
     dropToken(column, color) {
+        assert(!this.isComplete(column));
+        assert(color instanceof Color);
+
         this.#lastDrop = new Coordinate(0, column);
         while (!this.#isEmpty(this.#lastDrop)) {
-            this.#lastDrop = this.#lastDrop.shifted(Direction.NORTH.getCoordinate());
+            this.#lastDrop = this.#lastDrop.shifted(Vector.NORTH.toCoordinate());
         }
         this.#colors[this.#lastDrop.getRow()][this.#lastDrop.getColumn()] = color;
     }
 
     isComplete(column) {
         if (column !== undefined) {
+            assert(Coordinate.isColumnValid(column));
+
             return !this.#isEmpty(new Coordinate(Coordinate.NUMBER_ROWS - 1, column));
         }
         for (let i = 0; i < Coordinate.NUMBER_COLUMNS; i++) {
@@ -196,31 +211,43 @@ class Board {
     }
 
     getColor(coordinate) {
+        assert(coordinate instanceof Coordinate);
+        assert(coordinate.isValid());
+
         return this.#colors[coordinate.getRow()][coordinate.getColumn()];
     }
 
     isWinner() {
-        if (this.#lastDrop === null) {
+        if (this.#lastDrop === undefined) {
             return false;
         }
-        for (let direction of [Direction.NORTH, Direction.NORTH_EAST, Direction.EAST, Direction.SOUTH_EAST]) {               
-            let line = new Line(this.#lastDrop, direction);
+
+        for (let vector of [Vector.NORTH, Vector.NORTH_EAST, Vector.EAST, Vector.SOUTH_EAST]) {               
+            let line = new Line(this.#lastDrop, vector);
             for (let i = 0; i < Line.WIN_LENGTH; i++) {                
                 if (this.#isConnect4(line)) {
                     return true;
                 }
-                line = line.shifted(direction.getOpposite());
+                line = line.shifted(vector.opposited());
             }
         }
         return false;
     }
 
     #isConnect4(line) {
-        if (!line.isValid() || !line.includes(this.#lastDrop)) {
+        assert(line instanceof Line);
+
+        if (!line.isValid()) {
             return false;
         }
-        const color = this.getColor(this.#lastDrop);        
-        return line.getCoordinates().every(coordinate => this.getColor(coordinate) === color);        
+        const coordinates = line.getCoordinates();
+        for (let i = 1; i < coordinates.length; i++) {
+            const color = this.getColor(coordinates[i - 1]);
+            if (this.getColor(coordinates[i]) !== color || color.isNull()) {
+                return false;
+            }
+        }
+        return true;              
     }
 }
 
@@ -230,11 +257,12 @@ class Player {
     #board;
 
     constructor(color, board) {
+        assert(color instanceof Color);
+        assert(board instanceof Board);
+
         this.#color = color;
         this.#board = board;
-    }
-
-    // new methods
+    }    
 
     dropToken(column) {
         this.#board.dropToken(column, this.#color);
@@ -251,22 +279,18 @@ class Turn {
     static #NUMBER_PLAYERS = 2;
     #players;
     #activePlayer;
-    #board;
 
     constructor(board) {
-        this.#board = board;
         this.#players = [];
+        for (let i = 0; i < Turn.#NUMBER_PLAYERS; i++) {
+            this.#players[i] = new Player(Color.get(i), board);
+        }
         this.reset();
     }
 
-    reset() {
-        for (let i = 0; i < Turn.#NUMBER_PLAYERS; i++) {
-            this.#players[i] = new Player(Color.get(i), this.#board);
-        }
+    reset() {        
         this.#activePlayer = 0;
     }
-
-    // New methods
 
     change() {
         this.#activePlayer = (this.#activePlayer + 1) % Turn.#NUMBER_PLAYERS;
@@ -315,6 +339,9 @@ class PlayerView {
     #board
 
     constructor(turn, board) {
+        assert(turn instanceof Turn);
+        assert(board instanceof Board);
+
         this.#turn = turn;
         this.#board = board;
     }
@@ -358,6 +385,9 @@ class TurnView {
     #playerView;
 
     constructor(turn, board) {
+        assert(turn instanceof Turn);
+        assert(board instanceof Board);
+
         this.#turn = turn;
         this.#board = board;
         this.#playerView = new PlayerView(this.#turn, this.#board);
@@ -389,10 +419,15 @@ class ColorView {
     #COLOR_LENGTH;
 
     constructor(colorLength) {
+        assert(Number.isInteger(colorLength));    
+
         this.#COLOR_LENGTH = colorLength;
     }
 
     write(color) {
+        assert(color instanceof Color);
+        assert(color.toString().length > 0);
+
         let msg = "";
         for (let i = 0; i < this.#COLOR_LENGTH; i++) {
             if (this.#isMiddle(i)) {
@@ -405,6 +440,8 @@ class ColorView {
     }
 
     #isMiddle(index) {
+        assert(Number.isInteger(index));     
+
         return Number.parseInt(this.#COLOR_LENGTH / 2) === index;
     }
 }
@@ -416,6 +453,8 @@ class BoardView {
     #colorView;
 
     constructor(board) {
+        assert(board instanceof Board);
+
         this.#board = board;
         this.#colorView = new ColorView(BoardView.#COLUMN_LENGTH - 1);
     }
@@ -454,6 +493,8 @@ class YesNoDialog {
     #answer;
 
     read(question) {
+        assert(question ?? false);
+        
         let ok;
         do {
             this.#answer = consoleMPDS.readString(question + YesNoDialog.#SUFFIX);
@@ -492,9 +533,14 @@ class Connect4 {
     }
 
     playGames() {
+        let resume;
         do {
             this.#playGame();
-        } while (this.#isResumed());
+            resume = this.#isResumed();
+            if(resume) {
+                this.#reset();
+            }
+        } while (resume);
     }
 
     #playGame() {
@@ -513,14 +559,25 @@ class Connect4 {
 
     #isResumed() {
         const yesNoDialog = new YesNoDialog();
-        yesNoDialog.read(Message.RESUME.toString());
-        if (yesNoDialog.isAffirmative()) {
-            this.#board.reset();
-            this.#turn.reset();
-        }
+        yesNoDialog.read(Message.RESUME.toString());        
         return yesNoDialog.isAffirmative();
+    }
+
+    #reset() {
+        this.#board.reset();
+        this.#turn.reset();
     }
 
 }
 
 new Connect4().playGames();
+
+function assert(condition, msg) {
+    if (!condition) {
+        if (msg !== undefined) {
+            console.log(`Assertion Error: ${msg}`);
+        }
+        const assertionError = "I'm CONSTANT !!!";
+        assertionError = "assert stop execution";
+    }
+}

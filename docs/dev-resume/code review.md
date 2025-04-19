@@ -6,40 +6,20 @@
 
 ## Ideas to consider in the future
 
-- #isResumed() in Connect4: method returns a value AND changes states (.reset methods). NO minimum surprise principle and NO cohesion.
+- Next 2 ideas: views associated only to the model which represents.
 
-- write(color) in ColorView: writes a string according to the full length of the board's cell.
+- TurnView's models only Turn (without Board)
 
-- readColumn() in PlayerView: use LimitedIntDialog to request a valid number.
-
-- reset() in Turn only needs to reset the activePlayer, there's no need to create new players.
-
-- Turn has low cohesion: there's none method wich uses all atributes (only in reset, but with the change done in the previous point won't be any) -> Remove association from Turn to Board?
+- PlayerView associated to Player (instead of turn and board) (this will imply TurnView use PlayerView, instead an association)
 
 - Player is a lazy class?
 
-- getShifted(coordinates, direction) don't need any board's attribute -> maybe another class is needed? -> class Line, associting origin with lastDrop
-
 - Message.INVALID_COLUMN has magic numbers
 
-- Add asserts
 
 - Game and GameView?
 
-- Notes:
-    - In Message.PLAYER_WIN replaced #color to #winner. And value is showed in singular.
-    
-    - isFinished() in Board removed, due it's not primitive.
 
-    - isOccupied(coordinate, color) removed (unnecesary)
-
-    - fixed magic number 4 in Board
-
-    - isWinner(), isConnect4() and getShifted() in Board refactored.
-
-    - line class added
-
-    - removed unnecesary directions
 
 
 

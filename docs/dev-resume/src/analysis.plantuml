@@ -7,6 +7,7 @@ class Connect4 {
     - playGame()
     - isFinished()
     - isResumed()
+    - reset()
 }
 Connect4 *--> Board
 Connect4 *--> Turn
@@ -95,7 +96,6 @@ class Turn #LightCyan {
     + getPlayer() 
 }
 Turn *--> "NUMBER_PLAYERS" Player
-Turn --> Board
 Turn ..> Color
 
 class Player #LightCyan {
@@ -120,31 +120,30 @@ class Board #LightCyan {
 }
 Board *--> Coordinate : lastDrop
 Board *--> "NUMBER_ROWS * NUMBER_COLUMNS" Color
-Board ..> Direction
+Board ..> Vector
 Board ..> Line
 
 class Line #LightCyan {
     + {static} WIN_LENGTH
 
-    + Line(origin, direction)
-    + shifted(direction)
+    + Line(origin, vector)
+    + shifted(vector)
     + getCoordinates()
     + isValid()
-    + includes(coordinate)
 }
 Line --> Coordinate
-Line --> Direction
+Line --> Vector
 
-enum Direction #LightCyan {
+enum Vector #LightCyan {
     NORTH
     EAST
     NORTH_EAST
     SOUTH_EAST
 
-    + getOpposite()
-    + getCoordinate()
+    + opposited()
+    + toCoordinate()
 }
-Direction *--> Coordinate
+Vector *--> Coordinate
 
 class Coordinate #LightCyan {
     + {static} NUMBER_ROWS
@@ -157,10 +156,9 @@ class Coordinate #LightCyan {
     + {static} isColumnValid(column)
     + isValid()
     + shifted(coordinate)
-    + getOpposite()
+    + opposited()
     + getRow()
     + getColumn()
-    + equals(other)
 }
 Coordinate ..> ClosedInterval
 
@@ -172,6 +170,7 @@ enum Color #LightCyan {
 
     + {static} get(ordinal)
     - {static} values()
+    + isNull()
     + toString()
 }
 
