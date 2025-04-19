@@ -56,24 +56,20 @@ class TurnView #LightYellow {
 
     + TurnView(turn, board)
     + play()
-    - isFinished()
     + writeResult()
 }
 TurnView --> Turn
-TurnView --> Board
-TurnView *--> PlayerView
+TurnView ..> PlayerView
+TurnView ..> Player
 TurnView ..> Message
 
 class PlayerView #LightYellow {
 
-    + PlayerView(turn, board)    
+    + PlayerView(player)    
     + dropToken()
     + writeWin()
-    - getPlayer()
 }
-PlayerView --> Turn
-PlayerView --> Board
-PlayerView ..> Player
+PlayerView --> Player
 PlayerView ..> Message
 PlayerView ..> Coordinate
 
@@ -85,6 +81,7 @@ enum Message #LightYellow {
     + writeln()
     + toString()
 }
+Message ..> Color
 
 class Turn #LightCyan {
     + {static} NUMBER_PLAYERS
@@ -92,6 +89,7 @@ class Turn #LightCyan {
 
     + Turn(board)
     + reset()
+    + isWinner()
     + change()   
     + getPlayer() 
 }
@@ -102,6 +100,8 @@ class Player #LightCyan {
 
     + Player(color, board)
     + dropToken(column)
+    + isComplete(column)
+    + isWinner()
     + toString()
 }
 Player --> Color
@@ -115,7 +115,7 @@ class Board #LightCyan {
     + isComplete(column)
     - isEmpty(coordinate)
     + getColor(coordinate)
-    + isWinner()
+    + isWinner(color)
     - isConnect4(line)
 }
 Board *--> Coordinate : lastDrop

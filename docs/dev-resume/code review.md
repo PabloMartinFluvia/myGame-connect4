@@ -6,22 +6,6 @@
 
 ## Ideas to consider in the future
 
-- Next 2 ideas: views associated only to the model which represents.
-
-- TurnView's models only Turn (without Board)
-
-- PlayerView associated to Player (instead of turn and board) (this will imply TurnView use PlayerView, instead an association)
-
-- Player is a lazy class?
-
-- Message.INVALID_COLUMN has magic numbers
-
-
-- Game and GameView?
-
-
-
-
 
 # TODOs in code review
 1. Simplicity:

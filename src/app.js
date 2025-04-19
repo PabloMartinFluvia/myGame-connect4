@@ -217,10 +217,10 @@ class Board {
         return this.#colors[coordinate.getRow()][coordinate.getColumn()];
     }
 
-    isWinner() {
-        if (this.#lastDrop === undefined) {
-            return false;
-        }
+    isWinner(color) {
+        assert(color instanceof Color);
+        assert(!color.isNull());
+        assert(color === this.getColor(this.#lastDrop));
 
         for (let vector of [Vector.NORTH, Vector.NORTH_EAST, Vector.EAST, Vector.SOUTH_EAST]) {               
             let line = new Line(this.#lastDrop, vector);
@@ -268,6 +268,14 @@ class Player {
         this.#board.dropToken(column, this.#color);
     }
 
+    isComplete(column) {
+        return this.#board.isComplete(column);
+    }
+
+    isWinner() {
+        return this.#board.isWinner(this.#color);
+    }
+
     toString() {
         return this.#color.toString();
     }
@@ -292,6 +300,10 @@ class Turn {
         this.#activePlayer = 0;
     }
 
+    isWinner() {
+        return this.getPlayer().isWinner();
+    }
+
     change() {
         this.#activePlayer = (this.#activePlayer + 1) % Turn.#NUMBER_PLAYERS;
     }
@@ -308,7 +320,7 @@ class Message {
     static VERTICAL_LINE = new Message(`|`);
     static TURN = new Message(`Turn: `);
     static ENTER_COLUMN_TO_DROP = new Message(`Enter a column to drop a token: `);
-    static INVALID_COLUMN = new Message(`Invalid columnn!!! Values [1-7]`);
+    static INVALID_COLUMN = new Message(`Invalid columnn!!! Values [1-${Coordinate.NUMBER_COLUMNS}]`);
     static COMPLETED_COLUMN = new Message(`Invalid column!!! It's completed`);
     static PLAYER_WIN = new Message(`#winner WIN!!! : -)`);
     static PLAYERS_TIED = new Message(`TIED!!!`);
@@ -334,16 +346,13 @@ class Message {
 
 }
 
-class PlayerView {
-    #turn
-    #board
+class PlayerView {    
+    #player
 
-    constructor(turn, board) {
-        assert(turn instanceof Turn);
-        assert(board instanceof Board);
+    constructor(player) {
+        assert(player instanceof Player);
 
-        this.#turn = turn;
-        this.#board = board;
+        this.#player = player;
     }
 
     dropToken() {
@@ -351,62 +360,46 @@ class PlayerView {
         let valid;
         do {
             Message.TURN.write();
-            consoleMPDS.writeln(this.#getPlayer().toString());
+            consoleMPDS.writeln(this.#player.toString());
             column = consoleMPDS.readNumber(Message.ENTER_COLUMN_TO_DROP.toString()) - 1;
             valid = Coordinate.isColumnValid(column);
             if (!valid) {
                 Message.INVALID_COLUMN.writeln();
             } else {
-                valid = !this.#board.isComplete(column);
+                valid = !this.#player.isComplete(column);
                 if (!valid) {
                     Message.COMPLETED_COLUMN.writeln();
                 }
             }
         } while (!valid);
-        this.#getPlayer().dropToken(column);
+        this.#player.dropToken(column);
     }
 
 
     writeWin() {
         let message = Message.PLAYER_WIN.toString();
-        message = message.replace(`#winner`, this.#getPlayer().toString());
+        message = message.replace(`#winner`, this.#player.toString());
         consoleMPDS.writeln(message);
-    }
-
-    #getPlayer() {
-        return this.#turn.getPlayer();
     }
 }
 
 class TurnView {
 
     #turn;
-    #board;
-    #playerView;
 
-    constructor(turn, board) {
+    constructor(turn) {
         assert(turn instanceof Turn);
-        assert(board instanceof Board);
 
         this.#turn = turn;
-        this.#board = board;
-        this.#playerView = new PlayerView(this.#turn, this.#board);
     }
 
     play() {
-        this.#playerView.dropToken();
-        if (!this.#isFinished()) {
-            this.#turn.change();
-        }
-    }
-
-    #isFinished() {
-        return this.#board.isComplete() || this.#board.isWinner();
+        new PlayerView(this.#turn.getPlayer()).dropToken();        
     }
 
     writeResult() {
-        if (this.#board.isWinner()) {
-            this.#playerView.writeWin();
+        if (this.#turn.isWinner()) {
+            new PlayerView(this.#turn.getPlayer()).writeWin();
         } else {
             Message.PLAYERS_TIED.writeln();
         }
@@ -494,7 +487,7 @@ class YesNoDialog {
 
     read(question) {
         assert(question ?? false);
-        
+
         let ok;
         do {
             this.#answer = consoleMPDS.readString(question + YesNoDialog.#SUFFIX);
@@ -529,7 +522,7 @@ class Connect4 {
         this.#board = new Board();
         this.#turn = new Turn(this.#board);
         this.#boardView = new BoardView(this.#board);
-        this.#turnView = new TurnView(this.#turn, this.#board);
+        this.#turnView = new TurnView(this.#turn);
     }
 
     playGames() {
@@ -546,15 +539,20 @@ class Connect4 {
     #playGame() {
         Message.TITLE.writeln();
         this.#boardView.write();
+        let finished;
         do {
             this.#turnView.play();
             this.#boardView.write();
-        } while (!this.#isFinished());
+            finished = this.#isFinished();
+            if (!finished) {
+                this.#turn.change();
+            }
+        } while (!finished);
         this.#turnView.writeResult();
     }
 
     #isFinished() {
-        return this.#board.isComplete() || this.#board.isWinner();
+        return this.#board.isComplete() || this.#turn.isWinner();
     }
 
     #isResumed() {
