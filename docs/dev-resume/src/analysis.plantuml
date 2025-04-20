@@ -127,19 +127,20 @@ class Line #LightCyan {
     + {static} WIN_LENGTH
 
     + Line(origin, vector)
-    + shifted(vector)
+    + shiftToOpposite()
     + getCoordinates()
     + isValid()
 }
 Line --> Coordinate
 Line --> Vector
 
-enum Vector #LightCyan {
-    NORTH
-    EAST
-    NORTH_EAST
-    SOUTH_EAST
+class Vector #LightCyan {
+    + {static} NORTH
+    + {static} EAST
+    + {static} NORTH_EAST
+    + {static} SOUTH_EAST
 
+    + Vector(row, column)
     + opposited()
     + toCoordinate()
 }

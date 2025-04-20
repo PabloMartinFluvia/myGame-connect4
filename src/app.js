@@ -37,7 +37,7 @@ class Color {
 
     static get(ordinal) {
         assert(typeof ordinal === "number");
-        assert(new ClosedInterval(0, this.#values().length - 1).isIncluded(ordinal));
+        assert(new ClosedInterval(0, Color.#values().length - 1).isIncluded(ordinal));
 
         return Color.#values()[ordinal];
     }
@@ -139,11 +139,8 @@ class Line {
         this.#vector = vector;
     }
 
-    shifted(vector) {
-        assert(vector instanceof Vector);
-
-        const originShifted = this.#origin.shifted(vector.toCoordinate());
-        return new Line(originShifted, this.#vector);        
+    shiftToOpposite() {
+        this.#origin = this.#origin.shifted(this.#vector.opposited().toCoordinate());
     }
 
     getCoordinates() {
@@ -228,12 +225,12 @@ class Board {
                 if (this.#isConnect4(line)) {
                     return true;
                 }
-                line = line.shifted(vector.opposited());
+                line.shiftToOpposite();
             }
         }
         return false;
     }
-
+    
     #isConnect4(line) {
         assert(line instanceof Line);
 
@@ -249,6 +246,7 @@ class Board {
         }
         return true;              
     }
+    
 }
 
 class Player {
