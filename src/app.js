@@ -139,8 +139,9 @@ class Line {
         this.#vector = vector;
     }
 
-    shiftToOpposite() {
-        this.#origin = this.#origin.shifted(this.#vector.opposited().toCoordinate());
+    shiftedToOpposite() {        
+        const shiftedOrigin = this.#origin.shifted(this.#vector.opposited().toCoordinate());
+        return new Line(shiftedOrigin, this.#vector);
     }
 
     getCoordinates() {
@@ -225,7 +226,7 @@ class Board {
                 if (this.#isConnect4(line)) {
                     return true;
                 }
-                line.shiftToOpposite();
+                line = line.shiftedToOpposite();
             }
         }
         return false;

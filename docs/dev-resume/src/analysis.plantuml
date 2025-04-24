@@ -127,7 +127,7 @@ class Line #LightCyan {
     + {static} WIN_LENGTH
 
     + Line(origin, vector)
-    + shiftToOpposite()
+    + shiftedToOpposite()
     + getCoordinates()
     + isValid()
 }
