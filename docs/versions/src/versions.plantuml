@@ -2,12 +2,20 @@
 
 state Basic
 
+state MultiPlayer
+
 [*] --> Basic
-Basic --> [*]
+Basic --> MultiPlayer
+MultiPlayer --> [*]
 
 note right of Basic #15D2F3
   Console interface and use cases:
   Start, PlaceToken and Resume.
+end note
+
+note right of MultiPlayer #15D2F3
+  Added Game Modes:
+  Player vs Machine, Demo
 end note
 
 @enduml
