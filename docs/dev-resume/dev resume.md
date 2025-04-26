@@ -41,10 +41,15 @@ Task's description contains what's <i>new</i> vs previous task.
 
 ### Task 3: js_v0.3
 - Initial status:
-    - App provided from teacher.
+    - App provided by teacher.
     - Added classes theory
     - Only models. There's no views.
 - Task:
     - Create views. Uncouple models to in/out technologies.
+
+### Task 4: js_v1.0
+- App provided by teacher with only models.
+- Task:
+    - Upgrade app (with only models) to multiplayer version
 
 ![Analysys](../../out/docs/dev-resume/src/analysis/analysis.svg)

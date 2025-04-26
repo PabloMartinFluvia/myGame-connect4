@@ -1,0 +1,28 @@
+@startuml start_usecase
+state INITIAL
+state IN_GAME
+state start as " "
+state welcomed as " "
+state S1 as " "
+state configured as " "
+state displayed as " "
+
+state NORMAL_GAME as " " : at least one player
+state DEMO as " " : demo game
+
+state gameModeChoice <<choice>>
+
+[*] --> INITIAL
+INITIAL --> start : Start (new game) requested
+start --> welcomed : System shows title message
+welcomed --> S1 : System request num of players [0..2] 
+S1 --> configured : Player introduces num of players
+configured --> displayed : System shows empty board
+displayed --> gameModeChoice : [numPlayers > 0]
+gameModeChoice --> NORMAL_GAME : [true]
+gameModeChoice --> DEMO
+
+NORMAL_GAME --> IN_GAME : System allows Place Token
+DEMO --> IN_GAME
+IN_GAME --> [*]
+@enduml

@@ -1,0 +1,41 @@
+@startuml placeToken
+state IN_GAME
+state gameMode as " " <<choice>>
+state userTurn as " "
+state columnRquested as " "
+state columnSelected <<choice>>
+state invalidColumn as " "
+state tokenPlaced as " "
+state boardShowed <<choice>>
+state winnerPlacement as " "
+state finishMessageShowed as " "
+state boardFull as " "
+state stillInGame as " "
+state IN_GAME_AGAIN as "IN_GAME"
+state OUT_GAME
+
+[*] --> IN_GAME
+IN_GAME --> gameMode : Place Token requested 
+
+gameMode --> userTurn : [turn.actualPlayer.isUser]
+userTurn --> columnRquested: System request target column
+columnRquested --> columnSelected: Player introduces target column
+columnSelected --> invalidColumn: [board.isColumnFull(target)]
+invalidColumn --> userTurn: Sytem shows error
+columnSelected --> tokenPlaced: [else]
+
+gameMode --> tokenPlaced : [turn.actualPlayer.isMachine]
+
+tokenPlaced --> boardShowed: System shows updated board\nwith new token placed
+boardShowed --> winnerPlacement: [winner placement]
+winnerPlacement --> finishMessageShowed: System shows winner message
+finishMessageShowed --> OUT_GAME: System allows Resume
+boardShowed --> boardFull: [board.isFull & ! winner placement]
+boardFull --> finishMessageShowed: System shows tie message
+boardShowed --> stillInGame: [else]
+stillInGame --> IN_GAME_AGAIN: System allows Place token
+
+IN_GAME_AGAIN --> [*]
+OUT_GAME --> [*]
+
+@enduml
