@@ -89,6 +89,10 @@ class Coordinate {
             && Coordinate.isColumnValid(this.getColumn());
     }
 
+    static randomColumn() {
+        return Math.floor(Math.random()*Coordinate.NUMBER_COLUMNS);
+    }
+
     static isColumnValid(column) {
         return Coordinate.#COLUMNS.isIncluded(column);
     }
@@ -157,6 +161,8 @@ class Direction {
 
 class Message {
     static TITLE = new Message(`--- CONNECT 4 ---`);
+    static GAME_MODE = new Message(`Enter num of players:`);
+    static GAME_MODE_ERROR = new Message(`Invalid number!!! Values [0-2]`);
     static HORIZONTAL_LINE = new Message(`-`);
     static VERTICAL_LINE = new Message(`|`);
     static TURN = new Message(`Turn: `);
@@ -327,26 +333,6 @@ class Player {
         this.#board = board;
     }
 
-    play() {
-        let column;
-        let valid;
-        do {
-            Message.TURN.write();
-            console.writeln(this.#color.toString());
-            column = console.readNumber(Message.ENTER_COLUMN_TO_DROP.toString()) - 1;
-            valid = Coordinate.isColumnValid(column);
-            if (!valid) {
-                Message.INVALID_COLUMN.writeln();
-            } else {
-                valid = !this.#board.isComplete(column);
-                if (!valid) {
-                    Message.COMPLETED_COLUMN.writeln();
-                }
-            }
-        } while (!valid);
-        this.#board.dropToken(column, this.#color);
-    }
-
     writeWinner() {
         if (!this.#board.isWinner()) {
             Message.PLAYERS_TIED.writeln();
@@ -357,6 +343,72 @@ class Player {
         }
     }
 
+    // modified methods
+    play() {
+        let column;
+        let valid;
+        do {
+            this.writeColorOfTurn();
+            column = this.getColumn();           
+            valid = this.isValid(column);
+        } while (!valid);        
+        this.#board.dropToken(column, this.#color);
+    } 
+
+    // new methods
+
+    writeColorOfTurn() {
+        Message.TURN.write();
+        console.writeln(this.#color.toString());
+    }
+
+    getColumn() {const a = 1; a = 0;} // abstract
+
+    isValid(column) {const a = 1; a = 0;} // abstract
+
+    isComplete(column) {
+        return this.#board.isComplete(column);
+    }
+
+}
+
+class UserPlayer extends Player{
+
+    constructor(color, board) {
+        super(color, board);
+    }
+
+    getColumn() {
+        return console.readNumber(Message.ENTER_COLUMN_TO_DROP.toString()) - 1;
+    } 
+
+    isValid(column) {
+        let valid = Coordinate.isColumnValid(column);
+        if (!valid) {
+            Message.INVALID_COLUMN.writeln();
+        } else {
+            valid = !this.isComplete(column);
+            if (!valid) {
+                Message.COMPLETED_COLUMN.writeln();
+            }
+        }
+        return valid;
+    } 
+}
+
+class RandomPlayer extends Player{
+
+    constructor(color, board) {
+        super(color, board);
+    }
+
+    getColumn() {
+        return Coordinate.randomColumn();             
+    } 
+
+    isValid(column) {
+        return !this.isComplete(column);
+    }
 }
 
 class Turn {
@@ -367,16 +419,31 @@ class Turn {
     #board;
 
     constructor(board) {
-        this.#board = board;
-        this.#players = [];
+        this.#board = board;        
         this.reset();
     }
 
     reset() {
-        for (let i = 0; i < Turn.#NUMBER_PLAYERS; i++) {
-            this.#players[i] = new Player(Color.get(i), this.#board);
-        }
+        this.#players = [];
         this.#activePlayer = 0;
+    }
+
+    readGameMode() {
+        let numUsers;
+        let valid;
+        do {
+            numUsers = console.readNumber(Message.GAME_MODE.toString());
+            valid = new ClosedInterval(0, Turn.#NUMBER_PLAYERS).isIncluded(numUsers);
+            if (!valid) {
+                Message.GAME_MODE_ERROR.writeln();
+            }
+        } while (!valid);
+        for (let i = 0; i < numUsers; i++) {
+            this.#players[i] = new UserPlayer(Color.get(i), this.#board);
+        }
+        for (let i = numUsers; i < Turn.#NUMBER_PLAYERS; i++) {
+            this.#players[i] = new RandomPlayer(Color.get(i), this.#board);
+        } 
     }
 
     play() {
@@ -445,6 +512,7 @@ class Connect4 {
 
     playGame() {
         Message.TITLE.writeln();
+        this.#turn.readGameMode();
         this.#board.writeln();
         do {
             this.#turn.play();
