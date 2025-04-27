@@ -90,7 +90,7 @@ class Coordinate {
     }
 
     static randomColumn() {
-        return Math.floor(Math.random()*Coordinate.NUMBER_COLUMNS);
+        return Math.floor(Math.random() * Coordinate.NUMBER_COLUMNS);
     }
 
     static isColumnValid(column) {
@@ -345,26 +345,13 @@ class Player {
 
     // modified methods
     play() {
-        let column;
-        let valid;
-        do {
-            this.writeColorOfTurn();
-            column = this.getColumn();           
-            valid = this.isValid(column);
-        } while (!valid);        
-        this.#board.dropToken(column, this.#color);
-    } 
-
-    // new methods
-
-    writeColorOfTurn() {
         Message.TURN.write();
         console.writeln(this.#color.toString());
+        const column = this.getColumn();        
+        this.#board.dropToken(column, this.#color);
     }
 
-    getColumn() {const a = 1; a = 0;} // abstract
-
-    isValid(column) {const a = 1; a = 0;} // abstract
+    getColumn() { const a = 1; a = 0; } // abstract
 
     isComplete(column) {
         return this.#board.isComplete(column);
@@ -372,42 +359,44 @@ class Player {
 
 }
 
-class UserPlayer extends Player{
+class UserPlayer extends Player {
 
     constructor(color, board) {
         super(color, board);
     }
 
     getColumn() {
-        return console.readNumber(Message.ENTER_COLUMN_TO_DROP.toString()) - 1;
-    } 
-
-    isValid(column) {
-        let valid = Coordinate.isColumnValid(column);
-        if (!valid) {
-            Message.INVALID_COLUMN.writeln();
-        } else {
-            valid = !this.isComplete(column);
+        let column;
+        let valid;
+        do {
+            column = console.readNumber(Message.ENTER_COLUMN_TO_DROP.toString()) - 1;
+            valid = Coordinate.isColumnValid(column);            
             if (!valid) {
-                Message.COMPLETED_COLUMN.writeln();
+                Message.INVALID_COLUMN.writeln();
+            } else {
+                valid = !this.isComplete(column);                
+                if (!valid) {
+                    Message.COMPLETED_COLUMN.writeln();
+                }
             }
-        }
-        return valid;
-    } 
+        } while (!valid);        
+        return column;
+    }
+
 }
 
-class RandomPlayer extends Player{
+class RandomPlayer extends Player {
 
     constructor(color, board) {
         super(color, board);
     }
 
     getColumn() {
-        return Coordinate.randomColumn();             
-    } 
-
-    isValid(column) {
-        return !this.isComplete(column);
+        let column;
+        do {
+            column = Coordinate.randomColumn();
+        } while (this.isComplete(column));
+        return column;
     }
 }
 
@@ -419,7 +408,7 @@ class Turn {
     #board;
 
     constructor(board) {
-        this.#board = board;        
+        this.#board = board;
         this.reset();
     }
 
@@ -443,7 +432,7 @@ class Turn {
         }
         for (let i = numUsers; i < Turn.#NUMBER_PLAYERS; i++) {
             this.#players[i] = new RandomPlayer(Color.get(i), this.#board);
-        } 
+        }
     }
 
     play() {
