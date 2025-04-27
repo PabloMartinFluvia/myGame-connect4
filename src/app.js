@@ -36,7 +36,7 @@ class Color {
     }
 
     static get(ordinal) {
-        assert(typeof ordinal === "number");
+        assert(Number.isInteger(ordinal));
         assert(new ClosedInterval(0, Color.#values.length - 1).isIncluded(ordinal));
 
         return Color.#values[ordinal];
@@ -68,6 +68,10 @@ class Coordinate {
 
         this.#row = row;
         this.#column = column;
+    }
+
+    static get randomColumn() {
+        return Math.floor(Math.random() * Coordinate.NUMBER_COLUMNS);
     }
 
     static #isRowValid(row) {        
@@ -283,13 +287,13 @@ class Player {
 
 class Turn {
 
-    static #NUMBER_PLAYERS = 2;
+    static NUMBER_PLAYERS = 2;
     #players;
     #activePlayer;
 
     constructor(board) {
         this.#players = [];
-        for (let i = 0; i < Turn.#NUMBER_PLAYERS; i++) {
+        for (let i = 0; i < Turn.NUMBER_PLAYERS; i++) {
             this.#players[i] = new Player(Color.get(i), board);
         }
         this.reset();
@@ -300,15 +304,22 @@ class Turn {
     }
 
     get isWinner() {
-        return this.currentPlayer.isWinner;
+        return this.getPlayer(this.#activePlayer).isWinner;
     }
 
     change() {
-        this.#activePlayer = (this.#activePlayer + 1) % Turn.#NUMBER_PLAYERS;
+        this.#activePlayer = (this.#activePlayer + 1) % Turn.NUMBER_PLAYERS;
     }
 
-    get currentPlayer() {
-        return this.#players[this.#activePlayer];
+    getPlayer(ordinal) {
+        assert(Number.isInteger(ordinal));
+        assert(new ClosedInterval(0, Turn.NUMBER_PLAYERS - 1).isIncluded(ordinal));
+
+        return this.#players[ordinal];
+    }
+
+    get index() {
+        return this.#activePlayer;
     }
 
 }
@@ -347,6 +358,8 @@ class Game {
 
 class Message {
     static TITLE = new Message(`--- CONNECT 4 ---`);
+    static GAME_MODE = new Message(`Enter number of players:`);
+    static INVALID_GAME_MODE = new Message(`Invalid number of players!!! Values [0-${Turn.NUMBER_PLAYERS}]`);
     static HORIZONTAL_LINE = new Message(`-`);
     static VERTICAL_LINE = new Message(`|`);
     static TURN = new Message(`Turn: `);
@@ -387,25 +400,17 @@ class PlayerView {
     }
 
     dropToken() {
-        let column;
-        let valid;
-        do {
-            Message.TURN.write();
-            consoleMPDS.writeln(this.#player.toString());
-            column = consoleMPDS.readNumber(Message.ENTER_COLUMN_TO_DROP.toString()) - 1;
-            valid = Coordinate.isColumnValid(column);
-            if (!valid) {
-                Message.INVALID_COLUMN.writeln();
-            } else {
-                valid = !this.#player.isComplete(column);
-                if (!valid) {
-                    Message.COMPLETED_COLUMN.writeln();
-                }
-            }
-        } while (!valid);
+        Message.TURN.write();
+        consoleMPDS.writeln(this.#player.toString());
+        let column = this.readColumn();        
         this.#player.dropToken(column);
     }
 
+    readColumn() {assert(false, "abstract");}
+
+    isComplete(column) {
+        return this.#player.isComplete(column);
+    }
 
     writeWin() {
         let message = Message.PLAYER_WIN.toString();
@@ -414,18 +419,105 @@ class PlayerView {
     }
 }
 
+class UserView extends PlayerView {
+
+    constructor(player) {
+        super(player);
+    }
+
+    readColumn() {
+        let column;
+        let valid;
+        do {            
+            column = consoleMPDS.readNumber(Message.ENTER_COLUMN_TO_DROP.toString()) - 1;
+            valid = Coordinate.isColumnValid(column);
+            if (!valid) {
+                Message.INVALID_COLUMN.writeln();
+            } else {
+                valid = !this.isComplete(column);
+                if (!valid) {
+                    Message.COMPLETED_COLUMN.writeln();
+                }
+            }
+        } while (!valid);
+        return column;
+    }
+    
+}
+
+class RandomView extends PlayerView{
+
+    constructor(player) {
+        super(player);
+    }
+
+    readColumn() {
+        let column;
+        do {                  
+            column = Coordinate.randomColumn;                      
+        } while (this.isComplete(column));
+        return column;
+    }
+}
+
+class SettingView {
+            
+    #turn;
+
+    constructor(turn) {
+        assert(turn instanceof Turn)
+        
+        this.#turn = turn;
+    }
+
+    readGameMode() {
+        const numUsers = this.#numUsers;
+        const playersViews = [];
+        for (let i = 0; i < numUsers; i++) {
+            playersViews.push(new UserView(this.#turn.getPlayer(i)));
+        }
+        for (let i = numUsers; i < Turn.NUMBER_PLAYERS; i++) {
+            playersViews.push(new RandomView(this.#turn.getPlayer(i)));
+        }
+        return playersViews; 
+    }
+
+    get #numUsers() {
+        let numUsers;
+        let valid;
+        do {
+            numUsers = consoleMPDS.readNumber(Message.GAME_MODE.toString());
+            valid = new ClosedInterval(0, Turn.NUMBER_PLAYERS).isIncluded(numUsers);
+            if (!valid) {
+                Message.INVALID_GAME_MODE.writeln();
+            }
+        } while (!valid);
+        return numUsers;
+    }
+}
+
 class TurnView {
 
     #turn;
+    #playersViews;
 
     constructor(turn) {
         assert(turn instanceof Turn);
 
         this.#turn = turn;
+        this.#playersViews = undefined;
+    }
+
+    get #playerView() {
+        return  this.#playersViews[this.#turn.index];
     }
 
     play() {
         this.#playerView.dropToken();        
+    }
+
+    readGameMode() {
+        this.#playersViews = new SettingView(this.#turn).readGameMode();
     }
 
     writeResult() {
@@ -434,10 +526,6 @@ class TurnView {
         } else {
             Message.PLAYERS_TIED.writeln();
         }
-    }
-
-    get #playerView() {
-        return  new PlayerView(this.#turn.currentPlayer);
     }
 
 }
@@ -526,6 +614,7 @@ class GameView {
 
     play() {
         Message.TITLE.writeln();
+        this.#turnView.readGameMode();
         this.#boardView.write();
         let finished;
         do {

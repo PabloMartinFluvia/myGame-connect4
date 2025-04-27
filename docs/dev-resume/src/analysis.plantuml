@@ -61,23 +61,54 @@ ColorView ..> Color
 class TurnView #LightYellow {
 
     + TurnView(turn)
-    + play()
-    + writeResult()
     - getPlayerView()
+    + play()
+    + readGameMode()
+    + writeResult()    
 }
 TurnView --> Turn
-TurnView ..> PlayerView
+TurnView --> "NUMBER_PLAYERS" PlayerView
 TurnView ..> Message
+TurnView ..> SettingView
 
-class PlayerView #LightYellow {
+class SettingView #LightYellow {
+
+    + SettingView(turn)
+    + readGameMode()
+    - getNumUsers()
+}
+SettingView --> Turn
+SettingView ..> Message
+SettingView ..> ClosedInterval
+SettingView ..> UserView
+SettingView ..> RandomView
+
+abstract class PlayerView #LightYellow {
 
     + PlayerView(player)    
     + dropToken()
+    + {abstract} readColumn()
+    + isComplete(column)
     + writeWin()
 }
 PlayerView --> Player
 PlayerView ..> Message
-PlayerView ..> Coordinate
+
+class UserView #LightYellow {
+
+    + UserView(player)
+    + readColumn()
+}
+PlayerView <|-- UserView
+UserView ..> Coordinate
+
+class RandomView #LightYellow {
+
+    + UserView(player)
+    + readColumn()
+}
+PlayerView <|-- RandomView
+RandomView ..> Coordinate
 
 enum Message #LightYellow {
     MANY MESSAGES
@@ -87,6 +118,7 @@ enum Message #LightYellow {
     + writeln()
     + toString()
 }
+Message ..> Turn
 Message ..> Color
 
 class Game #LightCyan {
@@ -109,7 +141,8 @@ class Turn #LightCyan {
     + reset()
     + isWinner()
     + change()   
-    + currentPlayer() 
+    + getPlayer(ordinal)
+    + getIndex()
 }
 Turn *--> "NUMBER_PLAYERS" Player
 Turn ..> Color
@@ -171,6 +204,7 @@ class Coordinate #LightCyan {
     - column
 
     + Coordinate(row, column)
+    + {static} getRandomColumn()
     - {static} isRowValid(row)
     + {static} isColumnValid(column)
     + isValid()

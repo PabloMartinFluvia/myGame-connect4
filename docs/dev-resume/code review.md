@@ -6,6 +6,8 @@
 
 ## Ideas to consider in the future
 
+- logic in RandomView move to player.chooseColumn() ?
+
 
 # TODOs in code review
 1. Simplicity:
