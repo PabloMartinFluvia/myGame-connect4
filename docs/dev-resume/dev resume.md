@@ -55,6 +55,6 @@ Task's description contains what's <i>new</i> vs previous task.
 ### Task 5: js_v1.1
 - Task 3 upgrade.
 - Task:
-    - Upgrade app (with only models) to multiplayer version
+    - Upgrade app to multiplayer version
 
 ![Analysys](../../out/docs/dev-resume/src/analysis/analysis.svg)

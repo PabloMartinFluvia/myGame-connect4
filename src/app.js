@@ -37,16 +37,16 @@ class Color {
 
     static get(ordinal) {
         assert(typeof ordinal === "number");
-        assert(new ClosedInterval(0, Color.#values().length - 1).isIncluded(ordinal));
+        assert(new ClosedInterval(0, Color.#values.length - 1).isIncluded(ordinal));
 
-        return Color.#values()[ordinal];
+        return Color.#values[ordinal];
     }
 
-    static #values() {
+    static get #values() {
         return [Color.RED, Color.YELLOW, Color.NULL];
     }
 
-    isNull() {
+    get isNull() {
         return this === Color.NULL;
     }
 
@@ -80,7 +80,7 @@ class Coordinate {
                 && new ClosedInterval(0, Coordinate.NUMBER_COLUMNS - 1).isIncluded(column);
     }
 
-    isValid() {
+    get isValid() {
         return Coordinate.#isRowValid(this.#row) && Coordinate.isColumnValid(this.#column);
     }
 
@@ -90,15 +90,15 @@ class Coordinate {
         return new Coordinate(this.#row + coordinate.#row, this.#column + coordinate.#column);
     }
 
-    opposited() {
+    get opposited() {
         return new Coordinate(-1 * this.#row, -1 * this.#column);
     }
 
-    getRow() {
+    get row() {
         return this.#row;
     }
 
-    getColumn() {
+    get column() {
         return this.#column;
     }
 }
@@ -115,9 +115,9 @@ class Vector {
         this.#coordinate = new Coordinate(row, column);
     }
 
-    opposited() {
-        const oppositedCoord = this.#coordinate.opposited();
-        return new Vector(oppositedCoord.getRow(), oppositedCoord.getColumn());        
+    get opposited() {
+        const oppositedCoord = this.#coordinate.opposited;
+        return new Vector(oppositedCoord.row, oppositedCoord.column);        
     }
 
     toCoordinate() {
@@ -139,12 +139,12 @@ class Line {
         this.#vector = vector;
     }
 
-    shiftedToOpposite() {        
-        const shiftedOrigin = this.#origin.shifted(this.#vector.opposited().toCoordinate());
+    get shiftedToOpposite() {        
+        const shiftedOrigin = this.#origin.shifted(this.#vector.opposited.toCoordinate());
         return new Line(shiftedOrigin, this.#vector);
     }
 
-    getCoordinates() {
+    get coordinates() {
         let coordinates = [this.#origin];        
         for (let i = 1; i < Line.WIN_LENGTH; i++) {
             coordinates[i] = coordinates[i - 1].shifted(this.#vector.toCoordinate());
@@ -152,8 +152,8 @@ class Line {
         return coordinates;
     }
 
-    isValid() {
-        return this.getCoordinates().every(coordinate => coordinate.isValid());
+    get isValid() {
+        return this.coordinates.every(coordinate => coordinate.isValid);
     }
     
 }
@@ -171,7 +171,7 @@ class Board {
     }
 
     reset() {
-        for (let i = 0; i < Coordinate.NUMBER_ROWS; i++) {
+        for (let i = 0; i < Coordinate.NUMBER_ROWS; i++) {            
             for (let j = 0; j < Coordinate.NUMBER_COLUMNS; j++) {
                 this.#colors[i][j] = Color.NULL;
             }
@@ -187,7 +187,7 @@ class Board {
         while (!this.#isEmpty(this.#lastDrop)) {
             this.#lastDrop = this.#lastDrop.shifted(Vector.NORTH.toCoordinate());
         }
-        this.#colors[this.#lastDrop.getRow()][this.#lastDrop.getColumn()] = color;
+        this.#colors[this.#lastDrop.row][this.#lastDrop.column] = color;
     }
 
     isComplete(column) {
@@ -210,14 +210,14 @@ class Board {
 
     getColor(coordinate) {
         assert(coordinate instanceof Coordinate);
-        assert(coordinate.isValid());
+        assert(coordinate.isValid);
 
-        return this.#colors[coordinate.getRow()][coordinate.getColumn()];
+        return this.#colors[coordinate.row][coordinate.column];
     }
 
     isWinner(color) {
         assert(color instanceof Color);
-        assert(!color.isNull());
+        assert(!color.isNull);
         assert(color === this.getColor(this.#lastDrop));
 
         for (let vector of [Vector.NORTH, Vector.NORTH_EAST, Vector.EAST, Vector.SOUTH_EAST]) {               
@@ -226,7 +226,7 @@ class Board {
                 if (this.#isConnect4(line)) {
                     return true;
                 }
-                line = line.shiftedToOpposite();
+                line = line.shiftedToOpposite;
             }
         }
         return false;
@@ -235,13 +235,13 @@ class Board {
     #isConnect4(line) {
         assert(line instanceof Line);
 
-        if (!line.isValid()) {
+        if (!line.isValid) {
             return false;
         }
-        const coordinates = line.getCoordinates();
+        const coordinates = line.coordinates;
         for (let i = 1; i < coordinates.length; i++) {
             const color = this.getColor(coordinates[i - 1]);
-            if (this.getColor(coordinates[i]) !== color || color.isNull()) {
+            if (this.getColor(coordinates[i]) !== color || color.isNull) {
                 return false;
             }
         }
@@ -271,7 +271,7 @@ class Player {
         return this.#board.isComplete(column);
     }
 
-    isWinner() {
+    get isWinner() {
         return this.#board.isWinner(this.#color);
     }
 
@@ -299,18 +299,50 @@ class Turn {
         this.#activePlayer = 0;
     }
 
-    isWinner() {
-        return this.getPlayer().isWinner();
+    get isWinner() {
+        return this.currentPlayer.isWinner;
     }
 
     change() {
         this.#activePlayer = (this.#activePlayer + 1) % Turn.#NUMBER_PLAYERS;
     }
 
-    getPlayer() {
+    get currentPlayer() {
         return this.#players[this.#activePlayer];
     }
 
+}
+
+class Game {
+
+    #board;
+    #turn;    
+
+    constructor() {
+        this.#board = new Board();
+        this.#turn = new Turn(this.#board);
+    }
+
+    get isFinished() {
+        return this.#board.isComplete() || this.#turn.isWinner;
+    }
+
+    changeTurn() {
+        this.#turn.change();
+    }
+
+    reset() {
+        this.#board.reset();
+        this.#turn.reset();
+    }
+
+    get board() {
+        return this.#board;
+    }
+
+    get turn() {
+        return this.#turn;
+    }
 }
 
 class Message {
@@ -393,15 +425,19 @@ class TurnView {
     }
 
     play() {
-        new PlayerView(this.#turn.getPlayer()).dropToken();        
+        this.#playerView.dropToken();        
     }
 
     writeResult() {
-        if (this.#turn.isWinner()) {
-            new PlayerView(this.#turn.getPlayer()).writeWin();
+        if (this.#turn.isWinner) {
+            this.#playerView.writeWin();
         } else {
             Message.PLAYERS_TIED.writeln();
         }
+    }
+
+    get #playerView() {
+        return  new PlayerView(this.#turn.currentPlayer);
     }
 
 }
@@ -474,6 +510,37 @@ class BoardView {
 
 }
 
+class GameView {
+
+    #game
+    #boardView;
+    #turnView;
+
+    constructor(game) {
+        assert(game instanceof Game);
+
+        this.#game = game;
+        this.#boardView = new BoardView(this.#game.board);
+        this.#turnView = new TurnView(this.#game.turn);
+    }
+
+    play() {
+        Message.TITLE.writeln();
+        this.#boardView.write();
+        let finished;
+        do {
+            this.#turnView.play();
+            this.#boardView.write();
+            finished = this.#game.isFinished;
+            if (!finished) {
+                this.#game.changeTurn();                
+            }
+        } while (!finished);
+        this.#turnView.writeResult();
+    }
+    
+}
+
 class YesNoDialog {
 
     static #AFFIRMATIVE = `y`;
@@ -490,18 +557,18 @@ class YesNoDialog {
         let ok;
         do {
             this.#answer = consoleMPDS.readString(question + YesNoDialog.#SUFFIX);
-            ok = this.isAffirmative() || this.#isNegative();
+            ok = this.isAffirmative || this.#isNegative;
             if (!ok) {
                 consoleMPDS.writeln(YesNoDialog.#ERROR);
             }
         } while (!ok);
     }
 
-    isAffirmative() {
+    get isAffirmative() {
         return this.#getAnswer() === YesNoDialog.#AFFIRMATIVE;
     }
 
-    #isNegative() {
+    get #isNegative() {
         return this.#getAnswer() === YesNoDialog.#NEGATIVE;
     }
 
@@ -512,58 +579,30 @@ class YesNoDialog {
 
 class Connect4 {
 
-    #board;
-    #turn;
-    #boardView;
-    #turnView;
+    #game;
+    #gameView;   
 
     constructor() {
-        this.#board = new Board();
-        this.#turn = new Turn(this.#board);
-        this.#boardView = new BoardView(this.#board);
-        this.#turnView = new TurnView(this.#turn);
+        this.#game = new Game();
+        this.#gameView = new GameView(this.#game);       
     }
 
     playGames() {
         let resume;
         do {
-            this.#playGame();
+            this.#gameView.play();
             resume = this.#isResumed();
             if(resume) {
-                this.#reset();
+                this.#game.reset();
             }
         } while (resume);
-    }
-
-    #playGame() {
-        Message.TITLE.writeln();
-        this.#boardView.write();
-        let finished;
-        do {
-            this.#turnView.play();
-            this.#boardView.write();
-            finished = this.#isFinished();
-            if (!finished) {
-                this.#turn.change();
-            }
-        } while (!finished);
-        this.#turnView.writeResult();
-    }
-
-    #isFinished() {
-        return this.#board.isComplete() || this.#turn.isWinner();
     }
 
     #isResumed() {
         const yesNoDialog = new YesNoDialog();
         yesNoDialog.read(Message.RESUME.toString());        
-        return yesNoDialog.isAffirmative();
-    }
-
-    #reset() {
-        this.#board.reset();
-        this.#turn.reset();
-    }
+        return yesNoDialog.isAffirmative;
+    }    
 
 }
 

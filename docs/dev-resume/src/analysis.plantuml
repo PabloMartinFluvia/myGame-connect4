@@ -4,17 +4,14 @@ class Connect4 {
     
     + Connect4()
     + playGames()
-    - playGame()
-    - isFinished()
     - isResumed()
-    - reset()
 }
-Connect4 *--> Board
-Connect4 *--> Turn
-Connect4 *--> BoardView
-Connect4 *--> TurnView
+Connect4 *--> Game
+Connect4 *--> GameView
 Connect4 ..> Message
 Connect4 ..> YesNoDialog
+
+
 
 class YesNoDialog #Pink {
     - {static} AFFIRMATIVE
@@ -30,6 +27,16 @@ class YesNoDialog #Pink {
     - getAnswer()
 }
 
+class GameView #LightYellow {
+
+    + GameView(game)
+    + play()
+}
+GameView --> Game
+GameView *--> BoardView
+GameView *--> TurnView
+GameView ..> Message
+
 class BoardView #LightYellow {
     - {static} COLUMN_LENGTH    
 
@@ -41,7 +48,6 @@ BoardView --> Board
 BoardView *--> ColorView
 BoardView ..> Coordinate
 BoardView ..> Message
-BoardView ..> Color
 
 class ColorView #LightYellow {
     - COLOR_LENGTH
@@ -54,13 +60,13 @@ ColorView ..> Color
 
 class TurnView #LightYellow {
 
-    + TurnView(turn, board)
+    + TurnView(turn)
     + play()
     + writeResult()
+    - getPlayerView()
 }
 TurnView --> Turn
 TurnView ..> PlayerView
-TurnView ..> Player
 TurnView ..> Message
 
 class PlayerView #LightYellow {
@@ -83,6 +89,18 @@ enum Message #LightYellow {
 }
 Message ..> Color
 
+class Game #LightCyan {
+
+    + Game()
+    + isFinished()
+    + changeTurn()
+    + reset()
+    + getBoard()
+    + getTurn()
+}
+Game *--> Board
+Game *--> Turn
+
 class Turn #LightCyan {
     + {static} NUMBER_PLAYERS
     - activePlayer
@@ -91,7 +109,7 @@ class Turn #LightCyan {
     + reset()
     + isWinner()
     + change()   
-    + getPlayer() 
+    + currentPlayer() 
 }
 Turn *--> "NUMBER_PLAYERS" Player
 Turn ..> Color
@@ -131,7 +149,7 @@ class Line #LightCyan {
     + getCoordinates()
     + isValid()
 }
-Line --> Coordinate
+Line --> Coordinate : origin
 Line --> Vector
 
 class Vector #LightCyan {
@@ -174,6 +192,7 @@ enum Color #LightCyan {
     + isNull()
     + toString()
 }
+Color ..> ClosedInterval
 
 class ClosedInterval #LightSteelBlue {
     - min
