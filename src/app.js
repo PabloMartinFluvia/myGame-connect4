@@ -428,17 +428,15 @@ class UserView extends PlayerView {
 
     readColumn() {
         let column;
-        let valid;
+        let valid = false;
         do {            
-            column = consoleMPDS.readNumber(Message.ENTER_COLUMN_TO_DROP.toString()) - 1;
-            valid = Coordinate.isColumnValid(column);
-            if (!valid) {
+            column = consoleMPDS.readNumber(Message.ENTER_COLUMN_TO_DROP.toString()) - 1;            
+            if (!Coordinate.isColumnValid(column)) {
                 Message.INVALID_COLUMN.writeln();
+            } else if (this.isComplete(column)) {
+                Message.COMPLETED_COLUMN.writeln();
             } else {
-                valid = !this.isComplete(column);
-                if (!valid) {
-                    Message.COMPLETED_COLUMN.writeln();
-                }
+                valid = true;
             }
         } while (!valid);
         return column;
