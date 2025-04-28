@@ -9,6 +9,10 @@
 - logic in RandomView move to player.chooseColumn() ?
 
 
+- Create models User & Random (extends Player) ?
+- In settingView, send message to Turn like this.#turn.createPlayers(numUsers);
+
+
 # TODOs in code review
 1. Simplicity:
     - Anybody will understand the code? Can be less complex?
