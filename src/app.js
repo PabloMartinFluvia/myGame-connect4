@@ -333,6 +333,19 @@ class Player {
         this.#board = board;
     }
 
+    writeTurn() {
+        Message.TURN.write();
+        console.writeln(this.#color.toString());
+    }
+
+    isComplete(column) {
+        return this.#board.isComplete(column);
+    }
+
+    dropToken(column) {
+        this.#board.dropToken(column, this.#color);
+    }
+
     writeWinner() {
         if (!this.#board.isWinner()) {
             Message.PLAYERS_TIED.writeln();
@@ -343,29 +356,22 @@ class Player {
         }
     }
 
-    // modified methods
-    play() {
-        Message.TURN.write();
-        console.writeln(this.#color.toString());
-        const column = this.getColumn();        
-        this.#board.dropToken(column, this.#color);
-    }
-
-    getColumn() { const a = 1; a = 0; } // abstract
-
-    isComplete(column) {
-        return this.#board.isComplete(column);
-    }
-
 }
 
-class UserPlayer extends Player {
+class UserPlayer {
+
+    #player;
 
     constructor(color, board) {
-        super(color, board);
+        this.#player = new Player(color, board);
     }
 
-    getColumn() {
+    play() {
+        this.#player.writeTurn();
+        this.#player.dropToken(this.#getColumn());
+    }
+
+    #getColumn() {
         let column;
         let valid;
         do {
@@ -374,7 +380,7 @@ class UserPlayer extends Player {
             if (!valid) {
                 Message.INVALID_COLUMN.writeln();
             } else {
-                valid = !this.isComplete(column);                
+                valid = !this.#player.isComplete(column);                
                 if (!valid) {
                     Message.COMPLETED_COLUMN.writeln();
                 }
@@ -383,20 +389,35 @@ class UserPlayer extends Player {
         return column;
     }
 
-}
-
-class RandomPlayer extends Player {
-
-    constructor(color, board) {
-        super(color, board);
+    writeWinner() {
+        this.#player.writeWinner();
     }
 
-    getColumn() {
+}
+
+class RandomPlayer {
+    #player;
+
+    constructor(color, board) {
+        this.#player = new Player(color, board);
+    }
+
+    play() {
+        this.#player.writeTurn();
+        this.#player.dropToken(this.#getColumn());
+    }
+
+
+    #getColumn() {
         let column;
         do {
             column = Coordinate.randomColumn();
-        } while (this.isComplete(column));
+        } while (this.#player.isComplete(column));
         return column;
+    }
+
+    writeWinner() {
+        this.#player.writeWinner();
     }
 }
 
