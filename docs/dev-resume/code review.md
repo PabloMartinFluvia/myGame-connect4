@@ -6,55 +6,24 @@
 
 ## Ideas to consider in the future
 
-- In randomView.readColumn() : has some logic (4 first lines) wich could be done by models (player.getRandomColumn())
-
-- In userView.readColumn() :
-has validation logic. It makes more difficult the reusability of models (with other technology for views the validation must be written again). Propose in do-while body
-    - do {
-    - column = console.read
-    - error = player.validate(column)
-        - obs: error is enum model
-    - if (!error.isNull())
-        - errorView.write(error)
-    - } while (!error.isNull()) 
-
-- In settingView.#getNumUsers: idem validation problem. So delegate validation to static turn method:
-    - error = Turn.validate(numUsers)
-    - use errorView if error
-
-- Analisis actual solution vs others:
-    1. Actual: 
-        - only one type of Player
-        - 2 types of PlayerView. Each instance associated to one instance of Player.
-        - clients of PlayerView (TurnView) use them polimorfically.
-        - SettingView creates PlayerView deriveds instances + associate them to its models + provides them to clients.
-        - Extra considerations in my solution:
-            1. If, in the future, client request more types of "how obtain the column where drop the token", that would be a problem:
-            2. Option A: write the logic in a new type of PlayerView -> if the techonology in/out changes that logic will be written again !!!
-            3. Obtion B: write the logic in Player -> it would be a "potential monster": size grows and cohesion decreases.
-    2. Other:
-        - 2 types of Player
-        - types of PlayerView, wich DO NOT use Player polimorfically. UserView --> User. RandomView --> Random.
-            - In other case app won't work well.
-        - clients of PlayerView (TurnView) use them polimorfically.
-        - Extra considerations in the other specific solution:
-            - Player derivateds break liskov:
-                - Human returns more than expected in Base class
-                - Random parameter is more restrict than Base class.
-                - So clients CAN'T use them polimorfically -> inheritance implemented only for reusability
-            - TurnView uses PlayerView polimorfically, but is coupled to derived classes.
-            - TurnView creates instances of models
-    3. Concolusion:
-        1. Different types of Player 
-        2. Deriveds specialized in validate AND / OR calulate the column where drop the tokens.
-        3. Models use them polimorfically.
-        4. Different types of PlayerView.
-        5. Deriveds specialized in in/out data for their specifics models. So DO NOT USE THEM POLIMORFICALLY.
-        6. Views use them polimorfically.
-        7. Specific class (PlayerConfig) in models, to create instances of Player's deriveds, wich provides the Players to Models.
-        8. Specific class (PlayerConfigView) in views, for in/out data for PlayerConfig and create instances of the derived views, wich provides the PlayersViews to Views.
-        9. Error & ErrorView
-
+1. Replace getters & setters
+2. Modules
+3. Check Player inheritance:
+    - Base private atributes? Protected Methods? Abstract Methods
+    - UserPlayer add method for logic validate column
+    - RandomPlayer add method for calculate column
+    - PlayerView only for interaction, logic in models
+4. Error Model (enum) & ErrorView
+5. TurnView reads Mode & Turn inits player's deriveds -> Remove Settings
+6. Remove PlayerView classes -> TurnView assumes it (with accept/visit)
+7. ColorView can be removed?
+8. Board checks isWinner without need color parameter -> simply checks lastdrop
+9. After drop token, tells turn to change if game is not ended -> ???
+    - in
+10. Game and GameView can be removed???
+11. Line can be removed??
+12. BoardView refactor???
+13. Refactor logic when change turn. 'If not finished then change turn' must be in some model.
 
 
 # TODOs in code review

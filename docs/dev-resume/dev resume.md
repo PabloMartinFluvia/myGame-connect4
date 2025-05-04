@@ -57,4 +57,7 @@ Task's description contains what's <i>new</i> vs previous task.
 - Task:
     - Upgrade app to multiplayer version
 
+### Task 6: js_v1.2
+- Add modules
+
 ![Analysys](../../out/docs/dev-resume/src/analysis/analysis.svg)
