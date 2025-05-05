@@ -11,7 +11,7 @@
     - UserPlayer add method for logic validate column
     - RandomPlayer add method for calculate column
     - PlayerView only for interaction, logic in models
-4. Error Model (enum) & ErrorView
+
 5. TurnView reads Mode & Turn inits player's deriveds -> Remove Settings
 6. Remove PlayerView classes -> TurnView assumes it (with accept/visit)
 7. ColorView can be removed?

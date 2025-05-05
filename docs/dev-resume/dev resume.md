@@ -6,6 +6,10 @@
     * [Task 0](#task-0-js_v00)
     * [Task 1](#task-1-js_v001)
     * [Task 2](#task-2-js_v02)
+    * [Task 3](#task-3-js_v03)
+    * [Task 4](#task-4-js_v10)
+    * [Task 5](#task-5-js_v11)
+    * [Task 6](#task-6-js_v12)
 
 ## Intro
 This project has been used for practice:
