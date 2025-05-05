@@ -4,29 +4,37 @@ import { SettingView } from "./SettingView.mjs";
 import { Message } from "./Message.mjs";
 
 import { assert } from "../utils/assert.mjs";
+import { UserPlayer } from "../models/UserPlayer.mjs";
+import { UserPlayerView } from "./UserPlayerView.mjs";
+import { RandomPlayer } from "../models/RandomPlayer.mjs";
+import { RandomPlayerView } from "./RandomPlayerView.mjs";
 
 export class TurnView {
 
     #turn;
-    #playersViews;
 
     constructor(turn) {
         assert(turn instanceof Turn);
 
         this.#turn = turn;
-        this.#playersViews = undefined;
     }
 
     #getPlayerView() {
-        return  this.#playersViews[this.#turn.getIndex()];
+        const player = this.#turn.getActivePlayer();
+        if (player instanceof UserPlayer) {
+            return new UserPlayerView(player);
+        } else if (player instanceof RandomPlayer) {
+            return new RandomPlayerView(player);
+        }
+        return null;        
     }
 
     play() {
         this.#getPlayerView().dropToken();        
     }
 
-    readGameMode() {
-        this.#playersViews = new SettingView(this.#turn).readGameMode();
+    readGameMode(board) {
+        new SettingView(this.#turn).readGameMode(board);
     }
 
     writeResult() {

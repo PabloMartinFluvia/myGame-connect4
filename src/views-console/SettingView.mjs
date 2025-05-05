@@ -1,12 +1,14 @@
 import { Turn } from "../models/Turn.mjs";
+import { UserPlayer } from "../models/UserPlayer.mjs";
+import { RandomPlayer } from "../models/RandomPlayer.mjs";
+import { Color } from "../models/Color.mjs";
 
-import { UserView } from "./UserView.mjs";
-import { RandomView } from "./RandomView.mjs";
 import { Message } from "./Message.mjs";
 import { consoleMPDS } from "./Console.mjs";
 
 import { ClosedInterval } from "../utils/ClosedInterval.mjs";
 import { assert } from "../utils/assert.mjs";
+import { Board } from "../models/Board.mjs";
 
 export class SettingView {
             
@@ -18,16 +20,17 @@ export class SettingView {
         this.#turn = turn;
     }
 
-    readGameMode() {
+    readGameMode(board) {
         const numUsers = this.#getNumUsers();
-        const playersViews = [];
-        for (let i = 0; i < numUsers; i++) {
-            playersViews.push(new UserView(this.#turn.getPlayer(i)));
+        const players = [];
+        for (let i = 0; i < Turn.NUMBER_PLAYERS; i++) {  
+            if (i < numUsers) {
+                players[i] = new UserPlayer(Color.get(i), board);
+            } else {                
+                players[i] = new RandomPlayer(Color.get(i), board);
+            }
         }
-        for (let i = numUsers; i < Turn.NUMBER_PLAYERS; i++) {
-            playersViews.push(new RandomView(this.#turn.getPlayer(i)));
-        }
-        return playersViews; 
+        this.#turn.setPlayers(players);
     }
 
     #getNumUsers() {

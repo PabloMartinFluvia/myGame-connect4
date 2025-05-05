@@ -11,25 +11,33 @@ export class Turn {
     #activePlayer;
 
     constructor(board) {
-        this.#players = [];
-        for (let i = 0; i < Turn.NUMBER_PLAYERS; i++) {
-            this.#players[i] = new Player(Color.get(i), board);
-        }
+        this.#players = [];        
         this.reset();
     }
 
-    reset() {        
+    reset() {  
+        this.#players = [];      
         this.#activePlayer = 0;
     }
 
+    setPlayers(players) {
+        assert(players.every(player => player instanceof Player))
+        this.#players = players;
+    }
+
     isWinner() {
-        return this.getPlayer(this.#activePlayer).isWinner();
+        return this.getActivePlayer().isWinner();
     }
 
     change() {
         this.#activePlayer = (this.#activePlayer + 1) % Turn.NUMBER_PLAYERS;
     }
 
+    getActivePlayer() {
+        return this.#players[this.#activePlayer];
+    }
+
+    /*
     getPlayer(ordinal) {
         assert(Number.isInteger(ordinal));
         assert(new ClosedInterval(0, Turn.NUMBER_PLAYERS - 1).isIncluded(ordinal));
@@ -40,5 +48,6 @@ export class Turn {
     getIndex() {
         return this.#activePlayer;
     }
+        */
 
 }

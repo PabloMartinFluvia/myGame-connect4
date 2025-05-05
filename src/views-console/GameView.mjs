@@ -22,7 +22,7 @@ export class GameView {
 
     play() {
         Message.TITLE.writeln();
-        this.#turnView.readGameMode();
+        this.#turnView.readGameMode(this.#game.getBoard());
         this.#boardView.write();
         let finished;
         do {

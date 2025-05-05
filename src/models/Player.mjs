@@ -20,7 +20,7 @@ export class Player {
         this.#board.dropToken(column, this.#color);
     }
 
-    isComplete(column) {
+    _isComplete(column) {
         return this.#board.isComplete(column);
     }
 

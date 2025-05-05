@@ -23,8 +23,8 @@ export class PlayerView {
 
     readColumn() {assert(false, "abstract");}
 
-    isComplete(column) {
-        return this.#player.isComplete(column);
+    _getPlayer() {
+        return this.#player;
     }
 
     writeWin() {

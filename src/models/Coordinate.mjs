@@ -15,10 +15,6 @@ export class Coordinate {
         this.#column = column;
     }
 
-    static getRandomColumn() {
-        return Math.floor(Math.random() * Coordinate.NUMBER_COLUMNS);
-    }
-
     static #isRowValid(row) {        
         return Number.isInteger(row) 
                 && new ClosedInterval(0, Coordinate.NUMBER_ROWS - 1).isIncluded(row);

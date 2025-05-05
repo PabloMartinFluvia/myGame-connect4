@@ -6,11 +6,6 @@
 
 ## Ideas to consider in the future
 
-3. Check Player inheritance:
-    - Base private atributes? Protected Methods? Abstract Methods
-    - UserPlayer add method for logic validate column
-    - RandomPlayer add method for calculate column
-    - PlayerView only for interaction, logic in models
 
 5. TurnView reads Mode & Turn inits player's deriveds -> Remove Settings
 6. Remove PlayerView classes -> TurnView assumes it (with accept/visit)
@@ -22,6 +17,7 @@
 11. Vector AND/OR Line can be removed??
 12. BoardView refactor???
 13. Refactor logic when change turn. 'If not finished then change turn' must be in some model.
+14. Look for dead code
 
 
 # TODOs in code review
