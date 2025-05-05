@@ -1,4 +1,4 @@
-const { Console } = require("console-mpds");
+import { Console } from "console-mpds";
 
 const consoleMPDS = new Console();
 
