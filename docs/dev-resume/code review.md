@@ -6,8 +6,6 @@
 
 ## Ideas to consider in the future
 
-1. Replace getters & setters
-2. Modules
 3. Check Player inheritance:
     - Base private atributes? Protected Methods? Abstract Methods
     - UserPlayer add method for logic validate column
@@ -21,7 +19,7 @@
 9. After drop token, tells turn to change if game is not ended -> ???
     - in
 10. Game and GameView can be removed???
-11. Line can be removed??
+11. Vector AND/OR Line can be removed??
 12. BoardView refactor???
 13. Refactor logic when change turn. 'If not finished then change turn' must be in some model.
 
