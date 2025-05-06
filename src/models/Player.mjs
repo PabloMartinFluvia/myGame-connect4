@@ -32,4 +32,6 @@ export class Player {
         return this.#color.toString();
     }
 
+    accept(visitor) {assert(false, 'abstract')}
+
 }

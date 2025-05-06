@@ -8,6 +8,7 @@ import { assert } from "../utils/assert.mjs";
 
 export class RandomPlayerView extends PlayerView{
 
+    /*
     constructor(player) {
         assert(player instanceof RandomPlayer)
         super(player);
@@ -23,4 +24,5 @@ export class RandomPlayerView extends PlayerView{
     #getRandomPlayer() {
         return this._getPlayer();
     }
+    */
 }

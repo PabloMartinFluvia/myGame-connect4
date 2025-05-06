@@ -7,7 +7,7 @@ import { assert } from "../utils/assert.mjs";
 
 export class PlayerView {    
     #player
-
+    /*
     constructor(player) {
         assert(player instanceof Player);
 
@@ -32,4 +32,5 @@ export class PlayerView {
         message = message.replace(`#winner`, this.#player.toString());
         consoleMPDS.writeln(message);
     }
+    */
 }

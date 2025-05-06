@@ -27,7 +27,7 @@ export class Turn {
         this.#activePlayer = 0;
     }
 
-    getGameModeError(numUsers) {
+    getErrorGameMode(numUsers) {
         let error = Error.NULL;
         if (!new ClosedInterval(0, Turn.NUMBER_PLAYERS).isIncluded(numUsers)) {
             error = Error.INVALID_GAME_MODE;
@@ -36,7 +36,7 @@ export class Turn {
     }
 
     configGameMode(numUsers) {
-        assert(this.getGameModeError(numUsers).isNull());
+        assert(this.getErrorGameMode(numUsers).isNull());
 
         for (let i = 0; i < Turn.NUMBER_PLAYERS; i++) {
             if (i < numUsers) {

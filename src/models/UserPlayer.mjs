@@ -1,7 +1,9 @@
 import { Player } from "./Player.mjs";
+import { PlayerVisitor } from "./PlayerVisitor.mjs";
 import { Coordinate } from "./Coordinate.mjs";
 import { Error } from './Error.mjs'
 
+import { assert } from "../utils/assert.mjs";
 
 export class UserPlayer extends Player {
 
@@ -9,7 +11,7 @@ export class UserPlayer extends Player {
         super(color, board);
     }
 
-    getColumnError(column) {
+    getErrorColumn(column) {
         let error = Error.NULL;
         if (!Coordinate.isColumnValid(column)) {
             error = Error.INVALID_COLUMN;
@@ -17,5 +19,11 @@ export class UserPlayer extends Player {
             error = Error.COMPLETED_COLUMN;
         }
         return error;
+    }
+
+    accept(visitor) {
+        assert(visitor instanceof PlayerVisitor)
+
+        return visitor.visitUserPlayer(this);
     }
 }

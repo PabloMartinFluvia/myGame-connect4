@@ -8,6 +8,7 @@
 
 
 6. Remove PlayerView classes -> TurnView assumes it (with accept/visit)
+6. Part2 -> move errorView inside TurnView
 7. ColorView can be removed?
 8. Board checks isWinner without need color parameter -> simply checks lastdrop
 9. After drop token, tells turn to change if game is not ended -> ???
