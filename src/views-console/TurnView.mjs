@@ -1,13 +1,14 @@
 import { Turn } from "../models/Turn.mjs";
+import { UserPlayer } from "../models/UserPlayer.mjs";
+import { RandomPlayer } from "../models/RandomPlayer.mjs";
 
-import { SettingView } from "./SettingView.mjs";
+import { UserPlayerView } from "./UserPlayerView.mjs";
+import { RandomPlayerView } from "./RandomPlayerView.mjs";
+import { ErrorView } from "./ErrorView.mjs";
 import { Message } from "./Message.mjs";
+import { consoleMPDS } from "./Console.mjs";
 
 import { assert } from "../utils/assert.mjs";
-import { UserPlayer } from "../models/UserPlayer.mjs";
-import { UserPlayerView } from "./UserPlayerView.mjs";
-import { RandomPlayer } from "../models/RandomPlayer.mjs";
-import { RandomPlayerView } from "./RandomPlayerView.mjs";
 
 export class TurnView {
 
@@ -26,15 +27,24 @@ export class TurnView {
         } else if (player instanceof RandomPlayer) {
             return new RandomPlayerView(player);
         }
-        return null;        
+        return null;
     }
 
     play() {
-        this.#getPlayerView().dropToken();        
+        this.#getPlayerView().dropToken();
     }
 
-    readGameMode(board) {
-        new SettingView(this.#turn).readGameMode(board);
+    readGameMode() {        
+        let numUsers;
+        let error;
+        do {
+            numUsers = consoleMPDS.readNumber(Message.GAME_MODE.toString());            
+            error = this.#turn.getGameModeError(numUsers);
+            if (!error.isNull()) {
+                new ErrorView(error).writeln();
+            }
+        } while (!error.isNull());
+        this.#turn.configGameMode(numUsers);
     }
 
     writeResult() {

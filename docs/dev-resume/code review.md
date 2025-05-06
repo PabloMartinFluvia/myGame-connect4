@@ -7,7 +7,6 @@
 ## Ideas to consider in the future
 
 
-5. TurnView reads Mode & Turn inits player's deriveds -> Remove Settings
 6. Remove PlayerView classes -> TurnView assumes it (with accept/visit)
 7. ColorView can be removed?
 8. Board checks isWinner without need color parameter -> simply checks lastdrop
