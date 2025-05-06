@@ -1,8 +1,33 @@
 import { Coordinate } from "./Coordinate.mjs";
 import { Color } from "./Color.mjs";
-import { Shiftment } from "./Shiftment.mjs";
 
 import { assert } from "../utils/assert.mjs";
+
+class Shiftment {
+    static NORTH = new Shiftment(1, 0); 
+    static EAST = new Shiftment(0, 1);
+    static NORTH_EAST = new Shiftment(1, 1);
+    static SOUTH_EAST = new Shiftment(-1, 1);
+
+    #coordinate;
+
+    constructor(row, column) {
+        this.#coordinate = new Coordinate(row, column);
+    }
+
+    shift(coordinate) {
+        assert(coordinate instanceof Coordinate);
+
+        return coordinate.shifted(this.#coordinate);
+    }
+
+    shiftOpposite(coordinate) {
+        assert(coordinate instanceof Coordinate);
+
+        return coordinate.shifted(this.#coordinate.opposited());
+    }
+
+}
 
 export class Board {
     static #WIN_COUNT = 4;
