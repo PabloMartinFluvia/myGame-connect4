@@ -3,11 +3,11 @@ import { Turn } from "./models/Turn.mjs";
 
 import { BoardView } from "./views-console/BoardView.mjs";
 import { TurnView } from "./views-console/TurnView.mjs";
-import { YesNoDialog } from "./views-console/YesNoDialog.mjs";
+import { ResumeView } from "./views-console/ResumeView.mjs";
 import { Message } from "./views-console/Message.mjs";
 
 class Connect4 {
-    
+
     #board;
     #turn;
     #boardView;
@@ -21,34 +21,20 @@ class Connect4 {
     }
 
     playGames() {
-        let resume;
+        const resumeView = new ResumeView(this.#board, this.#turn);
         do {
-            this.#playGame();
-            resume = this.#isResumed();
-            if (resume) {
-                this.#board.reset();
-                this.#turn.reset();
-            }
-        } while (resume);
-    }
-
-    #playGame() {
-        Message.TITLE.writeln();
-        this.#turnView.readGameMode();
-        this.#boardView.write();
-        do {
-            this.#turnView.play();
+            Message.TITLE.writeln();
+            this.#turnView.readGameMode();
             this.#boardView.write();
-        } while (!this.#turn.isLast());
-        this.#turnView.writeResult();
+            do {
+                this.#turnView.play();
+                this.#boardView.write();
+            } while (!this.#turn.isLast());
+            this.#turnView.writeResult();
+            resumeView.read();
+        } while (resumeView.isResume());
     }
-
-    #isResumed() {
-        const yesNoDialog = new YesNoDialog();
-        yesNoDialog.read(Message.RESUME.toString());
-        return yesNoDialog.isAffirmative();
-    }
-
+    
 }
 
 new Connect4().playGames();

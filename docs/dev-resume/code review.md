@@ -1,12 +1,19 @@
 # Problem solved in this commit
 
 ## Problem
+- Método isResume en App disminuye la cohesion, ya que no guarda ninguna relación con los atributos de la clase.
+- Existe para estructurar mejor un mètodo público (cohesivo).
+- Opciones de mejora:
+    - Añadir la lógica de resetear en el mètodo, mara así manipular atributos -> NO: entonces el método devolvería un valor & canviaría el estado.
+    - Convertir alguna variable local en atributo -> NO: la classe perdería cohesión.
+    - Hacer que alguna variable local asuma la lógica/responsabilidad -> NO: tanto mensaje como YesNoDialog peredrían su cohesión. Podría convertir el YesNoDialog en un ResumeDialog, pero perdería la posibilidad reusabilidad.
 
 ## Solution
+- Crear un ResumeView, 
+    - compuesta de YesNoDialog (no puede ser especialización, ya que incumpliría Liskov);
+    - En un modulo propio. Podría ponerse dentro de App (ya que solo la usa esta), pero ensuciaría el módulo principal.
 
 ## Ideas to consider in the future
-
-14. Look for problems
 
 
 

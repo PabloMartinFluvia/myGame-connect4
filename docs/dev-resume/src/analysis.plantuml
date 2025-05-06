@@ -2,30 +2,31 @@
 
 class Connect4 {
     
-    + Connect4()
+    + constructor()
     + playGames()
-    - isResumed()
 }
-Connect4 *--> Game
-Connect4 *--> GameView
+Connect4 *--> Board
+Connect4 *--> Turn
+Connect4 *--> BoardView
+Connect4 *--> TurnView
+Connect4 ..> ResumeView
 Connect4 ..> Message
-Connect4 ..> YesNoDialog
 
-
-
-class YesNoDialog #Pink {
+class YesNoDialog #LightYellow {
     - {static} AFFIRMATIVE
     - {static} NEGATIVE
     - {static} SUFIX
     - {static} ERROR
     - answer
 
-    + YesNoDialog()
+    + constructor()
     + read(question)
     + isAffirmative()
     - isNegative()
     - getAnswer()
 }
+YesNoDialog ..> ConsoleMPDS
+YesNoDialog ..> assert
 
 class GameView #LightYellow {
 

@@ -13,7 +13,7 @@ export class YesNoDialog {
     #answer;
 
     read(question) {
-        assert(question ?? false);
+        assert(typeof question === 'string');
 
         let ok;
         do {
