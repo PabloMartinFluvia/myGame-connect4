@@ -1,20 +1,21 @@
 # Problem solved in this commit
 
 ## Problem
-- Método isResume en App disminuye la cohesion, ya que no guarda ninguna relación con los atributos de la clase.
-- Existe para estructurar mejor un mètodo público (cohesivo).
-- Opciones de mejora:
-    - Añadir la lógica de resetear en el mètodo, mara así manipular atributos -> NO: entonces el método devolvería un valor & canviaría el estado.
-    - Convertir alguna variable local en atributo -> NO: la classe perdería cohesión.
-    - Hacer que alguna variable local asuma la lógica/responsabilidad -> NO: tanto mensaje como YesNoDialog peredrían su cohesión. Podría convertir el YesNoDialog en un ResumeDialog, pero perdería la posibilidad reusabilidad.
+- En TurnView: el método para mostrar un mensage según el error "no pinta nada" en esta clase, ya que no toca ningún atributo de esta.
+    - no se puede "añadir" lógica, ya que es reusado des de distintos métodos.
+    - ERROR_MESAGES: se podría poner como propiedad constante, privada, y ESTATICA. Esto implicaría hacer el método estático. Pero tener una propiedad constante que solo se consulta des de un método no tiene sentido -> debería declararse dentro del método -> tendría una "función global" puesta en esta clase "porque sí".
+- Al revisar YesNoDialog: hay propiedades constantes, inicializadas dentro de la clase, a las que solo las consulta un solo método
+
 
 ## Solution
-- Crear un ResumeView, 
-    - compuesta de YesNoDialog (no puede ser especialización, ya que incumpliría Liskov);
-    - En un modulo propio. Podría ponerse dentro de App (ya que solo la usa esta), pero ensuciaría el módulo principal.
+- Clase ErrorView, dentro del módulo de TurnView
+- En YesNoDialog: mover las propiedades como locales al método.
+
 
 ## Ideas to consider in the future
-
+- revisar si hay propiedades constantes inicializadas dentro de la clase, y que solo se consultan en un solo método
+- revisar si se envían mensajes a objetos indirectos.
+- revisar si hay código muerto
 
 
 # TODOs in code review

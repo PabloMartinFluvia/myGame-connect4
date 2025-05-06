@@ -15,8 +15,6 @@ Connect4 ..> Message
 class YesNoDialog #LightYellow {
     - {static} AFFIRMATIVE
     - {static} NEGATIVE
-    - {static} SUFIX
-    - {static} ERROR
     - answer
 
     + constructor()

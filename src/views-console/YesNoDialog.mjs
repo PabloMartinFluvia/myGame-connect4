@@ -5,11 +5,7 @@ import { assert } from "../utils/assert.mjs";
 export class YesNoDialog {
 
     static #AFFIRMATIVE = `y`;
-    static #NEGATIVE = `n`;
-    static #SUFFIX = `? (` +
-        YesNoDialog.#AFFIRMATIVE + `/` +
-        YesNoDialog.#NEGATIVE + `): `;
-    static #ERROR = `The value must be ${YesNoDialog.#AFFIRMATIVE} or ${YesNoDialog.#NEGATIVE}`;
+    static #NEGATIVE = `n`;    
     #answer;
 
     read(question) {
@@ -17,10 +13,14 @@ export class YesNoDialog {
 
         let ok;
         do {
-            this.#answer = consoleMPDS.readString(question + YesNoDialog.#SUFFIX);
+            const SUFFIX = `? (` +
+                YesNoDialog.#AFFIRMATIVE + `/` +
+                YesNoDialog.#NEGATIVE + `): `;
+            this.#answer = consoleMPDS.readString(question + SUFFIX);
             ok = this.isAffirmative() || this.#isNegative();
             if (!ok) {
-                consoleMPDS.writeln(YesNoDialog.#ERROR);
+                const ERROR = `The value must be ${YesNoDialog.#AFFIRMATIVE} or ${YesNoDialog.#NEGATIVE}`;
+                consoleMPDS.writeln(ERROR);
             }
         } while (!ok);
     }

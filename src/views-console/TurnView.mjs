@@ -7,7 +7,32 @@ import { Error } from "../models/Error.mjs";
 import { Message } from "./Message.mjs";
 import { consoleMPDS } from "./Console.mjs";
 
+import { ClosedInterval } from "../utils/ClosedInterval.mjs";
 import { assert } from "../utils/assert.mjs";
+
+class ErrorView {
+
+    static #MESSAGES = [
+        Message.INVALID_GAME_MODE,
+        Message.INVALID_COLUMN,
+        Message.COMPLETED_COLUMN];
+
+    #error;
+
+    constructor(error) {
+        assert(error instanceof Error);
+        assert(error.isNull() || 
+                new ClosedInterval(0, ErrorView.#MESSAGES.length - 1).isIncluded(error.getCode()));
+
+        this.#error = error;
+    }
+
+    writeln() {        
+        if (!this.#error.isNull()) {
+            ErrorView.#MESSAGES[this.#error.getCode()].writeln();
+        }
+    }
+}
 
 export class TurnView extends PlayerVisitor {
 
@@ -37,7 +62,7 @@ export class TurnView extends PlayerVisitor {
         do {
             column = consoleMPDS.readNumber(Message.ENTER_COLUMN_TO_DROP.toString()) - 1;
             error = userPlayer.getErrorColumn(column);
-            this.#writelnError(error);
+            new ErrorView(error).writeln();
         } while (!error.isNull());
         return column;
     }
@@ -51,32 +76,20 @@ export class TurnView extends PlayerVisitor {
         return column;
     }
 
-    #writelnError(error) {
-        assert(error instanceof Error);
-        
-        if (!error.isNull()) {
-            const ERROR_MESSAGES = [
-                Message.INVALID_GAME_MODE,
-                Message.INVALID_COLUMN,
-                Message.COMPLETED_COLUMN];
-            ERROR_MESSAGES[error.getCode()].writeln();
-        }
-    }
-
     readGameMode() {
         let numUsers;
         let error;
         do {
             numUsers = consoleMPDS.readNumber(Message.GAME_MODE.toString());
             error = this.#turn.getErrorGameMode(numUsers);
-            this.#writelnError(error);           
+            new ErrorView(error).writeln();
         } while (!error.isNull());
         this.#turn.configGameMode(numUsers);
-    }    
+    }
 
     writeResult() {
         if (this.#turn.isWinner()) {
-            let message = Message.PLAYER_WIN.toString();            
+            let message = Message.PLAYER_WIN.toString();
             message = message.replace(`#winner`, this.#turn.getActivePlayer().getName());
             consoleMPDS.writeln(message);
         } else {
