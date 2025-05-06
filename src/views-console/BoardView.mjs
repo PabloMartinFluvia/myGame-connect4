@@ -43,7 +43,6 @@ export class BoardView {
         consoleMPDS.write(cellMsg);
     }
 
-
     static #writeHorizontal() {
         const msg = Message.HORIZONTAL_LINE.toString()
             .repeat(1 + BoardView.#CHARS_PER_CELL)

@@ -52,17 +52,17 @@ export class Turn {
     }
 
     next() {
-        if (!this.isFinished()) {
+        if (!this.isLast()) {
             this.#activePlayer = (this.#activePlayer + 1) % Turn.NUMBER_PLAYERS;
         }
     } 
 
-    isFinished() {
+    isLast() {
         return this.isWinner() || this.#board.isComplete();
     }
 
     isWinner() {
-        return this.#board.isWinner();
+        return this.#board.hasWinner();
     }
        
 }

@@ -9,10 +9,8 @@
 
 10. Game and GameView can be removed???
 11. Vector AND/OR Line can be removed??
-12. BoardView refactor???
-13. Refactor logic when change turn. 'If not finished then change turn' must be in some model.
-14. Look for dead code
-15. TurnView Cohesion?
+14. Look for problems
+
 
 
 # TODOs in code review

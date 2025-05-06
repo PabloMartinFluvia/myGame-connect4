@@ -62,7 +62,7 @@ export class Board {
         return this.#colors[coordinate.getRow()][coordinate.getColumn()];
     }
 
-    isWinner() {
+    hasWinner() {
         assert(this.#lastDrop === undefined || !this.getColor(this.#lastDrop).isNull())
 
         if (this.#lastDrop === undefined) {

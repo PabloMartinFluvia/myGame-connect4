@@ -5,14 +5,14 @@ export class Game {
 
     #board;
     #turn;    
-
+/*
     constructor() {
         this.#board = new Board();
         this.#turn = new Turn(this.#board);
     }
 
     isFinished() {
-        return this.#turn.isFinished();
+        return this.#turn.isLast();
     }
 
     reset() {
@@ -27,4 +27,5 @@ export class Game {
     getTurn() {
         return this.#turn;
     }
+        */
 }
