@@ -1,11 +1,11 @@
 import { Coordinate } from "./Coordinate.mjs";
 import { Color } from "./Color.mjs";
-import { Vector } from "./Vector.mjs";
-import { Line } from "./Line.mjs";
+import { Shiftment } from "./Shiftment.mjs";
 
 import { assert } from "../utils/assert.mjs";
 
 export class Board {
+    static #WIN_COUNT = 4;
     #colors;
     #lastDrop;
 
@@ -18,7 +18,7 @@ export class Board {
     }
 
     reset() {
-        for (let i = 0; i < Coordinate.NUMBER_ROWS; i++) {            
+        for (let i = 0; i < Coordinate.NUMBER_ROWS; i++) {
             for (let j = 0; j < Coordinate.NUMBER_COLUMNS; j++) {
                 this.#colors[i][j] = Color.NULL;
             }
@@ -32,7 +32,7 @@ export class Board {
 
         this.#lastDrop = new Coordinate(0, column);
         while (!this.#isEmpty(this.#lastDrop)) {
-            this.#lastDrop = this.#lastDrop.shifted(Vector.NORTH.toCoordinate());
+            this.#lastDrop = Shiftment.NORTH.shift(this.#lastDrop);            
         }
         this.#colors[this.#lastDrop.getRow()][this.#lastDrop.getColumn()] = color;
     }
@@ -52,7 +52,7 @@ export class Board {
     }
 
     #isEmpty(coordinate) {
-        return this.getColor(coordinate) === Color.NULL;     
+        return this.getColor(coordinate) === Color.NULL;
     }
 
     getColor(coordinate) {
@@ -67,34 +67,40 @@ export class Board {
 
         if (this.#lastDrop === undefined) {
             return false;
-        }
-
-        for (let vector of [Vector.NORTH, Vector.NORTH_EAST, Vector.EAST, Vector.SOUTH_EAST]) {               
-            let line = new Line(this.#lastDrop, vector);
-            for (let i = 0; i < Line.WIN_LENGTH; i++) {                
-                if (this.#isConnect4(line)) {
+        }       
+        for (let shiftment of [Shiftment.NORTH, Shiftment.EAST, Shiftment.NORTH_EAST, Shiftment.SOUTH_EAST]) {
+            let candidates = this.#initCandidates(shiftment);
+            for (let i = 0; i < Board.#WIN_COUNT; i++) {
+                if (this.#isConnect4(candidates)) {
                     return true;
-                }
-                line = line.shiftedToOpposite();
+                }            
+                candidates = candidates.map(coordinate => shiftment.shiftOpposite(coordinate));                
             }
         }
         return false;
     }
-    
-    #isConnect4(line) {
-        assert(line instanceof Line);
 
-        if (!line.isValid()) {
+    #initCandidates(shiftment) {
+        assert(shiftment instanceof Shiftment);
+
+        let coordinates = [this.#lastDrop];
+        for (let i = 1; i < Board.#WIN_COUNT; i++) {
+            coordinates[i] = shiftment.shift(coordinates[i - 1]);            
+        }
+        return coordinates;
+    }
+
+    #isConnect4(candidates) {
+        assert(Array.isArray(candidates));
+        assert(candidates.every(coordinate => coordinate instanceof Coordinate));
+        assert(candidates.length === Board.#WIN_COUNT);
+        assert(candidates.some(coordinate => coordinate.equals(this.#lastDrop)));
+
+        if (candidates.some(coordinate => !coordinate.isValid())) {
             return false;
         }
-        const coordinates = line.getCoordinates();
-        for (let i = 1; i < coordinates.length; i++) {
-            const color = this.getColor(coordinates[i - 1]);
-            if (this.getColor(coordinates[i]) !== color || color.isNull()) {
-                return false;
-            }
-        }
-        return true;              
+        const color = this.getColor(this.#lastDrop);
+        return candidates.every(coordinate => color === this.getColor(coordinate));
     }
-    
+
 }

@@ -6,9 +6,6 @@
 
 ## Ideas to consider in the future
 
-
-10. Game and GameView can be removed???
-11. Vector AND/OR Line can be removed??
 14. Look for problems
 
 

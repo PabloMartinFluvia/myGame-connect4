@@ -46,5 +46,15 @@ export class Coordinate {
     getColumn() {
         return this.#column;
     }
+
+    equals(coordinate) {
+        assert(coordinate instanceof Coordinate || coordinate === null);
+
+        if (this === coordinate)
+            return true;
+        if (coordinate === null)
+            return false;
+        return this.#column === coordinate.#column && this.#row === coordinate.#row;
+    }
     
 }
