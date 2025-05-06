@@ -10,6 +10,7 @@ export class Player {
 
     constructor(color, board) {
         assert(color instanceof Color);
+        assert(!color.isNull());
         assert(board instanceof Board);
 
         this.#color = color;
@@ -29,7 +30,7 @@ export class Player {
     }
 
     toString() {
-        return this.#color.toString();
+        return this.#color.getName();
     }
 
     accept(visitor) {assert(false, 'abstract')}

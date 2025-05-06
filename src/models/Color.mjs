@@ -5,11 +5,11 @@ export class Color {
     
     static RED = new Color(`Red`);
     static YELLOW = new Color(`Yellow`);
-    static NULL = new Color(` `);
-    #string;
+    static NULL = new Color(undefined);
+    #name;
 
-    constructor(string) {
-        this.#string = string;
+    constructor(name) {
+        this.#name = name;
     }
 
     static get(ordinal) {
@@ -27,8 +27,8 @@ export class Color {
         return this === Color.NULL;
     }
 
-    toString() {
-        return this.#string;
+    getName() {
+        return this.#name;
     }
 
 }
