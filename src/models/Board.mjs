@@ -62,10 +62,12 @@ export class Board {
         return this.#colors[coordinate.getRow()][coordinate.getColumn()];
     }
 
-    isWinner(color) {
-        assert(color instanceof Color);
-        assert(!color.isNull());
-        assert(color === this.getColor(this.#lastDrop));
+    isWinner() {
+        assert(this.#lastDrop === undefined || !this.getColor(this.#lastDrop).isNull())
+
+        if (this.#lastDrop === undefined) {
+            return false;
+        }
 
         for (let vector of [Vector.NORTH, Vector.NORTH_EAST, Vector.EAST, Vector.SOUTH_EAST]) {               
             let line = new Line(this.#lastDrop, vector);

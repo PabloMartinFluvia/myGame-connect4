@@ -23,9 +23,10 @@ export class TurnView extends PlayerVisitor {
     play() {
         Message.TURN.write();
         const player = this.#turn.getActivePlayer();
-        consoleMPDS.writeln(player.toString());
+        consoleMPDS.writeln(player.getName());
         const column = player.accept(this);
         player.dropToken(column);
+        this.#turn.next();
     }
 
     visitUserPlayer(userPlayer) {
@@ -76,7 +77,7 @@ export class TurnView extends PlayerVisitor {
     writeResult() {
         if (this.#turn.isWinner()) {
             let message = Message.PLAYER_WIN.toString();            
-            message = message.replace(`#winner`, this.#turn.getActivePlayer().toString());
+            message = message.replace(`#winner`, this.#turn.getActivePlayer().getName());
             consoleMPDS.writeln(message);
         } else {
             Message.PLAYERS_TIED.writeln();

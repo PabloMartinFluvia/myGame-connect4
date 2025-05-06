@@ -25,11 +25,7 @@ export class Player {
         return this.#board.isComplete(column);
     }
 
-    isWinner() {
-        return this.#board.isWinner(this.#color);
-    }
-
-    toString() {
+    getName() {
         return this.#color.getName();
     }
 

@@ -12,11 +12,7 @@ export class Game {
     }
 
     isFinished() {
-        return this.#board.isComplete() || this.#turn.isWinner();
-    }
-
-    changeTurn() {
-        this.#turn.change();
+        return this.#turn.isFinished();
     }
 
     reset() {

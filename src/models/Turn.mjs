@@ -47,23 +47,22 @@ export class Turn {
         }
     }
 
-    /*
-    setPlayers(players) {
-        assert(players.every(player => player instanceof Player))
-        this.#players = players;
-    }
-        */
-
-    isWinner() {
-        return this.getActivePlayer().isWinner();
-    }
-
-    change() {
-        this.#activePlayer = (this.#activePlayer + 1) % Turn.NUMBER_PLAYERS;
-    }
-
     getActivePlayer() {
         return this.#players[this.#activePlayer];
     }
 
+    next() {
+        if (!this.isFinished()) {
+            this.#activePlayer = (this.#activePlayer + 1) % Turn.NUMBER_PLAYERS;
+        }
+    } 
+
+    isFinished() {
+        return this.isWinner() || this.#board.isComplete();
+    }
+
+    isWinner() {
+        return this.#board.isWinner();
+    }
+       
 }

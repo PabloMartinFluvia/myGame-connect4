@@ -23,16 +23,11 @@ export class GameView {
     play() {
         Message.TITLE.writeln();
         this.#turnView.readGameMode();
-        this.#boardView.write();
-        let finished;
+        this.#boardView.write();        
         do {
             this.#turnView.play();
-            this.#boardView.write();
-            finished = this.#game.isFinished();
-            if (!finished) {
-                this.#game.changeTurn();                
-            }
-        } while (!finished);
+            this.#boardView.write();                     
+        } while (!this.#game.isFinished());
         this.#turnView.writeResult();
     }
     

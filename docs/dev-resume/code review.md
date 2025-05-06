@@ -7,9 +7,6 @@
 ## Ideas to consider in the future
 
 
-8. Board checks isWinner without need color parameter -> simply checks lastdrop
-9. After drop token, tells turn to change if game is not ended -> ???
-    - in
 10. Game and GameView can be removed???
 11. Vector AND/OR Line can be removed??
 12. BoardView refactor???
