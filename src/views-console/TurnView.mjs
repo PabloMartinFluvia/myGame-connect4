@@ -1,4 +1,5 @@
 import { Turn } from "../models/Turn.mjs";
+import { Player } from "../models/Player.mjs";
 import { UserPlayer } from "../models/UserPlayer.mjs";
 import { RandomPlayer } from "../models/RandomPlayer.mjs";
 import { PlayerVisitor } from "../models/PlayerVisitor.mjs";
@@ -21,37 +22,35 @@ class ErrorView {
 
     constructor(error) {
         assert(error instanceof Error);
-        assert(error.isNull() || 
-                new ClosedInterval(0, ErrorView.#MESSAGES.length - 1).isIncluded(error.getCode()));
+        assert(error.isNull() ||
+            new ClosedInterval(0, ErrorView.#MESSAGES.length - 1).isIncluded(error.getCode()));
 
         this.#error = error;
     }
 
-    writeln() {        
+    writeln() {
         if (!this.#error.isNull()) {
             ErrorView.#MESSAGES[this.#error.getCode()].writeln();
         }
     }
 }
 
-export class TurnView extends PlayerVisitor {
+class PlayerView extends PlayerVisitor {
 
-    #turn;
+    #player;
 
-    constructor(turn) {
-        assert(turn instanceof Turn);
+    constructor(player) {
+        assert(player instanceof Player);
         super();
 
-        this.#turn = turn;
+        this.#player = player;
     }
 
     play() {
         Message.TURN.write();
-        const player = this.#turn.getActivePlayer();
-        consoleMPDS.writeln(player.getName());
-        const column = player.accept(this);
-        player.dropToken(column);
-        this.#turn.next();
+        consoleMPDS.writeln(this.#player.getName());
+        const column = this.#player.accept(this);
+        this.#player.dropToken(column);
     }
 
     visitUserPlayer(userPlayer) {
@@ -76,6 +75,28 @@ export class TurnView extends PlayerVisitor {
         return column;
     }
 
+    writeWin() {
+        let message = Message.PLAYER_WIN.toString();
+        message = message.replace(`#winner`, this.#player.getName());
+        consoleMPDS.writeln(message);
+    }
+}
+
+export class TurnView {
+
+    #turn;
+
+    constructor(turn) {
+        assert(turn instanceof Turn);
+
+        this.#turn = turn;
+    }
+
+    play() {
+        new PlayerView(this.#turn.getActivePlayer()).play();
+        this.#turn.next();
+    }
+
     readGameMode() {
         let numUsers;
         let error;
@@ -89,9 +110,7 @@ export class TurnView extends PlayerVisitor {
 
     writeResult() {
         if (this.#turn.isWinner()) {
-            let message = Message.PLAYER_WIN.toString();
-            message = message.replace(`#winner`, this.#turn.getActivePlayer().getName());
-            consoleMPDS.writeln(message);
+            new PlayerView(this.#turn.getActivePlayer()).writeWin();            
         } else {
             Message.PLAYERS_TIED.writeln();
         }

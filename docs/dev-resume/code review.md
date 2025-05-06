@@ -1,16 +1,12 @@
 # Problem solved in this commit
 
 ## Problem
-- En TurnView: el método para mostrar un mensage según el error "no pinta nada" en esta clase, ya que no toca ningún atributo de esta.
-    - no se puede "añadir" lógica, ya que es reusado des de distintos métodos.
-    - ERROR_MESAGES: se podría poner como propiedad constante, privada, y ESTATICA. Esto implicaría hacer el método estático. Pero tener una propiedad constante que solo se consulta des de un método no tiene sentido -> debería declararse dentro del método -> tendría una "función global" puesta en esta clase "porque sí".
-- Al revisar YesNoDialog: hay propiedades constantes, inicializadas dentro de la clase, a las que solo las consulta un solo método
-
+- En TurnView: 
+    - mètodos visit "no pintan nada", ya que no tocan ningún atributo
+    - se incumple ley de demeter, se están lanzando mensajes a player, con quien se tiene un acoplamiento indirecto.
 
 ## Solution
-- Clase ErrorView, dentro del módulo de TurnView
-- En YesNoDialog: mover las propiedades como locales al método.
-
+- Crear PlayerView (dentro del módulo de TurnView). Aunque los métodos visit siguen pareciendo poco cohesivos, en realidad el player que les llega como parámetro és como un downcast del atributo.
 
 ## Ideas to consider in the future
 - revisar si hay propiedades constantes inicializadas dentro de la clase, y que solo se consultan en un solo método

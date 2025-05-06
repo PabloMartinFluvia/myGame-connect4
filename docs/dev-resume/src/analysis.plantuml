@@ -26,6 +26,54 @@ class YesNoDialog #LightYellow {
 YesNoDialog ..> ConsoleMPDS
 YesNoDialog ..> assert
 
+class TurnView #LightYellow {
+
+    + constructor(turn)    
+    + play()
+    + readGameMode()
+    + writeResult()    
+}
+TurnView --> Turn
+TurnView ..> PlayerView
+TurnView ..> Error
+TurnView ..> ErrorView
+TurnView ..> Message
+TurnView ..> Console
+TurnView ..> assert
+
+class PlayerView #LightYellow {
+
+    + constructor(player)    
+    + play()
+    + visitUserPlayer(userPlayer)
+    + visitRandomPlayer(randomPlayer)
+    + writeWin()
+}
+PlayerVisitor <|.. PlayerView
+PlayerView --> Player
+PlayerView ..> UserPlayer
+PlayerView ..> RandomPlayer
+PlayerView ..> Error
+PlayerView ..> ErrorView
+PlayerView ..> Message
+PlayerView ..> Console
+PlayerView ..> assert
+
+class ErrorView #LightYellow {
+    - {static} MESSAGES
+
+    + constructor(error)
+    + writeln()
+}
+ErrorView --> Error
+ErrorView ..> Message
+ErrorView ..> ClosedInterval
+ErrorView ..> assert
+
+
+
+
+
 class GameView #LightYellow {
 
     + GameView(game)
@@ -57,18 +105,7 @@ class ColorView #LightYellow {
 }
 ColorView ..> Color
 
-class TurnView #LightYellow {
 
-    + TurnView(turn)
-    - getPlayerView()
-    + play()
-    + readGameMode()
-    + writeResult()    
-}
-TurnView --> Turn
-TurnView --> "NUMBER_PLAYERS" PlayerView
-TurnView ..> Message
-TurnView ..> SettingView
 
 class SettingView #LightYellow {
 
@@ -82,16 +119,7 @@ SettingView ..> ClosedInterval
 SettingView ..> UserView
 SettingView ..> RandomView
 
-abstract class PlayerView #LightYellow {
 
-    + PlayerView(player)    
-    + dropToken()
-    + {abstract} readColumn()
-    + isComplete(column)
-    + writeWin()
-}
-PlayerView --> Player
-PlayerView ..> Message
 
 class UserView #LightYellow {
 
