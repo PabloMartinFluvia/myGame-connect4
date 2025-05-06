@@ -7,8 +7,6 @@
 ## Ideas to consider in the future
 
 
-6. Remove PlayerView classes -> TurnView assumes it (with accept/visit)
-6. Part2 -> move errorView inside TurnView
 7. ColorView can be removed?
 8. Board checks isWinner without need color parameter -> simply checks lastdrop
 9. After drop token, tells turn to change if game is not ended -> ???
@@ -18,6 +16,7 @@
 12. BoardView refactor???
 13. Refactor logic when change turn. 'If not finished then change turn' must be in some model.
 14. Look for dead code
+15. TurnView Cohesion?
 
 
 # TODOs in code review
