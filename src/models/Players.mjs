@@ -1,5 +1,5 @@
-import { Color } from "./Color.mjs";
 import { Board } from "./Board.mjs";
+import { Color } from "./Color.mjs";
 import { Coordinate } from "./Coordinate.mjs";
 import { Error } from "./Error.mjs";
 

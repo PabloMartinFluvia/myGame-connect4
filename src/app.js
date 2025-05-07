@@ -6,6 +6,8 @@ import { TurnView } from "./views-console/TurnView.mjs";
 import { ResumeView } from "./views-console/ResumeView.mjs";
 import { Message } from "./views-console/Message.mjs";
 
+import { assert } from "./utils/assert.mjs";
+
 class Connect4 {
 
     #board;
@@ -37,5 +39,6 @@ class Connect4 {
     
 }
 
+//assert.ENABLED = false; // In production add line. In develop comment linte.
 new Connect4().playGames();
 

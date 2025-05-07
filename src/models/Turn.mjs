@@ -1,10 +1,10 @@
 import { UserPlayer, RandomPlayer } from "./Players.mjs";
-import { Error } from "./Error.mjs";
+import { Board } from "./Board.mjs";
 import { Color } from "./Color.mjs";
+import { Error } from "./Error.mjs";
 
 import { ClosedInterval } from '../utils/ClosedInterval.mjs';
 import { assert } from '../utils/assert.mjs';
-import { Board } from "./Board.mjs";
 
 export class Turn {
 

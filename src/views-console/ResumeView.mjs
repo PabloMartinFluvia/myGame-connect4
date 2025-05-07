@@ -1,9 +1,9 @@
 import { Board } from "../models/Board.mjs";
 import { Turn } from "../models/Turn.mjs";
 
-import { YesNoDialog } from "./YesNoDialog.mjs";
 import { Message } from "./Message.mjs";
 
+import { YesNoDialog } from "../utils/YesNoConsoleDialog.mjs";
 import { assert } from "../utils/assert.mjs";
 
 export class ResumeView {

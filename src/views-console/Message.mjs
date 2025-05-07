@@ -1,7 +1,7 @@
 import { Turn } from "../models/Turn.mjs";
 import { Coordinate } from "../models/Coordinate.mjs";
 
-import { consoleMPDS } from "./Console.mjs";
+import { consoleMPDS } from "../utils/ConsoleMPDS.mjs";
 
 
 export class Message {

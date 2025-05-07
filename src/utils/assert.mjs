@@ -1,5 +1,5 @@
 export function assert(condition, msg) {
-    if (!condition) {
+    if (assert.ENABLED && !condition) {
         if (msg !== undefined) {
             console.log(`Assertion Error: ${msg}`);
         }
@@ -7,3 +7,5 @@ export function assert(condition, msg) {
         assertionError = "assert stop execution";
     }
 }
+
+assert.ENABLED = true;

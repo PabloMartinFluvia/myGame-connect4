@@ -2,8 +2,8 @@ import { Coordinate } from "../models/Coordinate.mjs";
 import { Board } from "../models/Board.mjs";
 
 import { Message } from "./Message.mjs";
-import { consoleMPDS } from "./Console.mjs";
 
+import { consoleMPDS } from "../utils/ConsoleMPDS.mjs";
 import { assert } from "../utils/assert.mjs";
 
 export class BoardView {

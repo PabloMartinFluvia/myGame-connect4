@@ -3,9 +3,9 @@ import {PlayerVisitor, Player, UserPlayer, RandomPlayer} from "../models/Players
 import { Error } from "../models/Error.mjs";
 
 import { Message } from "./Message.mjs";
-import { consoleMPDS } from "./Console.mjs";
 
 import { ClosedInterval } from "../utils/ClosedInterval.mjs";
+import { consoleMPDS } from "../utils/ConsoleMPDS.mjs";
 import { assert } from "../utils/assert.mjs";
 
 class ErrorView {

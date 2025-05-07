@@ -1,6 +1,6 @@
-import { consoleMPDS } from "./Console.mjs";
+import { consoleMPDS } from "./ConsoleMPDS.mjs";
 
-import { assert } from "../utils/assert.mjs";
+import { assert } from "./assert.mjs";
 
 export class YesNoDialog {
 
