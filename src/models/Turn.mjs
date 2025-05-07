@@ -20,21 +20,16 @@ export class Turn {
         this.#board = board;
     }
 
-    reset() {
-        this.#players = [];
-        this.#activePlayer = 0;
+    reset(numUsers) {         
+        this.#players = [];           
+        if (numUsers !== undefined) {
+            this.#configGameMode(numUsers);
+        }        
+        this.#activePlayer = 0; 
     }
 
-    getErrorGameMode(numUsers) {
-        let error = Error.NULL;
-        if (!new ClosedInterval(0, Turn.NUMBER_PLAYERS).isIncluded(numUsers)) {
-            error = Error.INVALID_GAME_MODE;
-        }
-        return error;
-    }
-
-    configGameMode(numUsers) {
-        assert(this.getErrorGameMode(numUsers).isNull());
+    #configGameMode(numUsers) {
+        assert(Turn.getErrorGameMode(numUsers).isNull());
 
         for (let i = 0; i < Turn.NUMBER_PLAYERS; i++) {
             if (i < numUsers) {
@@ -42,7 +37,17 @@ export class Turn {
             } else {
                 this.#players[i] = new RandomPlayer(Color.get(i), this.#board);
             }
+        }        
+    }
+
+    static getErrorGameMode(numUsers) {
+        assert(Number.isInteger(numUsers));
+
+        let error = Error.NULL;
+        if (!new ClosedInterval(0, Turn.NUMBER_PLAYERS).isIncluded(numUsers)) {
+            error = Error.INVALID_GAME_MODE;
         }
+        return error;
     }
 
     getActivePlayer() {

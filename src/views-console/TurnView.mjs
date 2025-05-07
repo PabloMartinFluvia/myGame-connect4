@@ -99,10 +99,10 @@ export class TurnView {
         let error;
         do {
             numUsers = consoleMPDS.readNumber(Message.GAME_MODE.toString());
-            error = this.#turn.getErrorGameMode(numUsers);
+            error = Turn.getErrorGameMode(numUsers);
             new ErrorView(error).writeln();
         } while (!error.isNull());
-        this.#turn.configGameMode(numUsers);
+        this.#turn.reset(numUsers);
     }
 
     writeResult() {

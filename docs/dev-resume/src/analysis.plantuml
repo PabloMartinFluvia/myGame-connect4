@@ -171,25 +171,6 @@ interface PlayerVisitor #LightCyan {
 PlayerVisitor ..> UserPlayer
 PlayerVisitor ..> RandomPlayer
 
-
-
-
-
-
-
-
-class Game #LightCyan {
-
-    + Game()
-    + isFinished()
-    + changeTurn()
-    + reset()
-    + getBoard()
-    + getTurn()
-}
-Game *--> Board
-Game *--> Turn
-
 class Turn #LightCyan {
     + {static} NUMBER_PLAYERS
     - activePlayer
@@ -202,7 +183,22 @@ class Turn #LightCyan {
     + getIndex()
 }
 Turn *--> "NUMBER_PLAYERS" Player
+Turn --> Board
+Turn ..> UserPlayer : <new>
+Turn ..> RandomPlayer : <new>
 Turn ..> Color
+Turn ..> Error
+Turn ..> ClosedInterval
+Turn ..> assert
+
+
+
+
+
+
+
+
+
 
 
 
