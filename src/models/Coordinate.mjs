@@ -47,14 +47,15 @@ export class Coordinate {
         return this.#column;
     }
 
-    equals(coordinate) {
-        assert(coordinate instanceof Coordinate || coordinate === null);
+    equals(other) {
+        assert(other instanceof Coordinate || other === null);
 
-        if (this === coordinate)
-            return true;
-        if (coordinate === null)
+        if (this === other) {
+            return true;                    
+        } else if (other === null) {
             return false;
-        return this.#column === coordinate.#column && this.#row === coordinate.#row;
+        }
+        return this.#column === other.#column && this.#row === other.#row;
     }
     
 }

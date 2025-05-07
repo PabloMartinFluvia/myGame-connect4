@@ -79,7 +79,7 @@ class PlayerView extends PlayerVisitor {
     }
 }
 
-export class TurnView {
+class TurnView {
 
     #turn;
 
@@ -114,3 +114,5 @@ export class TurnView {
     }
 
 }
+
+export { TurnView };

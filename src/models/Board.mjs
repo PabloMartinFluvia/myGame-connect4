@@ -21,7 +21,7 @@ class Shiftment {
         return coordinate.shifted(this.#coordinate);
     }
 
-    shiftOpposite(coordinate) {
+    oppositeShift(coordinate) {
         assert(coordinate instanceof Coordinate);
 
         return coordinate.shifted(this.#coordinate.opposited());
@@ -29,37 +29,24 @@ class Shiftment {
 
 }
 
-export class Board {
+class Board {
     static #WIN_COUNT = 4;
     #colors;
     #lastDrop;
 
-    constructor() {
-        this.#colors = [];
-        for (let i = 0; i < Coordinate.NUMBER_ROWS; i++) {
-            this.#colors[i] = [];
-        }
+    constructor() { 
         this.reset();
     }
 
     reset() {
+        this.#colors = [];
         for (let i = 0; i < Coordinate.NUMBER_ROWS; i++) {
+            this.#colors[i] = [];
             for (let j = 0; j < Coordinate.NUMBER_COLUMNS; j++) {
                 this.#colors[i][j] = Color.NULL;
             }
         }
-        this.#lastDrop = undefined;
-    }
-
-    dropToken(column, color) {
-        assert(!this.isComplete(column));
-        assert(color instanceof Color);
-
-        this.#lastDrop = new Coordinate(0, column);
-        while (!this.#isEmpty(this.#lastDrop)) {
-            this.#lastDrop = Shiftment.NORTH.shift(this.#lastDrop);            
-        }
-        this.#colors[this.#lastDrop.getRow()][this.#lastDrop.getColumn()] = color;
+        this.#lastDrop = null;
     }
 
     isComplete(column) {
@@ -68,6 +55,7 @@ export class Board {
 
             return !this.#isEmpty(new Coordinate(Coordinate.NUMBER_ROWS - 1, column));
         }
+        
         for (let i = 0; i < Coordinate.NUMBER_COLUMNS; i++) {
             if (!this.isComplete(i)) {
                 return false;
@@ -87,10 +75,22 @@ export class Board {
         return this.#colors[coordinate.getRow()][coordinate.getColumn()];
     }
 
-    hasWinner() {
-        assert(this.#lastDrop === undefined || !this.getColor(this.#lastDrop).isNull())
+    dropToken(column, color) {
+        assert(!this.isComplete(column));
+        assert(color instanceof Color);
+        assert(!color.isNull());
 
-        if (this.#lastDrop === undefined) {
+        this.#lastDrop = new Coordinate(0, column);
+        while (!this.#isEmpty(this.#lastDrop)) {
+            this.#lastDrop = Shiftment.NORTH.shift(this.#lastDrop);            
+        }
+        this.#colors[this.#lastDrop.getRow()][this.#lastDrop.getColumn()] = color;
+    }
+
+    hasWinner() {        
+        assert(this.#lastDrop === null || !this.getColor(this.#lastDrop).isNull())
+
+        if (this.#lastDrop === null) {
             return false;
         }       
         for (let shiftment of [Shiftment.NORTH, Shiftment.EAST, Shiftment.NORTH_EAST, Shiftment.SOUTH_EAST]) {
@@ -99,7 +99,7 @@ export class Board {
                 if (this.#isConnect4(candidates)) {
                     return true;
                 }            
-                candidates = candidates.map(coordinate => shiftment.shiftOpposite(coordinate));                
+                candidates = candidates.map(coordinate => shiftment.oppositeShift(coordinate));                
             }
         }
         return false;
@@ -117,9 +117,10 @@ export class Board {
 
     #isConnect4(candidates) {
         assert(Array.isArray(candidates));
-        assert(candidates.every(coordinate => coordinate instanceof Coordinate));
         assert(candidates.length === Board.#WIN_COUNT);
+        assert(candidates.every(coordinate => coordinate instanceof Coordinate));        
         assert(candidates.some(coordinate => coordinate.equals(this.#lastDrop)));
+        assert(!this.getColor(this.#lastDrop).isNull())
 
         if (candidates.some(coordinate => !coordinate.isValid())) {
             return false;
@@ -129,3 +130,5 @@ export class Board {
     }
 
 }
+
+export { Board };

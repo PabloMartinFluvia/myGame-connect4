@@ -28,7 +28,6 @@ class YesNoDialog #LightYellow {
     - getAnswer()
 }
 YesNoDialog ..> ConsoleMPDS
-YesNoDialog ..> assert
 
 class TurnView #LightYellow {
 
@@ -43,7 +42,6 @@ TurnView ..> Error
 TurnView ..> ErrorView
 TurnView ..> Message
 TurnView ..> ConsoleMPDS
-TurnView ..> assert
 
 class PlayerView #LightYellow {
 
@@ -59,7 +57,6 @@ PlayerView ..> Error
 PlayerView ..> ErrorView
 PlayerView ..> Message
 PlayerView ..> ConsoleMPDS
-PlayerView ..> assert
 
 class ErrorView #LightYellow {
     - {static} MESSAGES
@@ -70,7 +67,6 @@ class ErrorView #LightYellow {
 ErrorView --> Error
 ErrorView ..> Message
 ErrorView ..> ClosedInterval
-ErrorView ..> assert
 
 class ResumeView #LightYellow {
 
@@ -82,7 +78,6 @@ ResumeView *--> YesNoDialog
 ResumeView --> Board
 ResumeView --> Turn
 ResumeView ..> Message
-ResumeView ..> assert
 
 enum Message #LightYellow {
     + MESSAGES
@@ -113,7 +108,6 @@ BoardView ..> Coordinate
 BoardView ..> Color
 BoardView ..> Message
 BoardView ..> ConsoleMPDS
-BoardView ..> assert
 
 
 '' utils
@@ -125,9 +119,6 @@ class ClosedInterval #LightSteelBlue {
     + constructor(min, max)
     + isIncluded(value)
 }
-ClosedInterval ..> assert
-
-class assert #LightSteelBlue
 
 '' models
 
@@ -142,7 +133,6 @@ abstract class Player #LightCyan {
 Player --> Color
 Player --> Board
 Player ..> PlayerVisitor
-Player ..> assert
 
 class UserPlayer #LightCyan {
 
@@ -189,57 +179,16 @@ Turn ..> RandomPlayer : <new>
 Turn ..> Color
 Turn ..> Error
 Turn ..> ClosedInterval
-Turn ..> assert
 
+enum Error #LightCyan {
+    + INVALID_GAME_MODE
+    + INVALID_COLUMN
+    + COMPLETED_COLUMN
+    - code
 
-
-
-
-
-
-
-
-
-
-
-class Board #LightCyan {
-
-    + Board()
-    + reset()
-    + dropToken(column, color)
-    + isComplete(column)
-    - isEmpty(coordinate)
-    + getColor(coordinate)
-    + isWinner(color)
-    - isConnect4(line)
+    + isNull()
+    + getCode()
 }
-Board *--> Coordinate : lastDrop
-Board *--> "NUMBER_ROWS * NUMBER_COLUMNS" Color
-Board ..> Vector
-Board ..> Line
-
-class Line #LightCyan {
-    + {static} WIN_LENGTH
-
-    + Line(origin, vector)
-    + shiftedToOpposite()
-    + getCoordinates()
-    + isValid()
-}
-Line --> Coordinate : origin
-Line --> Vector
-
-class Vector #LightCyan {
-    + {static} NORTH
-    + {static} EAST
-    + {static} NORTH_EAST
-    + {static} SOUTH_EAST
-
-    + Vector(row, column)
-    + opposited()
-    + toCoordinate()
-}
-Vector *--> Coordinate
 
 class Coordinate #LightCyan {
     + {static} NUMBER_ROWS
@@ -247,8 +196,7 @@ class Coordinate #LightCyan {
     - row
     - column
 
-    + Coordinate(row, column)
-    + {static} getRandomColumn()
+    + constructor(row, column)
     - {static} isRowValid(row)
     + {static} isColumnValid(column)
     + isValid()
@@ -256,6 +204,7 @@ class Coordinate #LightCyan {
     + opposited()
     + getRow()
     + getColumn()
+    + equals(other)
 }
 Coordinate ..> ClosedInterval
 
@@ -263,15 +212,42 @@ enum Color #LightCyan {
     RED
     YELLOW
     NULL
-    - string
+    - name
 
     + {static} get(ordinal)
     - {static} values()
     + isNull()
-    + toString()
+    + getName()
 }
 Color ..> ClosedInterval
 
+enum Shiftment #LightCyan {
+    + NORTH
+    + EAST
+    + NORTH_EAST
+    + SOUTH_EAST
 
+    + shift(coordinate)
+    + oppositeShift(coordinate)
+}
+Shiftment *--> Coordinate
+
+
+class Board #LightCyan {
+    - {static} WIN_COUNT
+
+    + constructor()
+    + reset()
+    + isComplete(column)
+    - isEmpty(coordinate)
+    + getColor(coordinate)
+    + dropToken(column, color)        
+    + hasWinner()
+    - initCandidates()
+    - isConnect4(candidates)
+}
+Board --> "0 .. ROWS * COLUMNS" Color
+Board *--> Coordinate : lastDrop
+Board ..> Shiftment
 
 @enduml
