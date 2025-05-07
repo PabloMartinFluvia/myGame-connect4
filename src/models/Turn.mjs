@@ -1,6 +1,4 @@
-import { Player } from "./Player.mjs";
-import { UserPlayer } from "./UserPlayer.mjs";
-import { RandomPlayer } from "./RandomPlayer.mjs";
+import { UserPlayer, RandomPlayer } from "./Players.mjs";
 import { Error } from "./Error.mjs";
 import { Color } from "./Color.mjs";
 

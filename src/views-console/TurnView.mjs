@@ -1,8 +1,5 @@
 import { Turn } from "../models/Turn.mjs";
-import { Player } from "../models/Player.mjs";
-import { UserPlayer } from "../models/UserPlayer.mjs";
-import { RandomPlayer } from "../models/RandomPlayer.mjs";
-import { PlayerVisitor } from "../models/PlayerVisitor.mjs";
+import {PlayerVisitor, Player, UserPlayer, RandomPlayer} from "../models/Players.mjs";
 import { Error } from "../models/Error.mjs";
 
 import { Message } from "./Message.mjs";

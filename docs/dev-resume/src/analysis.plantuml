@@ -1,5 +1,7 @@
 @startuml analysis
 
+'' app
+
 class Connect4 {
     
     + constructor()
@@ -11,6 +13,8 @@ Connect4 *--> BoardView
 Connect4 *--> TurnView
 Connect4 ..> ResumeView
 Connect4 ..> Message
+
+'' views
 
 class YesNoDialog #LightYellow {
     - {static} AFFIRMATIVE
@@ -49,10 +53,8 @@ class PlayerView #LightYellow {
     + visitRandomPlayer(randomPlayer)
     + writeWin()
 }
-PlayerVisitor <|.. PlayerView
+PlayerVisitor <|.up. PlayerView
 PlayerView --> Player
-PlayerView ..> UserPlayer
-PlayerView ..> RandomPlayer
 PlayerView ..> Error
 PlayerView ..> ErrorView
 PlayerView ..> Message
@@ -82,8 +84,8 @@ ResumeView --> Turn
 ResumeView ..> Message
 ResumeView ..> assert
 
-class Message #LightYellow {
-    {static} MESSAGES
+enum Message #LightYellow {
+    + MESSAGES
     - msg
 
     - constructor(msg)
@@ -114,59 +116,65 @@ BoardView ..> ConsoleMPDS
 BoardView ..> assert
 
 
+'' utils
 
-class GameView #LightYellow {
+class ClosedInterval #LightSteelBlue {
+    - min
+    - max
 
-    + GameView(game)
-    + play()
+    + constructor(min, max)
+    + isIncluded(value)
 }
-GameView --> Game
-GameView *--> BoardView
-GameView *--> TurnView
-GameView ..> Message
+ClosedInterval ..> assert
 
+class assert #LightSteelBlue
 
+'' models
 
-class ColorView #LightYellow {
-    - COLOR_LENGTH
+abstract class Player #LightCyan {
 
-    + ColorView(colorLength)
-    + write(color)
-    - isMiddle(index)
+    + constructor(color, board)
+    + {abstract} accept(visitor)
+    + dropToken(column)    
+    # isComplete(column)    
+    + getName()    
 }
-ColorView ..> Color
+Player --> Color
+Player --> Board
+Player ..> PlayerVisitor
+Player ..> assert
 
+class UserPlayer #LightCyan {
 
-
-class SettingView #LightYellow {
-
-    + SettingView(turn)
-    + readGameMode()
-    - getNumUsers()
+    + constructor(color, board)
+    + accept(visitor)
+    + getErrorColumn(column)
 }
-SettingView --> Turn
-SettingView ..> Message
-SettingView ..> ClosedInterval
-SettingView ..> UserView
-SettingView ..> RandomView
+Player <|-- UserPlayer
+UserPlayer ..> Coordinate
+UserPlayer ..> Error
 
+class RandomPlayer #LightCyan {
 
-
-class UserView #LightYellow {
-
-    + UserView(player)
-    + readColumn()
+    + constructor(color, board)
+    + accept(visitor)
+    + getRandomColumn()
 }
-PlayerView <|-- UserView
-UserView ..> Coordinate
+Player <|-- RandomPlayer
+RandomPlayer ..> Coordinate
 
-class RandomView #LightYellow {
+interface PlayerVisitor #LightCyan {
 
-    + UserView(player)
-    + readColumn()
+    + visitUserPlayer(userPlayer)
+    + visitRandomPlayer(randomPlayer)
 }
-PlayerView <|-- RandomView
-RandomView ..> Coordinate
+PlayerVisitor ..> UserPlayer
+PlayerVisitor ..> RandomPlayer
+
+
+
+
+
 
 
 
@@ -196,16 +204,7 @@ class Turn #LightCyan {
 Turn *--> "NUMBER_PLAYERS" Player
 Turn ..> Color
 
-class Player #LightCyan {
 
-    + Player(color, board)
-    + dropToken(column)
-    + isComplete(column)
-    + isWinner()
-    + toString()
-}
-Player --> Color
-Player --> Board
 
 class Board #LightCyan {
 
@@ -277,12 +276,6 @@ enum Color #LightCyan {
 }
 Color ..> ClosedInterval
 
-class ClosedInterval #LightSteelBlue {
-    - min
-    - max
 
-    + ClosedInterval(min, max)
-    + isIncluded(value)
-}
 
 @enduml

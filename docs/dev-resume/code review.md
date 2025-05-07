@@ -1,8 +1,7 @@
 # Problem solved in this commit
 
 ## Problem
-En boardview se ha refactorizado un poco, para mejorar su comprensión. También se ha quitado un atributo estático que no era necesario.
-- Se incumple demeter, ya que se lanza mensajes a color. En este caso no lo considero un problema, me parece inecesario hacer una clase solo por una línia de código (un colorView sería usada solo por BoardView, y sería casi perezosa). Estar acoplado a que Board tenga colores tampoco és un problema, ya que es poco probable que canvie la implantación, y color también es poco probable que canvie (es un enumerado)
+
 
 ## Solution
 
