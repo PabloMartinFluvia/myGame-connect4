@@ -38,7 +38,7 @@ TurnView ..> PlayerView
 TurnView ..> Error
 TurnView ..> ErrorView
 TurnView ..> Message
-TurnView ..> Console
+TurnView ..> ConsoleMPDS
 TurnView ..> assert
 
 class PlayerView #LightYellow {
@@ -56,7 +56,7 @@ PlayerView ..> RandomPlayer
 PlayerView ..> Error
 PlayerView ..> ErrorView
 PlayerView ..> Message
-PlayerView ..> Console
+PlayerView ..> ConsoleMPDS
 PlayerView ..> assert
 
 class ErrorView #LightYellow {
@@ -70,7 +70,48 @@ ErrorView ..> Message
 ErrorView ..> ClosedInterval
 ErrorView ..> assert
 
+class ResumeView #LightYellow {
 
+    + constructor(board, turn)
+    + read()
+    + isResume()
+}
+ResumeView *--> YesNoDialog
+ResumeView --> Board
+ResumeView --> Turn
+ResumeView ..> Message
+ResumeView ..> assert
+
+class Message #LightYellow {
+    {static} MESSAGES
+    - msg
+
+    - constructor(msg)
+    + write()
+    + writeln()
+    + toString()
+}
+Message ..> Turn
+Message ..> Coordinate
+Message ..> ConsoleMPDS
+
+class ConsoleMPDS #LightYellow 
+
+class BoardView #LightYellow {
+    - {static} CHARS_PER_CELL    
+
+    + constructor(board)
+    - {static} writeHorizontal()
+    + write()    
+    - writeCell()
+    - {static} isMiddleCell(index)
+}
+BoardView --> Board
+BoardView ..> Coordinate
+BoardView ..> Color
+BoardView ..> Message
+BoardView ..> ConsoleMPDS
+BoardView ..> assert
 
 
 
@@ -84,17 +125,7 @@ GameView *--> BoardView
 GameView *--> TurnView
 GameView ..> Message
 
-class BoardView #LightYellow {
-    - {static} COLUMN_LENGTH    
 
-    + BoardView(board)
-    + write()
-    - {static} writeHorizontal()
-}
-BoardView --> Board
-BoardView *--> ColorView
-BoardView ..> Coordinate
-BoardView ..> Message
 
 class ColorView #LightYellow {
     - COLOR_LENGTH
@@ -137,16 +168,7 @@ class RandomView #LightYellow {
 PlayerView <|-- RandomView
 RandomView ..> Coordinate
 
-enum Message #LightYellow {
-    MANY MESSAGES
-    - string
 
-    + write()
-    + writeln()
-    + toString()
-}
-Message ..> Turn
-Message ..> Color
 
 class Game #LightCyan {
 

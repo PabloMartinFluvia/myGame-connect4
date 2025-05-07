@@ -9,13 +9,19 @@ import { assert } from "../utils/assert.mjs";
 export class BoardView {
 
     static #CHARS_PER_CELL = 3;
-    static #MIDDLE_CELL = Number.parseInt(BoardView.#CHARS_PER_CELL / 2);
     #board;
 
     constructor(board) {
         assert(board instanceof Board);
 
         this.#board = board;
+    }
+
+    static #writeHorizontal() {
+        const CHARS_PER_LINE = 
+            (1 + BoardView.#CHARS_PER_CELL) * Coordinate.NUMBER_COLUMNS  +  1;        
+        consoleMPDS.writeln(
+            Message.HORIZONTAL_LINE.toString().repeat(CHARS_PER_LINE));        
     }
 
     write() {
@@ -31,24 +37,20 @@ export class BoardView {
 
     #writeCell(coordinate) {
         Message.VERTICAL_LINE.write();
-        let cellMsg = "";
+        const color = this.#board.getColor(coordinate);
         for (let i = 0; i < BoardView.#CHARS_PER_CELL; i++) {
-            if (i == BoardView.#MIDDLE_CELL) {
-                const color = this.#board.getColor(coordinate);
-                cellMsg += !color.isNull() ? color.getName()[0] : " ";
+            if (BoardView.#isMiddleCell(i) && !color.isNull()) {
+                consoleMPDS.write(color.getName()[0]);
             } else {
-                cellMsg += " ";
+                Message.ESPACE.write();
             }
         }
-        consoleMPDS.write(cellMsg);
     }
 
-    static #writeHorizontal() {
-        const msg = Message.HORIZONTAL_LINE.toString()
-            .repeat(1 + BoardView.#CHARS_PER_CELL)
-            .repeat(Coordinate.NUMBER_COLUMNS);
-        consoleMPDS.write(msg);
-        Message.HORIZONTAL_LINE.writeln();
+    static #isMiddleCell(index) {
+        assert(Number.isInteger(index));
+
+        return index === Number.parseInt(BoardView.#CHARS_PER_CELL / 2);
     }
 
 }

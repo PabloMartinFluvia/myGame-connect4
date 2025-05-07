@@ -10,6 +10,7 @@ export class Message {
     static INVALID_GAME_MODE = new Message(`Invalid number of players!!! Values [0-${Turn.NUMBER_PLAYERS}]`);
     static HORIZONTAL_LINE = new Message(`-`);
     static VERTICAL_LINE = new Message(`|`);
+    static ESPACE = new Message(` `);
     static TURN = new Message(`Turn: `);
     static ENTER_COLUMN_TO_DROP = new Message(`Enter a column to drop a token: `);
     static INVALID_COLUMN = new Message(`Invalid columnn!!! Values [1-${Coordinate.NUMBER_COLUMNS}]`);
@@ -19,22 +20,22 @@ export class Message {
     static PLAYERS_TIED = new Message(`TIED!!!`);
     static RESUME = new Message(`Do you want to continue`);
 
-    #string;
+    #msg;
 
-    constructor(string) {
-        this.#string = string;
+    constructor(msg) {
+        this.#msg = msg;
     }
 
     write() {
-        consoleMPDS.write(this.#string);
+        consoleMPDS.write(this.#msg);
     }
 
     writeln() {
-        consoleMPDS.writeln(this.#string);
+        consoleMPDS.writeln(this.#msg);
     }
 
     toString() {
-        return this.#string;
+        return this.#msg;
     }
 
 }
