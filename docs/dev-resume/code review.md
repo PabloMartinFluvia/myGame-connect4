@@ -1,13 +1,8 @@
 # Problem solved in this commit
 
 ## Problem
-En Turn:
-- habría que mejorar la cohesión, ja que no hay ningún método que manipule todos los atributos de instanica
-- getErrorGameMode no toca ningún atributo de instancia
 
 ## Solution
-- solicitar la configuración del game mode a través del reset.
-- getErrorGameMode hacerlo estático
 
 
 ## Ideas to consider in the future
