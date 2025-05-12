@@ -1,7 +1,7 @@
 import { Board } from "./Board.mjs";
 import { Color } from "./Color.mjs";
 import { Coordinate } from "./Coordinate.mjs";
-import { Error } from "./Error.mjs";
+import { GameError } from "./Error.mjs";
 
 import {assert} from '../utils/assert.mjs';
 
@@ -55,11 +55,11 @@ class UserPlayer extends Player {
     }
 
     getErrorColumn(column) {
-        let error = Error.NULL;
+        let error = GameError.NULL;
         if (!Coordinate.isColumnValid(column)) {
-            error = Error.INVALID_COLUMN;
+            error = GameError.INVALID_COLUMN;
         } else if (this._isComplete(column)) {
-            error = Error.COMPLETED_COLUMN;
+            error = GameError.COMPLETED_COLUMN;
         }
         return error;
     }

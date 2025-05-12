@@ -1,7 +1,7 @@
 import { UserPlayer, RandomPlayer } from "./Players.mjs";
 import { Board } from "./Board.mjs";
 import { Color } from "./Color.mjs";
-import { Error } from "./Error.mjs";
+import { GameError } from "./Error.mjs";
 
 import { ClosedInterval } from '../utils/ClosedInterval.mjs';
 import { assert } from '../utils/assert.mjs';
@@ -43,9 +43,9 @@ export class Turn {
     static getErrorGameMode(numUsers) {
         assert(Number.isInteger(numUsers));
 
-        let error = Error.NULL;
+        let error = GameError.NULL;
         if (!new ClosedInterval(0, Turn.NUMBER_PLAYERS).isIncluded(numUsers)) {
-            error = Error.INVALID_GAME_MODE;
+            error = GameError.INVALID_GAME_MODE;
         }
         return error;
     }

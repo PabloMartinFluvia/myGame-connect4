@@ -1,8 +1,8 @@
-export class Error {
-    static INVALID_GAME_MODE = new Error(0);
-    static INVALID_COLUMN = new Error(1);
-    static COMPLETED_COLUMN= new Error(2);
-    static NULL = new Error(-1);
+export class GameError {
+    static INVALID_GAME_MODE = new GameError(0);
+    static INVALID_COLUMN = new GameError(1);
+    static COMPLETED_COLUMN= new GameError(2);
+    static NULL = new GameError(-1);
 
     #code;
 
@@ -11,7 +11,7 @@ export class Error {
     }
 
     isNull() {
-        return this === Error.NULL;
+        return this === GameError.NULL;
     }
 
     getCode() {
