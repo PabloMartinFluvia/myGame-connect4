@@ -49,7 +49,7 @@ class UserPlayer extends Player {
     }
 
     accept(visitor) {
-        assert(visitor instanceof PlayerVisitor)
+        //assert(visitor instanceof PlayerVisitor) // vista web no puede heredar + implementar
 
         return visitor.visitUserPlayer(this);
     }
@@ -72,7 +72,7 @@ class RandomPlayer extends Player {
     }
 
     accept(visitor) {
-        assert(visitor instanceof PlayerVisitor)
+        //assert(visitor instanceof PlayerVisitor) // vista web no puede heredar + implementar
 
         return visitor.visitRandomPlayer(this);
     }
