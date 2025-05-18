@@ -1,0 +1,41 @@
+* {
+    border-style: solid;
+    border-color: lightblue;
+}
+
+body {
+    height: 85vh;
+    width: 85vw;
+}
+
+aside {
+    width: 20%;
+    float: left;
+}
+
+.modeButton {
+    white-space: normal
+}
+
+main {
+    width: 75%;
+    height: 100%;
+    float: right;
+}
+
+#board {
+    width: 75%;
+    height: 300px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#resumeGame {
+    display: none;
+}
+
+/*
+#userRandomButton {
+    display: none;
+}
+    */
