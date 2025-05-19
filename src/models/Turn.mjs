@@ -54,6 +54,10 @@ export class Turn {
         return this.#players[this.#activePlayer];
     }
 
+    getNameActivePlayer() {
+        return this.getActivePlayer().getName();
+    }
+
     next() {
         if (!this.isLast()) {
             this.#activePlayer = (this.#activePlayer + 1) % Turn.NUMBER_PLAYERS;

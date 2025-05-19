@@ -1,45 +1,51 @@
-import { Board } from '../models/Board.mjs';
-import {Turn} from '../models/Turn.mjs';
+import { GameView } from "./GameView.mjs";
+import { GameModeView, ResumeView } from "./OptionsViews.mjs";
 
-import { StartView } from './StartView.mjs';
-import { DropTokenView } from './DropTokenView.mjs';
-import { ResumeView } from './ResumeView.mjs';
+import { Game } from "../models/Game.mjs";
 
-import { assert } from '../utils/assert.mjs';
-
-
+import { assert } from "../utils/assert.mjs";
 
 class Connect4 {
 
-    #board;
-    #turn;   
-
-    #startView; 
-    #dropTokenView;
+    #game;
+    #gameModeView;
+    #gameView;
     #resumeView;
 
     constructor() {
-        this.#board = new Board();
-        this.#turn = new Turn(this.#board);   
-
-        this.#startView = new StartView(this.#turn, this.#board);
-        this.#dropTokenView = new DropTokenView(this.#turn, this.#board);       
-        this.#resumeView = new ResumeView(this.#turn, this.#board);
-
-        this.#startView.addObserver(this.#dropTokenView);
-        this.#dropTokenView.addObserver(this.#resumeView);
-        this.#resumeView.addObserver(this.#startView);
+        this.#game = new Game();
+        this.#gameModeView = new GameModeView(this.#game);
+        this.#gameView = new GameView(this.#game);
+        this.#resumeView = new ResumeView(this.#game);
+        this.#addObservers();  
     }
 
-    playGames() {        
-        this.#startView.enable();
+    #addObservers() {
+        this.#gameModeView.registerGameModeObserver(this);
+        this.#gameView.registerGameObserver(this);
+        this.#resumeView.registerResumeObserver(this);
+    }  
+
+    play() {
+        this.#gameModeView.interact();
+    } 
+
+    onGameModeSelected() {
+        console.log('game mode selected')
+        this.#gameView.interact();
     }
+
+    onEndGame() {
+        console.log('game ended');
+        this.#resumeView.interact();
+    }
+
+    onResume() {      
+        this.play();
+    }
+
+    
 }
 
-
-function main() {
-    assert.ENABLED = true; // enabled for dev
-    new Connect4().playGames();
-}
-main();
-
+assert.ENABLED = true; // enabled for dev
+new Connect4().play();
