@@ -13,7 +13,9 @@ aside {
     float: left;
 }
 
-.modeButton {
+.optionButton {
+    width: 80%;
+    height: 30%;
     white-space: normal
 }
 
@@ -23,16 +25,30 @@ main {
     float: right;
 }
 
+/* https://codepen.io/chriscoyier/pen/NWKrXQx */
+
 #board {
     width: 75%;
-    height: 300px;
-    margin-left: auto;
-    margin-right: auto;
+    height: 200px;
+    border-collapse: separate;
+    border-spacing: 1em;
+    margin: 1rem auto;
+    background-color:  lightblue;
 }
 
+#board td {
+    width: 1rem;
+    height: 1rem;
+    padding: 1rem 1rem;
+    border-radius:  50%;
+    background-color:  white;
+}
+
+/*
 #resumeGame {
     display: none;
 }
+*/
 
 /*
 #userRandomButton {
