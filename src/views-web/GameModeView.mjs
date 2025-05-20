@@ -1,17 +1,20 @@
 
 import { Turn } from "../models/Turn.mjs";
 import { assert } from "../utils/assert.mjs";
-import { LogicEvents } from "./LogicEvents.mjs";
 
 export class GameModeView{
             
     #buttons;
     #turn; 
+    #onGameCallBack;
 
-    constructor(turn) {
+
+    constructor(turn, onGameCallback) {
         assert(turn instanceof Turn);
+        assert(typeof onGameCallback === "function");
         
         this.#turn = turn;
+        this.#onGameCallBack = onGameCallback;
         this.#setupButtons();             
     }
 
@@ -44,9 +47,9 @@ export class GameModeView{
         assert(this.#buttons.includes(event.target));
 
         const button = event.target;        
-        this.#turn.reset(button.numPlayers);
+        this.#turn.reset(button.numPlayers);        
         this.#disableInteraction();
-        button.dispatchEvent(LogicEvents.IN_GAME);
+        this.#onGameCallBack();
     }
 
     #disableInteraction() {   

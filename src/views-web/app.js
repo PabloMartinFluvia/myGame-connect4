@@ -3,7 +3,6 @@
 import { Turn } from "../models/Turn.mjs"
 
 import { assert } from "../utils/assert.mjs";
-import { LogicEvents } from "./LogicEvents.mjs";
 import { GameModeView } from "./GameModeView.mjs";
 import { Board } from "../models/Board.mjs";
 import { ResumeView } from "./ResumeView.mjs";
@@ -25,24 +24,33 @@ class Connect4 extends PlayerVisitor{
         
         this.#board = new Board();
         this.#turn = new Turn(this.#board);
-        this.#boardView = new BoardView(this.#board);
+        this.#boardView = new BoardView(this.#board, this.#onColumnSelected.bind(this));
         this.#turnView = new TurnView(this.#turn);
-        this.#gameModeView = new GameModeView(this.#turn);
-        this.#resumeView = new ResumeView(this.#turn, this.#board);
-
-        document.addEventListener(LogicEvents.INITIAL.type, this.#onInitialState.bind(this));
-        document.addEventListener(LogicEvents.IN_GAME.type, this.#onInGameState.bind(this)); 
-        document.addEventListener(LogicEvents.COLUMN_SELECTED.type, this.#onColumnSelected.bind(this));  
-        document.addEventListener(LogicEvents.OUT_GAME.type, this.#onOutGameState.bind(this));           
+        this.#gameModeView = new GameModeView(this.#turn, this.#onGame.bind(this));
+        this.#resumeView = new ResumeView(this.#turn, this.#board, this.#onStart.bind(this)); 
+        
+        this.#onStart();
     }
 
-    play() {
-        document.dispatchEvent(LogicEvents.INITIAL);
-    }
+    /*
+    Start -> Drop Token -> Resume -> Start <<---- Ciclo
+
+    StartView when finish:
+        this.#turnView.show();
+        this.#turn.getActivePlayer().accept(dropTokenView);
+    
+    DropTokenView when finish:
+        this.#resumeView.allowInteraction();
+
+    ResumeView when finish:
+        this.#turnView.hidde();
+        this.#gameModeView.allowInteraction();    
+        this.#boardView.show(); 
+    */
 
     // Start Use Case
 
-    #onInitialState(event) {        
+    #onStart() {          
         this.#turnView.hidde();
         this.#gameModeView.allowInteraction();    
         this.#boardView.show();     
@@ -50,7 +58,7 @@ class Connect4 extends PlayerVisitor{
 
     // Drop Token Use Case
 
-    #onInGameState(event) {
+    #onGame() {
         this.#turnView.show();
         this.#turn.getActivePlayer().accept(this);
     }
@@ -61,14 +69,13 @@ class Connect4 extends PlayerVisitor{
         this.#boardView.allowInteraction(); 
     }
 
-    #onColumnSelected(event) {         
-        const column = event.target.column;
+    #onColumnSelected(column) {                 
         const error = this.#turn.getActivePlayer().getErrorColumn(column);
         this.#turnView.showError(error);
         if (error.isNull()) {
             this.#dropToken(column);
         } else {            
-            document.dispatchEvent(LogicEvents.IN_GAME); 
+            this.#onGame();
         }
     }
 
@@ -84,19 +91,19 @@ class Connect4 extends PlayerVisitor{
         this.#boardView.show(); 
         if (!this.#turn.isLast()) {     
             this.#turn.next();       
-            document.dispatchEvent(LogicEvents.IN_GAME);
+            this.#onGame();
         } else {
             this.#turnView.show();
-            document.dispatchEvent(LogicEvents.OUT_GAME);
+            this.#onOutGame();
         }
     }
 
     // Resume Use Case
-    #onOutGameState (event) {
+    #onOutGame (event) {
         this.#resumeView.allowInteraction();
     }
 
 }
 
 assert.ENABLED = true; // enabled for dev
-new Connect4().play();
+const app = new Connect4();

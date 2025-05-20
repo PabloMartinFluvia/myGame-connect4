@@ -1,20 +1,22 @@
 import { Board } from "../models/Board.mjs";
 import { Turn } from "../models/Turn.mjs";
 import { assert } from "../utils/assert.mjs";
-import { LogicEvents } from "./LogicEvents.mjs";
 
 export class ResumeView {
 
     #button;
     #turn;
     #board;
+    #onStartCallBack;
 
-    constructor(turn, board) {
+    constructor(turn, board, onStartCallBack) {
         assert(turn instanceof Turn);
         assert(board instanceof Board);
+        assert(typeof onStartCallBack === "function");
 
         this.#turn = turn;
         this.#board = board;
+        this.#onStartCallBack = onStartCallBack;
         this.#setupButton();
     }
 
@@ -38,7 +40,7 @@ export class ResumeView {
         this.#turn.reset();
         this.#board.reset();
         this.#disableInteraction();
-        this.#button.dispatchEvent(LogicEvents.INITIAL);
+        this.#onStartCallBack();
     }
 
     #disableInteraction() {

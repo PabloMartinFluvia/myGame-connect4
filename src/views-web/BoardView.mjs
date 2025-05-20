@@ -1,7 +1,6 @@
 import { Board } from "../models/Board.mjs";
 import { Coordinate } from "../models/Coordinate.mjs";
 import { assert } from "../utils/assert.mjs";
-import { LogicEvents } from "./LogicEvents.mjs";
 
 export class BoardView {
     
@@ -11,12 +10,13 @@ export class BoardView {
 
     constructor(board, onColumnSelectedCallback) {
         assert(board instanceof Board);
+        assert(typeof onColumnSelectedCallback === "function");
 
         this.#board = board;     
         this.#createTable();   
         this.#onClickCellListener = event => {            
             this.#cells.forEach(cell => {cell.removeEventListener("click", this.#onClickCellListener)});                              
-            event.target.dispatchEvent(LogicEvents.COLUMN_SELECTED);
+            onColumnSelectedCallback(event.target.column);
         }
     }
 
