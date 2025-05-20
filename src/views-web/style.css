@@ -1,3 +1,13 @@
+/* TODO: 
+aside (button container)
+actual turn div (changes visibility dinamically)
+game mode buttons (changes display dinamycally)
+resume button (changes display dinamycally)
+
+info error/result div (changes visibility dinamically)
+
+*/
+
 * {
     border-style: solid;
     border-color: lightblue;
@@ -25,7 +35,10 @@ main {
     float: right;
 }
 
-/* https://codepen.io/chriscoyier/pen/NWKrXQx */
+/* 
+Board:
+https://codepen.io/chriscoyier/pen/NWKrXQx 
+*/
 
 #board {
     width: 75%;
@@ -36,7 +49,7 @@ main {
     background-color:  lightblue;
 }
 
-#board td {
+.cell {
     width: 1rem;
     height: 1rem;
     padding: 1rem 1rem;

@@ -1,55 +1,79 @@
+import { GameError } from "../models/Error.mjs";
 import { Turn } from "../models/Turn.mjs";
 import { assert } from "../utils/assert.mjs";
 
 export class TurnView {
 
     #turn;
-    #turnInfo;
-    #resultInfo;
+    #actualTurn;
+    #info;
 
     constructor(turn) {
         assert(turn instanceof Turn);
 
-        this.#turn = turn;
-        this.#setupInfo();
+        this.#turn = turn;     
+        this.#setUptActualTurn();   
+        this.#setUptInfo();
     }
 
-    #setupInfo() {
-        this.#turnInfo = document.getElementById("turnInfo");
-        this.#resultInfo = document.getElementById("resultInfo");
+    #setUptActualTurn() {
+        this.#actualTurn = document.createElement("div");
+        this.#actualTurn.appendChild(document.createTextNode("----"));
+        // TODO: add style
+        this.#hideActualTurn();
+        document.getElementsByTagName("aside")[0].appendChild(this.#actualTurn);
     }
 
-    interact() {
-        for(let info of [this.#turnInfo, this.#resultInfo]) {
-            info.childNodes.forEach(infoChild => {
-                info.removeChild(infoChild);
-            });
-        }
+    #hideActualTurn () {
+        this.#actualTurn.style.visibility = "hidden";
+    }
+
+    #setUptInfo() {
+        this.#info = document.getElementById("info-container");
+        this.#info.appendChild(document.createTextNode("----"));
+        // TODO: add style
+        this.#hideInfo();
+    }
+
+     #hideInfo () {
+       this.#info.style.visibility = "hidden";
     }
 
     show() {
-        let turnInfoTextNode = this.#turnInfo.firstChild;
-        const msg = "Turn: " + this.#turn.getNameActivePlayer();
-        if (turnInfoTextNode !== null) {
-            turnInfoTextNode.nodeValue = msg;
-        } else {
-            turnInfoTextNode = document.createTextNode(msg);
-            this.#turnInfo.appendChild(turnInfoTextNode);
+        if (!this.#turn.isLast()) {            
+            this.#showTurn(this.#turn.getNameActivePlayer());
+        } else {            
+            this.#hideActualTurn();
+            const msg = this.#turn.isWinner() ?
+                this.#turn.getNameActivePlayer().toUpperCase() + " WIN!!!" :
+                "It's a DRAW!!!";
+            this.#showInfo(msg);
         }
     }
 
-    showResult() {
-        assert(!this.#resultInfo.hasChildNodes());
-        assert(this.#turnInfo.childNodes.length === 1);
+    #showTurn(playerName) {
+        this.#actualTurn.style.visibility = "visible";
+        this.#actualTurn.replaceChild(document.createTextNode("Turn: " + playerName), this.#actualTurn.firstChild);
+    }
 
-        let textNode = this.#turnInfo.firstChild;
-        this.#turnInfo .removeChild(textNode);
+    #showInfo(msg) {
+        this.#info.style.visibility = "visible";
+        this.#info.replaceChild(document.createTextNode(msg), this.#info.firstChild);        
+    }
 
-        let msg = "You've tied";
-        if (this.#turn.isWinner()) {
-            msg = this.#turn.getNameActivePlayer() + " win!!!";
+    showError(error) {
+        assert(error instanceof GameError);
+        assert(error.isNull() || error === GameError.COMPLETED_COLUMN);
+
+        if(error.isNull()) {
+           this.#hideInfo();
+        } else {                    
+            this.#showInfo("Column is Full");
         }
-        textNode = document.createTextNode(msg);
-        this.#resultInfo.appendChild(textNode);
+    }
+
+    hidde() {
+        this.#hideActualTurn();
+        this.#hideInfo();
     }
 }

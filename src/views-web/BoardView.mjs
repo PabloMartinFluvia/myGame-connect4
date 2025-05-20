@@ -1,66 +1,58 @@
 import { Board } from "../models/Board.mjs";
 import { Coordinate } from "../models/Coordinate.mjs";
-
 import { assert } from "../utils/assert.mjs";
+import { LogicEvents } from "./LogicEvents.mjs";
 
 export class BoardView {
+    
     #board;
-    #boardCells;    
-    #boardObserver;
+    #cells;
     #onClickCellListener;
 
-    constructor(board) {
+    constructor(board, onColumnSelectedCallback) {
         assert(board instanceof Board);
 
-        this.#board = board;
-        this.#setupBoardCells(); 
-        this.#onClickCellListener = this.#onClickCell.bind(this);   
+        this.#board = board;     
+        this.#createTable();   
+        this.#onClickCellListener = event => {            
+            this.#cells.forEach(cell => {cell.removeEventListener("click", this.#onClickCellListener)});                              
+            event.target.dispatchEvent(LogicEvents.COLUMN_SELECTED);
+        }
     }
 
-    #setupBoardCells() {
-        this.#boardCells = document.querySelectorAll("#board td");
-    }    
-
-    registerBoardObserver(boardObserver) {
-        this.#boardObserver = boardObserver;
+    #createTable() {
+        this.#cells = [];
+        const boardTable = document.createElement("table");
+        boardTable.id = "board";
+        for (let row = Coordinate.NUMBER_ROWS - 1; row >= 0; row--) {
+            const tr = document.createElement("tr");
+            for (let column = 0; column < Coordinate.NUMBER_COLUMNS; column++) {
+                const td = document.createElement("td");
+                td.className = "cell";
+                td.row = row;
+                td.column = column;
+                td.getCoordinate = function () {
+                    return new Coordinate(this.row, this.column);
+                }
+                this.#cells.push(td);
+                tr.appendChild(td);
+            }
+            boardTable.appendChild(tr);
+        }
+        const container = document.getElementById("board-container");
+        container.appendChild(boardTable);
     }
 
-    interact() {
-        this.#addEventListeners();
-    }
-
-    #addEventListeners() {
-        this.#boardCells.forEach(cell => {
+    allowInteraction() {
+        this.#cells.forEach(cell => {        
             cell.addEventListener("click", this.#onClickCellListener);
         })
     }
 
-    disableInteraction() {
-        this.#boardCells.forEach(cell => {
-            cell.removeEventListener("click", this.#onClickCellListener);            
-        })
-    }
-
-    #onClickCell(event) {
-        const column = this.#getColumn(event.target);
-        this.#boardObserver.onColumnSelected(column);
-    }    
-
-    #getColumn(cell) {
-        return  Number.parseInt(cell.getAttribute("column"));
-    }
-
     show() {
-        for (let cell of this.#boardCells) {
-            const coordinate = this.#toCoordinate(cell);
-            const color = this.#board.getColor(coordinate);
+        this.#cells.forEach(cell => {
+            const color = this.#board.getColor(cell.getCoordinate());
             cell.style.backgroundColor = (color.getName() ?? "white").toLowerCase();
-        }
-    }
-
-    #toCoordinate(cell) {
-        const column = this.#getColumn(cell);
-        const row = Number.parseInt(cell.parentElement.getAttribute("row"));        
-        return new Coordinate(row, column);
+        });
     }
 }
