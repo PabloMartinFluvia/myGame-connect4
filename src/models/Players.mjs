@@ -40,6 +40,10 @@ class Player {
         return this.#color.getName();
     }
 
+    _getColor() {
+        return this.#color;
+    }
+
 }
 
 class UserPlayer extends Player {
@@ -65,19 +69,27 @@ class UserPlayer extends Player {
     }
 }
 
-class RandomPlayer extends Player {
+class MachinePlayer extends Player {
 
     constructor(color, board) {
         super(color, board);
     }
 
-    accept(visitor) {
-        //assert(visitor instanceof PlayerVisitor) // vista web no puede heredar + implementar
-
-        return visitor.visitRandomPlayer(this);
+    accept(visitor) {    
+        return visitor.visitMachinePlayer(this);
     }
 
-    getRandomColumn() {
+    getColumn() {assert(false);} // abstract
+
+}
+
+class RandomPlayer extends MachinePlayer {
+
+    constructor(color, board) {
+        super(color, board);
+    }
+
+    getColumn() {
         let column;
         do {
             column = Math.floor(Math.random() * Coordinate.NUMBER_COLUMNS);
@@ -87,4 +99,7 @@ class RandomPlayer extends Player {
 
 }
 
-export {PlayerVisitor, Player, UserPlayer, RandomPlayer};
+
+
+export {PlayerVisitor, Player, UserPlayer, MachinePlayer, RandomPlayer};
+
