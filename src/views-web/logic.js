@@ -8,7 +8,7 @@ import { Board } from "../models/Board.mjs";
 import { ResumeView } from "./ResumeView.mjs";
 import { BoardView } from "./BoardView.mjs";
 import { TurnView } from "./TurnView.mjs";
-import { PlayerVisitor, RandomPlayer, UserPlayer } from "../models/Players.mjs";
+import { PlayerVisitor, MachinePlayer, UserPlayer } from "../models/Players.mjs";
 
 class Connect4 extends PlayerVisitor{
     
@@ -54,10 +54,10 @@ class Connect4 extends PlayerVisitor{
         this.#turn.getActivePlayer().accept(this);
     }
 
-    visitRandomPlayer(randomPlayer) { 
-        assert(randomPlayer instanceof RandomPlayer);
+    visitMachinePlayer(machinePlayer) { 
+        assert(machinePlayer instanceof MachinePlayer);
 
-        const column = randomPlayer.getRandomColumn();
+        const column = machinePlayer.getColumn();
         setTimeout(() => { this.#dropToken(column); }, 400);
     }
 

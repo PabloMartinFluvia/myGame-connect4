@@ -1,6 +1,6 @@
 import { Turn } from "../models/Turn.mjs";
-import {PlayerVisitor, Player, UserPlayer, RandomPlayer} from "../models/Players.mjs";
-import { Error } from "../models/Error.mjs";
+import {PlayerVisitor, Player, UserPlayer, MachinePlayer} from "../models/Players.mjs";
+import { GameError } from "../models/Error.mjs";
 
 import { Message } from "./Message.mjs";
 
@@ -18,7 +18,7 @@ class ErrorView {
     #error;
 
     constructor(error) {
-        assert(error instanceof Error);
+        assert(error instanceof GameError);
         assert(error.isNull() ||
             new ClosedInterval(0, ErrorView.#MESSAGES.length - 1).isIncluded(error.getCode()));
 
@@ -63,10 +63,10 @@ class PlayerView extends PlayerVisitor {
         return column;
     }
 
-    visitRandomPlayer(randomPlayer) {
-        assert(randomPlayer instanceof RandomPlayer);
+    visitMachinePlayer(machinePlayer) {
+        assert(machinePlayer instanceof MachinePlayer);
 
-        const column = randomPlayer.getRandomColumn();
+        const column = machinePlayer.getColumn();
         const msg = Message.RANDOM_COLUMN.toString().replace(`#value`, column + 1);
         consoleMPDS.writeln(msg);
         return column;
