@@ -1,4 +1,3 @@
-import { GameError } from "../models/Error.mjs";
 import { Turn } from "../models/Turn.mjs";
 import { assert } from "../utils/assert.mjs";
 
@@ -6,74 +5,55 @@ export class TurnView {
 
     #turn;
     #actualTurn;
-    #info;
+    #result;
 
     constructor(turn) {
         assert(turn instanceof Turn);
 
-        this.#turn = turn;     
-        this.#setUptActualTurn();   
-        this.#setUptInfo();
+        this.#turn = turn;
+        this.#initActualTurn();
+        this.#initResult();
     }
 
-    #setUptActualTurn() {
-        this.#actualTurn = document.createElement("div");
+    #initActualTurn() {
+        this.#actualTurn = document.getElementById("turn");
         this.#actualTurn.appendChild(document.createTextNode("----"));
         // TODO: add style
         this.#hideActualTurn();
-        document.getElementsByTagName("aside")[0].appendChild(this.#actualTurn);
     }
 
-    #hideActualTurn () {
+    #hideActualTurn() {
         this.#actualTurn.style.visibility = "hidden";
     }
 
-    #setUptInfo() {
-        this.#info = document.getElementById("info-container");
-        this.#info.appendChild(document.createTextNode("----"));
+    #initResult() {
+        this.#result = document.getElementById("result");
+        this.#result.appendChild(document.createTextNode("----"));
         // TODO: add style
-        this.#hideInfo();
+        this.#hideResult();
     }
 
-     #hideInfo () {
-       this.#info.style.visibility = "hidden";
-    }
-
-    show() {
-        if (!this.#turn.isLast()) {            
-            this.#showTurn(this.#turn.getNameActivePlayer());
-        } else {            
-            this.#hideActualTurn();
-            const msg = this.#turn.isWinner() ?
-                this.#turn.getNameActivePlayer().toUpperCase() + " WIN!!!" :
-                "It's a DRAW!!!";
-            this.#showInfo(msg);
-        }
-    }
-
-    #showTurn(playerName) {
-        this.#actualTurn.style.visibility = "visible";
-        this.#actualTurn.replaceChild(document.createTextNode("Turn: " + playerName), this.#actualTurn.firstChild);
-    }
-
-    #showInfo(msg) {
-        this.#info.style.visibility = "visible";
-        this.#info.replaceChild(document.createTextNode(msg), this.#info.firstChild);        
-    }
-
-    showError(error) {
-        assert(error instanceof GameError);
-        assert(error.isNull() || error === GameError.COMPLETED_COLUMN);
-
-        if(error.isNull()) {
-           this.#hideInfo();
-        } else {                    
-            this.#showInfo("Column is Full");
-        }
+    #hideResult() {
+        this.#result.style.visibility = "hidden";
     }
 
     hidde() {
         this.#hideActualTurn();
-        this.#hideInfo();
+        this.#hideResult();
     }
+
+    show() {
+        this.#actualTurn.style.visibility = "visible";
+        const msg = "Turn: " + this.#turn.getNameActivePlayer();
+        this.#actualTurn.replaceChild(document.createTextNode(msg), this.#actualTurn.firstChild);
+    }
+
+    showResult() {
+        this.#hideActualTurn();
+        const msg = this.#turn.isWinner() ?
+            this.#turn.getNameActivePlayer().toUpperCase() + " WIN!!!" :
+            "It's a DRAW!!!";
+        this.#result.style.visibility = "visible";
+        this.#result.replaceChild(document.createTextNode(msg), this.#result.firstChild);
+    }    
 }

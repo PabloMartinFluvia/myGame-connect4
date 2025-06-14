@@ -1,49 +1,21 @@
-import { Board } from "../models/Board.mjs";
-import { Turn } from "../models/Turn.mjs";
 import { assert } from "../utils/assert.mjs";
+import { ButtonsView } from "./ButtonsView.mjs";
 
-export class ResumeView {
+export class ResumeView extends ButtonsView{
 
-    #button;
-    #turn;
-    #board;
-    #onStartCallBack;
+    constructor(onClickCallback) {
+        assert(typeof onClickCallback === "function");
 
-    constructor(turn, board, onStartCallBack) {
-        assert(turn instanceof Turn);
-        assert(board instanceof Board);
-        assert(typeof onStartCallBack === "function");
-
-        this.#turn = turn;
-        this.#board = board;
-        this.#onStartCallBack = onStartCallBack;
-        this.#setupButton();
+        super();
+        this.#initButton(onClickCallback);
     }
 
-    #setupButton() {
-        this.#button = document.createElement('button');
-        this.#button.appendChild(document.createTextNode("NUEVA PARTIDA"));        
-        this.#button.addEventListener("click", this.#onClickResumeButton.bind(this));
-        // TODO: style button  
-        const container = document.getElementsByTagName("aside")[0];
-        container.appendChild(this.#button);
-        this.#disableInteraction();
-    }
-
-    allowInteraction() {
-        this.#button.style.display = "block";
-    }
-
-    #onClickResumeButton(event) {
-        assert(this.#button === event.target);
-        
-        this.#turn.reset();
-        this.#board.reset();
-        this.#disableInteraction();
-        this.#onStartCallBack();
-    }
-
-    #disableInteraction() {
-        this.#button.style.display = "none";
+    #initButton(onClickCallback) {
+        const onClickButton = event => {            
+            this._disableInteraction();
+            onClickCallback();
+        }
+        this._initButton("NUEVA PARTIDA", onClickButton); 
+        this._disableInteraction();
     }
 }

@@ -1,60 +1,24 @@
-
-import { Turn } from "../models/Turn.mjs";
 import { assert } from "../utils/assert.mjs";
+import { ButtonsView } from "./ButtonsView.mjs";
 
-export class GameModeView{
-            
-    #buttons;
-    #turn; 
-    #onGameCallBack;
+export class GameModeView extends ButtonsView{    
 
-
-    constructor(turn, onGameCallback) {
-        assert(turn instanceof Turn);
-        assert(typeof onGameCallback === "function");
+    constructor(onClickCallback) {        
+        assert(typeof onClickCallback === "function");
         
-        this.#turn = turn;
-        this.#onGameCallBack = onGameCallback;
-        this.#setupButtons();             
+        super();               
+        this.#initButtons(onClickCallback);        
     }
 
-    #setupButtons() {
-        this.#buttons = [];        
-        const MODE_OPTIONS = ["RANDOM vs RANDOM", "JUGADOR vs RANDOM", "JUGADOR vs JUGADOR"];
-        for (let numPlayers = MODE_OPTIONS.length - 1; numPlayers >=0 ; numPlayers--) {
-            const button = document.createElement('button');            
-            button.numPlayers = numPlayers;            
-            button.appendChild(document.createTextNode(MODE_OPTIONS[numPlayers]));            
-            this.#buttons.push(button);                   
-        }              
-        const onClickListener = this.#onClickModeButton.bind(this);  
-        const container = document.getElementsByTagName("aside")[0];      
-        this.#buttons.forEach(button => {            
-            button.addEventListener("click", onClickListener);
-            container.appendChild(button);
-            // TODO: style button     
-        });  
-        this.#disableInteraction();   
-    }
-
-    allowInteraction() {         
-        this.#buttons.forEach(button => {
-            button.style.display = "block";
-        })
-    }
-
-    #onClickModeButton(event) {
-        assert(this.#buttons.includes(event.target));
-
-        const button = event.target;        
-        this.#turn.reset(button.numPlayers);        
-        this.#disableInteraction();
-        this.#onGameCallBack();
-    }
-
-    #disableInteraction() {   
-        this.#buttons.forEach(button => {
-            button.style.display = "none";
-        })
-    }
+    #initButtons(onClickCallback) {                
+        const onClickButton = event => {      
+            this._disableInteraction();
+            onClickCallback(event.target.numUsers);
+        }
+        const MODE_OPTIONS = ["RANDOM vs RANDOM", "JUGADOR vs RANDOM", "JUGADOR vs JUGADOR"];        
+        for (let numUsers = MODE_OPTIONS.length - 1; numUsers >= 0; numUsers--) {
+            this._initButton(MODE_OPTIONS[numUsers], onClickButton, {numUsers: numUsers});                                 
+        }   
+        this._disableInteraction();       
+    } 
 }

@@ -23,37 +23,28 @@ class Connect4 extends PlayerVisitor{
         super();
         
         this.#board = new Board();
-        this.#turn = new Turn(this.#board);
-        this.#boardView = new BoardView(this.#board, this.#onColumnSelected.bind(this));
-        this.#turnView = new TurnView(this.#turn);
-        this.#gameModeView = new GameModeView(this.#turn, this.#onGame.bind(this));
-        this.#resumeView = new ResumeView(this.#turn, this.#board, this.#onStart.bind(this)); 
+        this.#turn = new Turn(this.#board);        
+        this.#boardView = new BoardView(this.#board, this.#dropToken.bind(this));
+        this.#turnView = new TurnView(this.#turn);     
+
+        this.#gameModeView = new GameModeView(this.#playGame.bind(this));
+        this.#resumeView = new ResumeView(this.#onResumeGame.bind(this)); 
         
         this.#onStart();
     }
 
-    /*
-    Start -> Drop Token -> Resume -> Start <<---- Ciclo
-
-    StartView when finish:
-        this.#turnView.show();
-        this.#turn.getActivePlayer().accept(dropTokenView);
-    
-    DropTokenView when finish:
-        this.#resumeView.allowInteraction();
-
-    ResumeView when finish:
-        this.#turnView.hidde();
-        this.#gameModeView.allowInteraction();    
-        this.#boardView.show(); 
-    */
 
     // Start Use Case
 
     #onStart() {          
         this.#turnView.hidde();
-        this.#gameModeView.allowInteraction();    
-        this.#boardView.show();     
+        this.#boardView.show();  
+        this.#gameModeView.allowInteraction();               
+    }
+
+    #playGame(numUsers) {
+        this.#turn.reset(numUsers);
+        this.#onGame();
     }
 
     // Drop Token Use Case
@@ -63,27 +54,17 @@ class Connect4 extends PlayerVisitor{
         this.#turn.getActivePlayer().accept(this);
     }
 
-    visitUserPlayer(userPlayer) {  
-        assert(userPlayer instanceof UserPlayer);
-
-        this.#boardView.allowInteraction(); 
-    }
-
-    #onColumnSelected(column) {                 
-        const error = this.#turn.getActivePlayer().getErrorColumn(column);
-        this.#turnView.showError(error);
-        if (error.isNull()) {
-            this.#dropToken(column);
-        } else {            
-            this.#onGame();
-        }
-    }
-
     visitRandomPlayer(randomPlayer) { 
         assert(randomPlayer instanceof RandomPlayer);
 
         const column = randomPlayer.getRandomColumn();
         setTimeout(() => { this.#dropToken(column); }, 400);
+    }
+
+    visitUserPlayer(userPlayer) {  
+        assert(userPlayer instanceof UserPlayer);
+
+        this.#boardView.allowInteraction();         
     }
 
     #dropToken(column) {
@@ -93,17 +74,24 @@ class Connect4 extends PlayerVisitor{
             this.#turn.next();       
             this.#onGame();
         } else {
-            this.#turnView.show();
+            this.#turnView.showResult();
             this.#onOutGame();
         }
     }
 
     // Resume Use Case
-    #onOutGame (event) {
+    #onOutGame () {
         this.#resumeView.allowInteraction();
+    }
+
+    #onResumeGame() {
+        this.#turn.reset();
+        this.#board.reset();
+        this.#onStart();
     }
 
 }
 
 assert.ENABLED = true; // enabled for dev
 const app = new Connect4();
+
