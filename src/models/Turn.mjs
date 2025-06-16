@@ -1,4 +1,5 @@
 import { UserPlayer, RandomPlayer } from "./Players.mjs";
+import {BasicMinMaxPlayer, MaximizeCombinationsMinMaxPlayer, WithAvailabilityAndPercentageMinMaxPlayer, WithPercentageMinMaxPlayer} from "./ia/minmax.mjs";
 import { Board } from "./Board.mjs";
 import { Color } from "./Color.mjs";
 import { GameError } from "./Error.mjs";
@@ -29,15 +30,20 @@ export class Turn {
     }
 
     #configGameMode(numUsers) {
-        assert(Turn.getErrorGameMode(numUsers).isNull());
+        assert(Turn.getErrorGameMode(numUsers).isNull());        
 
+        this.#players[0] = new RandomPlayer(Color.get(0), this.#board); 
+        this.#players[1] = new BasicMinMaxPlayer(Color.get(1), this.#board); 
+
+        /*
         for (let i = 0; i < Turn.NUMBER_PLAYERS; i++) {
             if (i < numUsers) {
-                this.#players[i] = new UserPlayer(Color.get(i), this.#board);
+                this.#players[i] = new UserPlayer(Color.get(i), this.#board);                
             } else {
                 this.#players[i] = new RandomPlayer(Color.get(i), this.#board);
             }
-        }        
+        }   
+            */     
     }
 
     static getErrorGameMode(numUsers) {

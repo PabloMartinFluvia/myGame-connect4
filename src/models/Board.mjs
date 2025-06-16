@@ -30,7 +30,7 @@ class Shiftment {
 }
 
 class Board {
-    static #WIN_COUNT = 4;
+    static WIN_COUNT = 4;
     #colors;
     #lastDrop;
 
@@ -53,7 +53,7 @@ class Board {
         if (column !== undefined) {
             assert(Coordinate.isColumnValid(column));
 
-            return !this.#isEmpty(new Coordinate(Coordinate.NUMBER_ROWS - 1, column));
+            return !this.isEmpty(new Coordinate(Coordinate.NUMBER_ROWS - 1, column));
         }
         
         for (let i = 0; i < Coordinate.NUMBER_COLUMNS; i++) {
@@ -64,7 +64,7 @@ class Board {
         return true;
     }
 
-    #isEmpty(coordinate) {
+    isEmpty(coordinate) {
         return this.getColor(coordinate) === Color.NULL;
     }
 
@@ -81,10 +81,18 @@ class Board {
         assert(!color.isNull());
 
         this.#lastDrop = new Coordinate(0, column);
-        while (!this.#isEmpty(this.#lastDrop)) {
+        while (!this.isEmpty(this.#lastDrop)) {
             this.#lastDrop = Shiftment.NORTH.shift(this.#lastDrop);            
-        }
-        this.#colors[this.#lastDrop.getRow()][this.#lastDrop.getColumn()] = color;
+        }        
+        this.setColor(this.#lastDrop, color);
+    }
+
+    setColor(coordinate, color) {
+        assert(coordinate instanceof Coordinate);
+        assert(coordinate.isValid());
+        assert(color instanceof Color);
+
+        this.#colors[coordinate.getRow()][coordinate.getColumn()] = color;
     }
 
     hasWinner() {        
@@ -97,7 +105,7 @@ class Board {
                             Shiftment.NORTH_EAST, Shiftment.SOUTH_EAST];
         for (let shiftment of shiftments) {
             let candidates = this.#initCandidates(shiftment);
-            for (let i = 0; i < Board.#WIN_COUNT; i++) {
+            for (let i = 0; i < Board.WIN_COUNT; i++) {
                 if (this.#isConnect4(candidates)) {
                     return true;
                 }            
@@ -111,7 +119,7 @@ class Board {
         assert(shiftment instanceof Shiftment);
 
         let coordinates = [this.#lastDrop];
-        for (let i = 1; i < Board.#WIN_COUNT; i++) {
+        for (let i = 1; i < Board.WIN_COUNT; i++) {
             coordinates[i] = shiftment.shift(coordinates[i - 1]);            
         }
         return coordinates;
@@ -119,7 +127,7 @@ class Board {
 
     #isConnect4(candidates) {
         assert(Array.isArray(candidates));
-        assert(candidates.length === Board.#WIN_COUNT);
+        assert(candidates.length === Board.WIN_COUNT);
         assert(candidates.every(coordinate => coordinate instanceof Coordinate));        
         assert(candidates.some(coordinate => coordinate.equals(this.#lastDrop)));
         assert(!this.getColor(this.#lastDrop).isNull())
@@ -131,6 +139,11 @@ class Board {
         return candidates.every(coordinate => color === this.getColor(coordinate));
     }
 
+    getLastColor() {
+        return this.getColor(this.#lastDrop);
+    }
 }
 
-export { Board };
+
+
+export { Board, Shiftment };

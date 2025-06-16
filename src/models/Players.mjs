@@ -28,7 +28,7 @@ class Player {
 
     accept(visitor) {assert(false, 'abstract')}
 
-    dropToken(column) {
+    dropToken(column) {           
         this.#board.dropToken(column, this.#color);
     }
 
@@ -42,6 +42,10 @@ class Player {
 
     _getColor() {
         return this.#color;
+    }
+
+    get _board() {
+        return this.#board
     }
 
 }

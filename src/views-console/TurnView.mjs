@@ -66,7 +66,7 @@ class PlayerView extends PlayerVisitor {
     visitMachinePlayer(machinePlayer) {
         assert(machinePlayer instanceof MachinePlayer);
 
-        const column = machinePlayer.getColumn();
+        const column = machinePlayer.getColumn();        
         const msg = Message.RANDOM_COLUMN.toString().replace(`#value`, column + 1);
         consoleMPDS.writeln(msg);
         return column;
