@@ -1,10 +1,12 @@
-import { Combination } from "./Combination.mjs";
-import { Board, Shiftment } from "../Board.mjs";
-import { Coordinate } from "../Coordinate.mjs";
-import { Color } from "../Color.mjs";
-import { assert } from "../../utils/assert.mjs";
+import { Combination } from "../Combination.mjs";
+import { Board, Shiftment } from "../../Board.mjs";
+import { Coordinate } from "../../Coordinate.mjs";
+import { Color } from "../../Color.mjs";
+import { assert } from "../../../utils/assert.mjs";
 
-export class BoardEvaluator {
+
+
+export class BoardEvaluator{
     #board;
 
     constructor(board) {
@@ -40,6 +42,10 @@ export class BoardEvaluator {
      * FOR THE PLAYER WHO DROPS IN THE TERMINAL STATE (without winning, neither complete)
      */
     get _valueWhenNotFinished() { assert(false) } // abstract
+
+    dropToken(column, color) {
+        this.#board.dropToken(column, color)
+    }
 
     removeTop(column) {
         let topPlaced = new Coordinate(Coordinate.NUMBER_ROWS - 1, column);
@@ -89,25 +95,25 @@ export class MaximizeAvailableCombinationsEvaluator extends BoardEvaluator {
                             Shiftment.NORTH_EAST, Shiftment.SOUTH_EAST];
         for (let shiftment of shiftments) {
             const combination = new Combination(coordinate, shiftment, this.board);
-            if (combination.valid) {
+            if (combination.isValid) {
                 this.#combinationsAvailablesInActualTurn.push(combination);
             }
         }
     }
 
-    checkCombinationsAvailables() {
+    syncDrops() {
         this.#combinationsAvailablesInActualTurn
-            .forEach(combination => { combination.updateProgress() });
+            .forEach(combination => { combination.syncDrops() });
         this.#combinationsAvailablesInActualTurn = this.#combinationsAvailablesInActualTurn
-            .filter(combination => !combination.discarted);
+            .filter(combination => combination.isWinnable);
     }
 
     get _valueWhenNotFinished() {
         let value = 0;
         const lastColor = this.board.getLastColor();
         for (let combination of this.#combinationsAvailablesInActualTurn) {
-            combination.updateProgress();
-            if (!combination.discarted && combination.hasColor()) {
+            combination.syncDrops();
+            if (combination.isWinnable && combination.hasColor()) {
                 value += this._evaluate(combination) * (combination.hasColor(lastColor) ? 1 : -1);
             }
         }
@@ -138,7 +144,7 @@ export class WithCompletedPercentageEvaluator extends MaximizeAvailableCombinati
     }
 
     _evaluate(combination) {
-        return combination.completedPercentage;
+        return combination.colorDrops / Board.WIN_COUNT;
     }
 }
 

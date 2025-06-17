@@ -1,5 +1,5 @@
-import { assert } from "../../utils/assert.mjs";
-import { MachinePlayer } from "../Players.mjs";
+import { assert } from "../../../utils/assert.mjs";
+import { MachinePlayer } from "../../Players.mjs";
 import { BasicEvaluator, BoardEvaluator, MaximizeAvailableCombinationsEvaluator, WithAvailabilityAndPercentageEvaluator, WithCompletedPercentageEvaluator } from "./evaluators.mjs";
 
 class MinMaxPlayer extends MachinePlayer {
@@ -156,14 +156,3 @@ export class WithAvailabilityAndPercentageMinMaxPlayer extends WithCombinationsM
     }
 }
 
-/*
-Player 1            Random  Basic     Maximize    Percentage    AvailabilityPercentage    
-Player 2
-
-Random              ??       P1(bas)  P1(max)      P1(perc)    P1(avai)
-Basic               P2(bas)  P2       P1(max)      P1(perc)    P1(avai)
-Maximize            P2(max)  P2(max)  P2           P1(perc)    P1(avai) 
-Percentage          P2(perc) P2(perc) TIED         P2          P2(perc)!
-Availability        P2(avai) P2(avai)  P2(avai)    P2(avai)!    P1
-
-*/

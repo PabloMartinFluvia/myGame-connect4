@@ -28,11 +28,11 @@ export class Combination {
         this.#colorsCount[Color.YELLOW.ordinal] = 0;
     }
 
-    get valid() {
+    get isValid() {
         return this.#coordinates.every(coordinate => coordinate.isValid());
     }
 
-    updateProgress() {
+    syncDrops() {
         this.#colorsCount[Color.RED.ordinal] = this.#getCount(Color.RED);
         this.#colorsCount[Color.YELLOW.ordinal] = this.#getCount(Color.YELLOW);
     }
@@ -48,13 +48,13 @@ export class Combination {
         return count;
     }
 
-    get discarted() {
-        return this.#colorsCount[Color.RED.ordinal] > 0 && this.#colorsCount[Color.YELLOW.ordinal] > 0;
+    get isWinnable() {
+        return ! this.hasColor(Color.RED)  ||  ! this.hasColor(Color.YELLOW);
     }
 
     hasColor(color) {
         if (color === undefined) {
-            return this.#colorsCount[Color.RED.ordinal] > 0 || this.#colorsCount[Color.YELLOW.ordinal] > 0;
+            return this.hasColor(Color.RED) || this.hasColor(Color.YELLOW);
         }
 
         assert(color instanceof Color);
@@ -63,15 +63,15 @@ export class Combination {
         return this.#colorsCount[color.ordinal] > 0; 
     }
 
-    get completedPercentage() {
+    get colorDrops() {
         assert(this.hasColor())
-        assert(!this.discarted);
+        assert(this.isWinnable);
 
         let count = 0;
         for (let colorCount of this.#colorsCount) {
             count += colorCount;
         }
-        return count / Board.WIN_COUNT;
+        return count;
     }
 
     get empties() {

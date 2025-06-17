@@ -1,11 +1,11 @@
 import { UserPlayer, RandomPlayer } from "./Players.mjs";
-import {BasicMinMaxPlayer, MaximizeCombinationsMinMaxPlayer, WithAvailabilityAndPercentageMinMaxPlayer, WithPercentageMinMaxPlayer} from "./ia/minmax.mjs";
 import { Board } from "./Board.mjs";
 import { Color } from "./Color.mjs";
 import { GameError } from "./Error.mjs";
 
 import { ClosedInterval } from '../utils/ClosedInterval.mjs';
 import { assert } from '../utils/assert.mjs';
+import { BasicMinMaxPlayer, MaxCombinationsMinMaxPlayer, MaxEasyProgressCombinationsMinMaxPlayer, MaxProgressCombinationsMinMaxPlayer } from "./ia/c4-minmax.mjs";
 
 export class Turn {
 
@@ -30,10 +30,15 @@ export class Turn {
     }
 
     #configGameMode(numUsers) {
-        assert(Turn.getErrorGameMode(numUsers).isNull());        
-
-        this.#players[0] = new RandomPlayer(Color.get(0), this.#board); 
-        this.#players[1] = new BasicMinMaxPlayer(Color.get(1), this.#board); 
+        assert(Turn.getErrorGameMode(numUsers).isNull());  
+        
+        // BasicMinMaxPlayer
+        // MaxCombinationsMinMaxPlayer
+        // MaxProgressCombinationsMinMaxPlayer
+        // MaxEasyProgressCombinationsMinMaxPlayer
+        
+        this.#players[0] = new MaxProgressCombinationsMinMaxPlayer(Color.get(0), this.#board); 
+        this.#players[1] = new MaxEasyProgressCombinationsMinMaxPlayer(Color.get(1), this.#board); 
 
         /*
         for (let i = 0; i < Turn.NUMBER_PLAYERS; i++) {
